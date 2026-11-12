@@ -4,7 +4,7 @@ The official bilingual website for Talk BH, an independent English-speaking comm
 
 ## Requirements
 
-- Node.js 20.3 or newer
+- Node.js 22.23.4 or newer (version is pinned in `.nvmrc`)
 - npm
 
 ## Run locally
