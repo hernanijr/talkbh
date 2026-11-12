@@ -1,0 +1,107 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { copy, site, type Language } from '../data/site';
+const { lang } = Astro.props as { lang: Language };
+const t = copy[lang];
+const wa = site.social.whatsapp.trim();
+const joinUrl = wa || site.social.instagram;
+const isUpcoming = new Date(site.meetup.date).getTime() > Date.now();
+const hasMeetup = Boolean(site.meetup.date);
+const eventDate = new Date(site.meetup.date);
+const dateText = new Intl.DateTimeFormat(lang, { weekday:'long', day:'numeric', month:'long', year:'numeric', timeZone:'America/Sao_Paulo' }).format(eventDate);
+const timeText = new Intl.DateTimeFormat(lang, { hour:'2-digit', minute:'2-digit', hour12:false, timeZone:'America/Sao_Paulo' }).format(eventDate);
+const hash = (id: string) => `#${id}`;
+---
+<BaseLayout lang={lang} title={t.title} description={t.description}>
+  <a class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-white focus:p-3" href="#main">{lang === 'pt-BR' ? 'Pular para o conteúdo' : 'Skip to content'}</a>
+  <header class="sticky top-0 z-50 border-b border-black/10 bg-paper/95 backdrop-blur-sm">
+    <nav class="wrap flex h-[76px] items-center justify-between gap-5" aria-label={lang === 'pt-BR' ? 'Navegação principal' : 'Main navigation'}>
+      <a href={lang === 'en' ? '/en/' : '/'} class="flex shrink-0 items-center gap-2.5 no-underline" aria-label="Talk BH home">
+        <span class="relative inline-flex h-10 w-10 items-center justify-center bg-ink text-white"><span class="display text-[15px] font-bold tracking-[-.08em]">T</span><i class="absolute -right-1 -top-1 h-3 w-3 bg-talk"></i></span>
+        <span class="display text-[23px] font-bold tracking-[-.07em]">talk<span class="text-talk">.</span>bh</span>
+      </a>
+      <div class="hidden items-center gap-6 lg:flex">
+        <a class="text-[13px] font-semibold no-underline hover:text-talk" href={hash('sobre')}>{t.nav.about}</a>
+        <a class="text-[13px] font-semibold no-underline hover:text-talk" href={hash('como-funciona')}>{t.nav.how}</a>
+        <a class="text-[13px] font-semibold no-underline hover:text-talk" href={hash('comunidade')}>{t.nav.community}</a>
+        <a class="text-[13px] font-semibold no-underline hover:text-talk" href={hash('encontro')}>{t.nav.meetup}</a>
+        <a class="text-[13px] font-semibold no-underline hover:text-talk" href={hash('duvidas')}>{t.nav.faq}</a>
+      </div>
+      <div class="flex items-center gap-3">
+        <a class="mono text-[11px] font-medium no-underline" href={lang === 'en' ? '/' : '/en/'} lang={lang === 'en' ? 'pt-BR' : 'en'} aria-label={lang === 'en' ? 'Ver em português' : 'View in English'}>{lang === 'en' ? 'PT' : 'EN'} <span class="text-talk">↗</span></a>
+        <a class="hidden items-center gap-2 bg-talk px-4 py-3 text-[12px] font-bold text-white no-underline transition hover:bg-ink sm:flex" href={joinUrl} target="_blank" rel="noopener noreferrer">{t.nav.join}<span aria-hidden="true">↗</span></a>
+        <details class="relative lg:hidden">
+          <summary class="flex h-10 w-10 cursor-pointer list-none items-center justify-center border border-black/15 text-xl" aria-label={lang === 'pt-BR' ? 'Abrir menu' : 'Open menu'}>☰</summary>
+          <div class="absolute right-0 top-12 flex w-64 flex-col gap-0 border border-black/10 bg-paper p-3 shadow-xl">
+            {[['sobre',t.nav.about],['como-funciona',t.nav.how],['comunidade',t.nav.community],['encontro',t.nav.meetup],['duvidas',t.nav.faq]].map(([id,label]) => <a class="border-b border-black/10 px-3 py-3 text-sm font-semibold no-underline" href={hash(id)}>{label}</a>)}
+            <a class="mt-3 bg-talk px-4 py-3 text-center text-sm font-bold text-white no-underline" href={joinUrl} target="_blank" rel="noopener noreferrer">{t.nav.join} ↗</a>
+          </div>
+        </details>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="relative overflow-hidden bg-paper pb-20 pt-14 md:pb-28 md:pt-20">
+      <div class="wrap relative grid min-h-[590px] items-center gap-14 lg:grid-cols-[1.2fr_.8fr]">
+        <div class="relative z-10 max-w-[760px]">
+          <p class="mono mb-7 flex items-center gap-3 text-[10px] font-medium uppercase"><span class="h-2 w-2 bg-talk"></span>{t.hero.eyebrow}</p>
+          <h1 class="display max-w-[820px] text-[clamp(4rem,9.3vw,8.5rem)] font-bold leading-[.87]" set:html={t.hero.title}></h1>
+          <p class="mt-8 max-w-[540px] text-lg leading-[1.7] text-black/70 md:text-xl">{t.hero.text}</p>
+          <div class="mt-9 flex flex-wrap items-center gap-3">
+            <a class="inline-flex items-center gap-5 bg-talk px-6 py-[18px] text-sm font-bold text-white no-underline transition hover:bg-ink" href={joinUrl} target="_blank" rel="noopener noreferrer">{t.hero.primary}<span class="text-lg" aria-hidden="true">↗</span></a>
+            <a class="inline-flex items-center gap-3 px-4 py-[18px] text-sm font-bold no-underline hover:text-talk" href="#encontro">{t.hero.secondary}<span aria-hidden="true">↓</span></a>
+          </div>
+          <p class="mt-8 max-w-md border-l-2 border-talk pl-4 text-sm leading-relaxed text-black/55">{t.hero.note}</p>
+        </div>
+        <div class="relative mx-auto flex aspect-square w-full max-w-[410px] items-center justify-center lg:mr-2">
+          <div class="absolute inset-[8%] rotate-[-7deg] border border-black/15"></div>
+          <div class="absolute inset-[16%] rotate-[8deg] bg-talk"></div>
+          <div class="relative flex h-[70%] w-[70%] flex-col items-center justify-center bg-ink text-white shadow-[14px_14px_0_#f5f3ef]">
+            <span class="display text-[clamp(5rem,11vw,8.5rem)] font-bold leading-none tracking-[-.12em]">T<span class="text-talk">!</span></span>
+            <span class="mono mt-5 text-center text-[9px] uppercase tracking-[.18em]">{lang === 'pt-BR' ? 'A conversa é o lugar' : 'Conversation is the place'}</span>
+            <span class="absolute -bottom-5 -right-4 h-0 w-0 border-l-[22px] border-t-[22px] border-l-transparent border-t-ink"></span>
+          </div>
+          <span class="mono absolute -right-2 top-5 rotate-90 text-[10px] uppercase text-black/45">BH · MG · BR</span>
+          <span class="absolute -bottom-5 left-2 display text-6xl font-bold text-talk">“</span>
+        </div>
+      </div>
+      <div class="wrap mt-16 flex items-center justify-between border-t border-black/15 pt-5"><span class="mono text-[9px] uppercase text-black/50">{lang === 'pt-BR' ? 'UM IDIOMA. MUITAS HISTÓRIAS.' : 'ONE LANGUAGE. MANY STORIES.'}</span><span class="mono text-[9px] uppercase text-black/50">19°55' S · 43°56' W</span></div>
+    </section>
+
+    <section id="sobre" class="bg-ink py-24 text-white md:py-32">
+      <div class="wrap grid gap-12 lg:grid-cols-[.85fr_1.15fr]">
+        <div><p class="mono mb-7 text-[10px] text-talk">01 / {t.about.eyebrow}</p><h2 class="display max-w-[580px] text-5xl font-semibold leading-[1.02] md:text-7xl" set:html={t.about.title}></h2></div>
+        <div class="flex flex-col justify-end"><p class="max-w-[590px] text-lg leading-[1.75] text-white/65">{t.about.text}</p><div class="mt-10 grid grid-cols-1 gap-x-8 border-t border-white/20 sm:grid-cols-2">{t.about.points.map((point, i) => <div class="flex items-center gap-4 border-b border-white/20 py-5"><span class="mono text-xs text-talk">0{i+1}</span><span class="text-sm font-medium">{point}</span></div>)}</div></div>
+      </div>
+    </section>
+
+    <section id="como-funciona" class="bg-white py-24 md:py-32">
+      <div class="wrap"><div class="grid gap-10 lg:grid-cols-[.7fr_1.3fr]"><div><p class="mono mb-7 text-[10px] text-talk">02 / {t.how.eyebrow}</p><h2 class="display max-w-sm text-5xl font-semibold leading-[1.02] md:text-6xl">{t.how.title}</h2></div><p class="max-w-xl self-end text-lg leading-[1.7] text-black/65">{t.how.text}</p></div>
+        <div class="mt-16 grid border-y border-black/15 md:grid-cols-3">{t.how.steps.map((step) => <article class="border-b border-black/15 py-8 md:border-b-0 md:border-r md:px-8 md:first:pl-0 md:last:border-0"><span class="mono text-xs text-talk">{step.n} /</span><h3 class="display mt-8 text-2xl font-semibold">{step.title}</h3><p class="mt-3 max-w-xs text-sm leading-[1.7] text-black/60">{step.text}</p></article>)}</div>
+        <div class="mt-8 flex items-center gap-4"><span class="h-3 w-3 bg-talk"></span><p class="text-sm font-semibold">{t.how.aside}</p></div>
+      </div>
+    </section>
+
+    <section id="comunidade" class="relative overflow-hidden bg-talk py-24 text-white md:py-32">
+      <div class="absolute -right-14 -top-28 display text-[25rem] font-bold leading-none text-white/[.07]" aria-hidden="true">“</div>
+      <div class="wrap relative grid gap-12 lg:grid-cols-[1.1fr_.9fr_220px]">
+        <div><p class="mono mb-7 text-[10px] text-white/75">03 / {t.community.eyebrow}</p><h2 class="display max-w-[740px] text-5xl font-semibold leading-[.98] md:text-7xl" set:html={t.community.title}></h2><p class="mt-7 max-w-lg text-lg leading-[1.7] text-white/85">{t.community.text}</p><a class="mt-9 inline-flex items-center gap-5 bg-ink px-6 py-[18px] text-sm font-bold text-white no-underline transition hover:bg-white hover:text-ink" href={joinUrl} target="_blank" rel="noopener noreferrer">{t.community.cta}<span class="text-lg" aria-hidden="true">↗</span></a>{!wa && <p class="mt-4 text-sm text-white/80">{t.community.fallback}</p>}</div>
+        <div class="flex items-center lg:pl-6"><ul class="w-full list-none border-y border-white/40 p-0">{t.community.bullets.map((item,i)=><li class="flex items-center gap-5 border-b border-white/35 py-5 last:border-b-0"><span class="mono text-xs text-white/70">0{i+1}</span><span class="text-[15px] font-medium">{item}</span><span class="ml-auto text-xl" aria-hidden="true">↗</span></li>)}</ul></div>
+        {wa && <figure class="m-0 flex flex-col items-center self-center bg-white p-3 text-center text-ink"><img class="block w-full max-w-[190px]" src={site.whatsappQr} alt={lang === 'pt-BR' ? 'QR code para entrar no grupo do WhatsApp Talk BH' : 'QR code to join the Talk BH WhatsApp group'} loading="lazy" decoding="async" /><figcaption class="px-1 pt-3 text-xs font-semibold leading-relaxed">{t.community.scan}</figcaption></figure>}
+      </div>
+    </section>
+
+    {site.gallery.length > 0 && <section class="bg-paper py-20 md:py-28"><div class="wrap"><p class="mono mb-5 text-[10px] text-talk">{t.gallery.eyebrow}</p><h2 class="display text-5xl font-semibold md:text-6xl">{t.gallery.title}</h2><div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{site.gallery.map((photo)=><figure class="m-0"><img class="aspect-[4/3] w-full object-cover" src={photo.src} alt={photo.alt[lang]} loading="lazy" decoding="async" /></figure>)}</div></div></section>}
+
+    <section id="encontro" class="bg-paper py-24 md:py-32">
+      <div class="wrap"><div class="flex flex-wrap items-end justify-between gap-7 border-b border-black/20 pb-8"><div><p class="mono mb-6 text-[10px] text-talk">04 / {t.meetup.eyebrow}</p><h2 class="display max-w-3xl text-5xl font-semibold leading-[1] md:text-7xl">{isUpcoming && hasMeetup ? t.meetup.title : t.meetup.upcoming}</h2></div><span class="mono border border-black/20 px-3 py-2 text-[9px] uppercase">{isUpcoming && hasMeetup ? 'BH · MG' : 'TALK BH'}</span></div>
+        {isUpcoming && hasMeetup ? <div class="grid gap-10 pt-10 md:grid-cols-[1fr_1fr_auto]"><div><p class="mono text-[9px] text-black/50">{t.meetup.dateLabel}</p><p class="display mt-3 text-2xl font-semibold capitalize">{dateText}</p><p class="mt-1 text-black/60">{timeText}</p></div><div><p class="mono text-[9px] text-black/50">{t.meetup.venueLabel}</p><p class="display mt-3 text-2xl font-semibold">{site.meetup.venue}</p><p class="mt-1 text-black/60">{site.meetup.address || t.meetup.city}</p>{site.meetup.mapsUrl && <a href={site.meetup.mapsUrl} target="_blank" rel="noopener noreferrer" class="mt-2 inline-block text-sm font-semibold text-talk">{lang==='pt-BR'?'Ver no mapa':'View map'} ↗</a>}</div><div class="flex items-center md:justify-end"><a class="inline-flex items-center gap-5 bg-talk px-6 py-[18px] text-sm font-bold text-white no-underline hover:bg-ink" href={joinUrl} target="_blank" rel="noopener noreferrer">{t.meetup.cta}<span aria-hidden="true">↗</span></a></div></div> : <div class="flex flex-wrap items-center justify-between gap-5 pt-8"><p class="max-w-xl text-base leading-relaxed text-black/65">{hasMeetup ? t.meetup.expired : t.meetup.upcoming}</p><a class="inline-flex items-center gap-4 bg-talk px-6 py-4 text-sm font-bold text-white no-underline hover:bg-ink" href={joinUrl} target="_blank" rel="noopener noreferrer">{t.community.cta}<span aria-hidden="true">↗</span></a></div>}
+      </div>
+    </section>
+
+    <section id="duvidas" class="bg-white py-24 md:py-32"><div class="wrap grid gap-12 lg:grid-cols-[.8fr_1.2fr]"><div><p class="mono mb-7 text-[10px] text-talk">05 / {t.faq.eyebrow}</p><h2 class="display max-w-sm text-5xl font-semibold leading-[1.03] md:text-6xl">{t.faq.title}</h2><p class="mt-6 text-sm text-black/60">{lang==='pt-BR'?'Ainda quer conversar?':'Still want to talk?'} <a class="font-bold text-talk" href={site.social.instagram} target="_blank" rel="noopener noreferrer">Instagram ↗</a></p></div><div class="border-t border-black/20">{t.faq.items.map(([q,a])=><details class="group border-b border-black/20"><summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-5 font-semibold"><span>{q}</span><span class="display text-2xl font-normal text-talk transition group-open:rotate-45">+</span></summary><p class="max-w-2xl pb-6 pr-10 text-sm leading-[1.75] text-black/65">{a}</p></details>)}</div></div></section>
+  </main>
+
+  <footer class="bg-ink py-14 text-white"><div class="wrap"><div class="grid gap-12 border-b border-white/20 pb-12 sm:grid-cols-2 lg:grid-cols-[1.3fr_.7fr_1fr]"><div><a href={lang==='en'?'/en/':'/'} class="display text-3xl font-bold tracking-[-.08em] text-white no-underline">talk<span class="text-talk">.</span>bh</a><p class="mt-4 max-w-xs text-sm leading-relaxed text-white/55">{t.footer.description}</p><p class="mono mt-6 text-[9px] uppercase text-white/45">BELO HORIZONTE · BRAZIL</p></div><div><p class="mono mb-5 text-[9px] text-talk">{t.footer.explore}</p><div class="flex flex-col items-start gap-3 text-sm text-white/70">{[[hash('sobre'),t.nav.about],[hash('como-funciona'),t.nav.how],[hash('encontro'),t.nav.meetup],[hash('duvidas'),t.nav.faq]].map(([href,label])=><a class="no-underline hover:text-white" href={href}>{label}</a>)}</div></div><div><p class="mono mb-5 text-[9px] text-talk">{t.footer.find}</p><a class="block text-sm text-white/75 no-underline hover:text-white" href={site.social.instagram} target="_blank" rel="noopener noreferrer">Instagram ↗</a><a class="mt-3 block text-sm text-white/75 no-underline hover:text-white" href={joinUrl} target="_blank" rel="noopener noreferrer">WhatsApp ↗</a></div></div><div class="flex flex-wrap justify-between gap-3 pt-6 text-[11px] text-white/40"><span>© {new Date().getFullYear()} Talk BH. {t.footer.rights}</span><span>{site.brand.location}</span></div></div></footer>
+</BaseLayout>

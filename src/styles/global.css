@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #171717;
+  --color-talk: #E32636;
+  --color-paper: #F5F3EF;
+  --color-mute: #858585;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-sans: 'DM Sans', sans-serif;
+}
+
+:root { color-scheme: light; font-family: 'DM Sans', sans-serif; color: #171717; background: #f5f3ef; font-synthesis: none; text-rendering: optimizeLegibility; }
+html { scroll-behavior: smooth; scroll-padding-top: 6rem; }
+body { margin: 0; min-width: 320px; }
+::selection { background: #e32636; color: white; }
+a { color: inherit; }
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid #e32636; outline-offset: 4px; }
+.wrap { width: min(100% - 3rem, 1240px); margin-inline: auto; }
+.mono { font-family: 'DM Mono', monospace; letter-spacing: .11em; }
+.display { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.065em; }
+.rule { border-top: 1px solid #17171724; }
+.speech { position: relative; }
+.speech::after { content: ''; position: absolute; right: 0; bottom: -13px; width: 0; height: 0; border-top: 14px solid #e32636; border-left: 14px solid transparent; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+@media (max-width: 700px) { .wrap { width: min(100% - 2rem, 1240px); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }

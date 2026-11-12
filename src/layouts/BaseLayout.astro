@@ -1,0 +1,37 @@
+---
+import '../styles/global.css';
+import type { Language } from '../data/site';
+const { lang, title, description } = Astro.props as { lang: Language; title: string; description: string };
+const canonical = lang === 'en' ? 'https://talk.bh/en/' : 'https://talk.bh/';
+const socialImage = 'https://talk.bh/social-card.svg';
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f3ef" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="pt-BR" href="https://talk.bh/" />
+    <link rel="alternate" hreflang="en" href="https://talk.bh/en/" />
+    <link rel="alternate" hreflang="x-default" href="https://talk.bh/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Talk BH" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <script type="application/ld+json" set:html={JSON.stringify({ '@context':'https://schema.org', '@type':'Organization', name:'Talk BH', url:'https://talk.bh', description, areaServed:{ '@type':'City', name:'Belo Horizonte' }, sameAs:['https://www.instagram.com/talk_bh/'] })} />
+  </head>
+  <body><slot /></body>
+</html>
