@@ -16,6 +16,10 @@ npm run dev
 
 Astro prints the local URL (normally `http://localhost:4321`). Portuguese is at `/`; English is at `/en/`.
 
+## Development workflow
+
+`main` is the production branch. Do not commit or push feature work directly to `main`. Create a short-lived branch from the latest `main` (`feature/...`, `fix/...`, or `chore/...`), open a pull request back to `main`, review its Cloudflare preview, and merge only after the build and review checklist pass. Merging to `main` is the production release. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full process and GitHub settings to protect production.
+
 ## Updating content
 
 Edit `src/data/site.ts`. This file contains the brand, Instagram and WhatsApp URLs, meetup information, gallery image list, and all Portuguese and English page copy. Keep both translation objects aligned when changing the page. The WhatsApp URL currently points to the official Talk BH community. If it is unavailable, leave it empty; buttons fall back to Instagram and use an Instagram label.
@@ -39,21 +43,10 @@ npm run build
 npm run preview
 ```
 
-## Publish on DreamHost
+## Cloudflare deployment
 
-This project is configured for static output (`dist`) and does not require Node.js, a database, a Cloudflare adapter, or a server process on the production host. Build locally, then upload the **contents** of `dist/` into the DreamHost website directory for `talk.bh` (typically `/home/USERNAME/talk.bh/`). DreamHost recommends SFTP on port 22; do not upload the files into the account home directory itself.
+The site builds as static files in `dist/` and does not need application secrets, a database, or server-side Node.js at runtime. The Cloudflare project is connected to this repository; keep `main` as its production branch and review Cloudflare preview deployments from pull requests before merging. Configure the Cloudflare build to run `npm run build` and publish `dist/` (for Pages). If the current project is a Worker with static assets, keep its existing dashboard build/deploy settings; this repo intentionally does not add Wrangler credentials or an inferred deploy command. Configure `talk.bh` and DNS in Cloudflare and the registrar dashboard, not in source code.
 
-1. Build the site locally:
-
-   ```sh
-   npm ci
-   npm run build
-   ```
-
-2. Confirm `talk.bh` is set up as a hosted website in DreamHost, then use an SFTP client or the DreamHost panel file manager to open its website directory.
-3. Upload everything inside the local `dist/` folder, including `index.html`, `en/`, `_astro/`, `images/`, `robots.txt`, and `sitemap.xml`.
-4. Verify `https://talk.bh/`, `https://talk.bh/en/`, the WhatsApp QR image, and the sitemap after upload. Upload the contents of `dist/` again after a new build to publish later edits.
-
-DreamHost controls hosting, HTTPS and the DNS instructions for this domain. This repository does not modify DNS. For DreamHost's current upload instructions, see [How do I upload my site?](https://help.dreamhost.com/hc/en-us/articles/215613657-How-do-I-upload-my-site-to-DreamHost), [Where do I upload files?](https://help.dreamhost.com/hc/en-us/articles/214920778-Where-do-I-upload-my-files-once-connected-via-FTP), and [FTP and SFTP](https://help.dreamhost.com/hc/en-us/articles/115001051531-FTP-and-SFTP-at-DreamHost).
+The production domain and canonical metadata use `https://talk.bh`.
 
 Canonical and social metadata use `https://talk.bh`.
