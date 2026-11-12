@@ -26,9 +26,8 @@ const hash = (id: string) => `#${id}`;
   <a class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-white focus:p-3" href="#main">{lang === 'pt-BR' ? 'Pular para o conteúdo' : 'Skip to content'}</a>
   <header class="sticky top-0 z-50 border-b border-black/10 bg-paper/95 backdrop-blur-sm">
     <nav class="wrap flex h-[76px] items-center justify-between gap-5" aria-label={lang === 'pt-BR' ? 'Navegação principal' : 'Main navigation'}>
-      <a href={lang === 'en' ? '/en/' : '/'} class="flex shrink-0 items-center gap-2.5 no-underline" aria-label={lang === 'pt-BR' ? 'Página inicial do Talk BH' : 'Talk BH home'}>
-        <span class="relative inline-flex h-10 w-10 items-center justify-center bg-ink text-white"><span class="display text-[15px] font-bold tracking-[-.08em]">T</span><i class="absolute -right-1 -top-1 h-3 w-3 bg-talk"></i></span>
-        <span class="display text-[23px] font-bold tracking-[-.07em]">talk<span class="text-talk">.</span>bh</span>
+      <a href={lang === 'en' ? '/en/' : '/'} class="flex shrink-0 items-center no-underline" aria-label={lang === 'pt-BR' ? 'Página inicial do Talk BH' : 'Talk BH home'}>
+        <img src="/images/brand/talk-bh-logo.webp" alt="" width="660" height="486" fetchpriority="high" decoding="async" class="block h-[60px] w-auto max-w-[82px] object-contain sm:h-[68px] sm:max-w-[92px]" />
       </a>
       <div class="hidden items-center gap-6 lg:flex">
         <a class="text-[13px] font-semibold no-underline hover:text-talk" href={hash('sobre')}>{t.nav.about}</a>
