@@ -16,6 +16,9 @@ body { margin: 0; min-width: 320px; }
 ::selection { background: #e32636; color: white; }
 a { color: inherit; }
 a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid #e32636; outline-offset: 4px; }
+a.text-white { color: #fff !important; }
+a.bg-ink.text-white:hover { color: #171717 !important; }
+a.bg-talk.text-white:hover { color: #fff !important; }
 .wrap { width: min(100% - 3rem, 1240px); margin-inline: auto; }
 .mono { font-family: 'DM Mono', monospace; letter-spacing: .11em; }
 .display { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.065em; }
@@ -23,5 +26,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 .speech { position: relative; }
 .speech::after { content: ''; position: absolute; right: 0; bottom: -13px; width: 0; height: 0; border-top: 14px solid #e32636; border-left: 14px solid transparent; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
+.mobile-whatsapp { position: fixed; z-index: 40; right: max(1rem, env(safe-area-inset-right)); bottom: max(1rem, env(safe-area-inset-bottom)); display: inline-flex; align-items: center; gap: .7rem; min-height: 46px; padding: .75rem 1rem; background: #171717; color: #fff; font-size: .8125rem; font-weight: 700; text-decoration: none; box-shadow: 0 5px 18px #17171735; }
+@media (min-width: 640px) { .mobile-whatsapp { display: none; } }
 @media (max-width: 700px) { .wrap { width: min(100% - 2rem, 1240px); } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }

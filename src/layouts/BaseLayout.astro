@@ -1,9 +1,12 @@
 ---
 import '../styles/global.css';
-import type { Language } from '../data/site';
+import { site, type Language } from '../data/site';
 const { lang, title, description } = Astro.props as { lang: Language; title: string; description: string };
-const canonical = lang === 'en' ? 'https://talk.bh/en/' : 'https://talk.bh/';
-const socialImage = 'https://talk.bh/social-card.svg';
+const domain = site.brand.domain.replace(/\/$/, '');
+const canonical = lang === 'en' ? `${domain}/en/` : `${domain}/`;
+const portugueseUrl = `${domain}/`;
+const englishUrl = `${domain}/en/`;
+const socialImage = `${domain}/social-card.svg`;
 ---
 <!doctype html>
 <html lang={lang}>
@@ -14,11 +17,13 @@ const socialImage = 'https://talk.bh/social-card.svg';
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <link rel="alternate" hreflang="pt-BR" href="https://talk.bh/" />
-    <link rel="alternate" hreflang="en" href="https://talk.bh/en/" />
-    <link rel="alternate" hreflang="x-default" href="https://talk.bh/" />
+    <link rel="alternate" hreflang="pt-BR" href={portugueseUrl} />
+    <link rel="alternate" hreflang="en" href={englishUrl} />
+    <link rel="alternate" hreflang="x-default" href={portugueseUrl} />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Talk BH" />
+    <meta property="og:locale" content={lang === 'pt-BR' ? 'pt_BR' : 'en_US'} />
+    <meta property="og:locale:alternate" content={lang === 'pt-BR' ? 'en_US' : 'pt_BR'} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
@@ -28,10 +33,9 @@ const socialImage = 'https://talk.bh/social-card.svg';
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={socialImage} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <script type="application/ld+json" set:html={JSON.stringify({ '@context':'https://schema.org', '@type':'Organization', name:'Talk BH', url:'https://talk.bh', description, areaServed:{ '@type':'City', name:'Belo Horizonte' }, sameAs:['https://www.instagram.com/talk_bh/'] })} />
+    <script type="application/ld+json" set:html={JSON.stringify({ '@context':'https://schema.org', '@type':'Organization', name:site.brand.name, url:domain, description, areaServed:{ '@type':'City', name:'Belo Horizonte' }, sameAs:[site.social.instagram] })} />
   </head>
   <body><slot /></body>
 </html>
