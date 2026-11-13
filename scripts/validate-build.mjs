@@ -40,6 +40,11 @@ for (const [language, schemaBlocks] of [['Portuguese', ptSchema], ['English', en
   }
 }
 await access(new URL('images/brand/talk-bh-logo.webp', outputDirectory));
+await access(new URL('images/brand/talk-bh-mark.webp', outputDirectory));
+assert.match(pt, /BELO HORIZONTE · BRASIL/);
+assert.match(en, /BELO HORIZONTE · BRAZIL/);
+assert.match(pt, /Aprender um novo idioma abre um novo mapa/);
+assert.match(en, /Learning a new language opens a new map/);
 assert.match(admin, /name="robots" content="noindex, nofollow, noarchive"/);
 assert.match(admin, /decap-cms@(\^3\.0\.0|3\.\d+\.\d+)/);
 assert.match(cmsConfig, /name: turbo-github/);

@@ -43,7 +43,7 @@ collections:
                 default: scheduled
               - { label: Local, name: venue, widget: string, required: true, default: Charada Savassi Cervejaria Artesanal }
               - { label: Endereço completo, name: address, widget: string, required: true, default: 'Rua Paraíba, 523 — Belo Horizonte, MG' }
-              - { label: Cidade, name: city, widget: string, required: true, default: 'Belo Horizonte, Minas Gerais, Brazil' }
+              - { label: Cidade, name: city, widget: string, required: true, default: 'Belo Horizonte, Minas Gerais, Brasil' }
               - { label: Link do Google Maps, name: maps_url, widget: string, required: false }
           - label: Galeria de fotos
             name: gallery

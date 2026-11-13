@@ -75,7 +75,7 @@ function meetupFromRecord(record: MeetupRecord, strict: boolean): CommunityMeetu
   const status = record.status;
   const venue = clean(record.venue);
   const address = clean(record.address);
-  const city = clean(record.city) || 'Belo Horizonte, Minas Gerais, Brazil';
+  const city = clean(record.city) || 'Belo Horizonte, Minas Gerais, Brasil';
   const mapsUrl = clean(record.maps_url);
   const validDate = toDateTime(date, time);
   const validStatus = status === 'scheduled' || status === 'cancelled';

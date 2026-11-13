@@ -7,7 +7,7 @@ export const site = {
   meetup: {
     status: 'scheduled' as 'scheduled' | 'cancelled',
     date: null as string | null,
-    venue: 'Charada Savassi Cervejaria Artesanal', city: 'Belo Horizonte, Minas Gerais, Brazil',
+    venue: 'Charada Savassi Cervejaria Artesanal', city: 'Belo Horizonte, Minas Gerais, Brasil',
     address: 'Rua Paraíba, 523 — Belo Horizonte, MG',
     mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Charada+Savassi+Cervejaria+Artesanal%2C+Rua+Para%C3%ADba%2C+523%2C+Belo+Horizonte%2C+MG',
   },
