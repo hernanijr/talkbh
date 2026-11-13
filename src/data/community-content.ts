@@ -142,9 +142,6 @@ export function normalizeCommunityContent(input: unknown, now = new Date(), stri
     const photo = photoFromRecord(photoRecord, strict);
     return photo ? [photo] : [];
   });
-  if (strict && gallery.length > 0 && gallery.length < 3) {
-    throw new Error('A published community gallery must contain at least three complete photos, or be empty.');
-  }
   if (strict && gallery.length > 6) throw new Error('The published community gallery can contain no more than six photos.');
 
   return {

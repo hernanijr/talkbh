@@ -50,7 +50,7 @@ collections:
             widget: list
             required: false
             summary: "{{fields.alt_pt}}"
-            hint: "Galeria vazia fica oculta. Para publicar, adicione de 3 a 6 fotos reais, com autorização e descrições nos dois idiomas."
+            hint: "Galeria vazia fica oculta. Para publicar, adicione de 1 a 6 fotos reais, com autorização e descrições nos dois idiomas."
             fields:
               - { label: Foto, name: image, widget: image, required: true }
               - { label: Descrição acessível em português, name: alt_pt, widget: string, required: true }

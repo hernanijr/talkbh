@@ -53,7 +53,7 @@ test('strict content rejects invalid dates, Maps links, photo permissions, alt t
   assert.throws(() => normalizeCommunityContent({
     meetups: [], gallery: [{ image: 'src/assets/community/photo.jpg', alt_pt: 'Foto', alt_en: 'Photo', rights_confirmed: false }],
   }, now, true));
-  assert.throws(() => normalizeCommunityContent({
+  assert.doesNotThrow(() => normalizeCommunityContent({
     meetups: [], gallery: [1, 2].map((_, i) => ({ image: `src/assets/community/${i}.jpg`, alt_pt: 'Foto', alt_en: 'Photo', rights_confirmed: true })),
   }, now, true));
   assert.throws(() => normalizeCommunityContent({

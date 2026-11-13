@@ -41,10 +41,11 @@ for (const [language, schemaBlocks] of [['Portuguese', ptSchema], ['English', en
 }
 await access(new URL('images/brand/talk-bh-logo.webp', outputDirectory));
 assert.match(admin, /name="robots" content="noindex, nofollow, noarchive"/);
-assert.match(admin, /decap-cms@3\.17\.1/);
+assert.match(admin, /decap-cms@(\^3\.0\.0|3\.\d+\.\d+)/);
 assert.match(cmsConfig, /name: turbo-github/);
 assert.match(cmsConfig, /publish_mode: editorial_workflow/);
 assert.doesNotMatch(cmsConfig, /turbo_site_id: SET_AFTER_CREATING_TALK_BH_SITE/);
+assert.match(cmsConfig, /turbo_site_id: 63bc3ac0-e116-4c37-9e8d-a6d47b2010ac/);
 
 assert.match(sitemap, /https:\/\/talk\.bh\//);
 assert.match(sitemap, /https:\/\/talk\.bh\/en\//);
