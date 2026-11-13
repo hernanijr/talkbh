@@ -1,7 +1,6 @@
 backend:
   name: turbo-github
-  # Replace after creating the free Decap Turbo site. This is an ID, not a secret.
-  turbo_site_id: SET_AFTER_CREATING_TALK_BH_SITE
+  turbo_site_id: 63bc3ac0-e116-4c37-9e8d-a6d47b2010ac
   branch: main
   squash_merges: true
 
