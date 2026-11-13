@@ -1,0 +1,16 @@
+{
+  "meetups": [
+    {
+      "title_pt": "Talk & Drink — conversação e karaokê",
+      "title_en": "English Practice Talk & Drink — conversation and karaoke",
+      "date": "2026-11-17",
+      "time": "18:30",
+      "status": "scheduled",
+      "venue": "Charada Pub Savassi",
+      "address": "Rua Paraíba, 523 — Belo Horizonte, MG",
+      "city": "Belo Horizonte, Minas Gerais, Brazil",
+      "maps_url": "https://www.google.com/maps/search/?api=1&query=Charada+Pub+Savassi%2C+Rua+Para%C3%ADba%2C+523%2C+Belo+Horizonte%2C+MG"
+    }
+  ],
+  "gallery": []
+}

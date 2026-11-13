@@ -6,7 +6,7 @@ export const site = {
   whatsappQr: '/images/community/whatsapp-invite.png',
   meetup: {
     status: 'scheduled' as 'scheduled' | 'cancelled',
-    date: '2026-11-12T19:30:00-03:00' as string | null,
+    date: null as string | null,
     venue: 'Charada Savassi Cervejaria Artesanal', city: 'Belo Horizonte, Minas Gerais, Brazil',
     address: 'Rua Paraíba, 523 — Belo Horizonte, MG',
     mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Charada+Savassi+Cervejaria+Artesanal%2C+Rua+Para%C3%ADba%2C+523%2C+Belo+Horizonte%2C+MG',

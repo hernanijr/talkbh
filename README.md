@@ -1,6 +1,6 @@
 # Talk BH
 
-The official bilingual website for Talk BH, an independent English-speaking community in Belo Horizonte. Built with Astro and Tailwind CSS as a static site for `talk.bh`.
+The official bilingual website for Talk BH, an independent English-speaking community in Belo Horizonte. Built with Astro and Tailwind CSS for Cloudflare Workers at `talk.bh`.
 
 ## Requirements
 
@@ -16,21 +16,23 @@ npm run dev
 
 Astro prints the local URL (normally `http://localhost:4321`). Portuguese is at `/`; English is at `/en/`.
 
+The language suggestion uses the browser's supported languages and remembers the visitor's manual choice. It does not redirect crawlers or replace the explicit `/` and `/en/` URLs.
+
 ## Development workflow
 
 `main` is the production branch. Do not commit or push feature work directly to `main`. Create a short-lived branch from the latest `main` (`feature/...`, `fix/...`, or `chore/...`), open a pull request back to `main`, review its Cloudflare preview, and merge only after the build and review checklist pass. Merging to `main` is the production release. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full process and GitHub settings to protect production.
 
-## Updating content
+## Updating site copy and community content
 
-Edit `src/data/site.ts`. This file contains the brand, Instagram and WhatsApp URLs, meetup information, gallery image list, and all Portuguese and English page copy. Keep both translation objects aligned when changing the page. The WhatsApp URL currently points to the official Talk BH community. If it is unavailable, leave it empty; buttons fall back to Instagram and use an Instagram label.
+Edit `src/data/site.ts` for brand settings, Instagram and WhatsApp URLs, and all Portuguese and English page copy. Keep translations aligned when changing copy. The WhatsApp URL currently points to the official Talk BH community. If it is unavailable, leave it empty; buttons fall back to Instagram.
 
 Talk BH participation is free and requires no registration or reservation. Guests pay only for food and drinks they order at the venue. These confirmed policies are reflected in both language versions.
 
-The current meetup is the Charada Savassi Cervejaria Artesanal at Rua Paraíba, 523, Belo Horizonte. Meetup name, address, date, time, status and Maps link are centralized in `src/data/site.ts`. The existing date and time remain 12 November 2026 at 19:30; do not set a future date or time until organizers confirm it. Meetup dates are interpreted in the Belo Horizonte timezone. The page checks the event in the visitor’s browser, so it changes to past after its scheduled time even when the static site is not rebuilt. It distinguishes upcoming, today, past, cancelled, and no-announcement states. Set `meetup.status` to `cancelled` for a cancelled event; set `meetup.date` to `null` when there is no announced event. A directions button appears only for a valid HTTPS Google Maps link (`maps.google.com`, `maps.app.goo.gl`, or a `/maps` path on `google.com`).
+Meetup location is the Charada Savassi Cervejaria Artesanal at Rua Paraíba, 523, Belo Horizonte. The former fallback date, 12 November 2026 at 19:30, has passed and was cleared; no next event is announced until organizers confirm its date and time. Meetup and photo content is centralized in `src/data/community-content.json` and managed in the `/admin/` panel after its Decap Turbo site ID is configured. Do not enter event dates until organizers confirm them.
 
 ## Community photos
 
-Only add real Talk BH photographs with permission. Put image sources in `src/assets/community/`, then add each filename and accurate Portuguese and English alt text to the `gallery` array in `src/data/site.ts`. Astro optimizes these local images into responsive WebP variants during the production build. The gallery stays hidden if there are no configured image files and displays at most six. Use descriptive filenames; do not add stock or generated people photos.
+Only use real Talk BH photographs with permission. Add up to six photos with descriptive Portuguese and English alt text; the site hides the gallery when there are no photos and optimizes local assets at build time. Do not add stock or generated people photos.
 
 ## Social links
 
@@ -43,10 +45,10 @@ npm run build
 npm run preview
 ```
 
-## Cloudflare deployment
+Run the same checks as CI with `npm run check`, `npm test`, `npm run build`, and `npm run validate:build`.
 
-The site builds as static files in `dist/` and does not need application secrets, a database, or server-side Node.js at runtime. The Cloudflare project is connected to this repository; keep `main` as its production branch and review Cloudflare preview deployments from pull requests before merging. Configure the Cloudflare build to run `npm run build` and publish `dist/` (for Pages). If the current project is a Worker with static assets, keep its existing dashboard build/deploy settings; this repo intentionally does not add Wrangler credentials or an inferred deploy command. Configure `talk.bh` and DNS in Cloudflare and the registrar dashboard, not in source code.
+## CMS and Cloudflare Workers deployment
 
-The production domain and canonical metadata use `https://talk.bh`.
+The `/admin/` panel uses Decap CMS with the Decap Turbo Free backend. The organizers confirmed one panel editor; other admins review content pull requests in GitHub. The site ID is still a setup value in `public/admin/config.yml`; until that is filled in after creating the free site, the CMS login is not connected. Do not opt into paid trials or plans. See [the CMS evaluation and setup steps](docs/cms-evaluation.md).
 
-Canonical and social metadata use `https://talk.bh`.
+Cloudflare builds the Astro Worker with `npm run build`. `main` remains production; code and approved content changes go through reviewed pull requests. CMS drafts use Decap's editorial workflow and are proposed as GitHub pull requests; the content and uploaded photos are stored in Git. Only a reviewed merge triggers the production Worker build. The production domain and canonical metadata use `https://talk.bh`. Public pages use localized canonical and `hreflang` tags. Only a confirmed future meetup receives Event structured data. See [CONTRIBUTING.md](CONTRIBUTING.md) for the deployment process and [the CMS evaluation](docs/cms-evaluation.md) for setup steps.
