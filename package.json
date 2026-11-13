@@ -12,7 +12,6 @@
     "validate:build": "node scripts/validate-build.mjs"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^14.4.7",
     "@tailwindcss/vite": "^4.3.5",
     "astro": "^7.4.11",
     "tailwindcss": "^4.3.5"

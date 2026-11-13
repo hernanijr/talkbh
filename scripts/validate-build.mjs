@@ -1,13 +1,15 @@
 import assert from 'node:assert/strict';
-import { readFile, access } from 'node:fs/promises';
+import { readFile, access, stat } from 'node:fs/promises';
 
-const read = (path) => readFile(new URL(path, import.meta.url), 'utf8');
-const pt = await read('../dist/client/index.html');
-const en = await read('../dist/client/en/index.html');
-const sitemap = await read('../dist/client/sitemap.xml');
-const robots = await read('../dist/client/robots.txt');
-const admin = await read('../dist/client/admin/index.html');
-const cmsConfig = await read('../dist/client/admin/config.yml');
+const clientDirectory = new URL('../dist/client/', import.meta.url);
+const outputDirectory = await stat(clientDirectory).then(() => clientDirectory).catch(() => new URL('../dist/', import.meta.url));
+const read = (path) => readFile(new URL(path, outputDirectory), 'utf8');
+const pt = await read('index.html');
+const en = await read('en/index.html');
+const sitemap = await read('sitemap.xml');
+const robots = await read('robots.txt');
+const admin = await read('admin/index.html');
+const cmsConfig = await read('admin/config.yml');
 
 assert.match(pt, /<html lang="pt-BR">/);
 assert.match(en, /<html lang="en">/);
@@ -37,7 +39,7 @@ for (const [language, schemaBlocks] of [['Portuguese', ptSchema], ['English', en
     assert.equal(event.eventStatus, 'https://schema.org/EventScheduled');
   }
 }
-await access(new URL('../dist/client/images/brand/talk-bh-logo.webp', import.meta.url));
+await access(new URL('images/brand/talk-bh-logo.webp', outputDirectory));
 assert.match(admin, /name="robots" content="noindex, nofollow, noarchive"/);
 assert.match(admin, /decap-cms@3\.17\.1/);
 assert.match(cmsConfig, /name: turbo-github/);
@@ -50,6 +52,6 @@ assert.doesNotMatch(sitemap, /preview|draft/i);
 assert.match(robots, /Sitemap: https:\/\/talk\.bh\/sitemap\.xml/);
 assert.match(robots, /Disallow: \/admin\//);
 assert.doesNotMatch(pt, /description_en|Weekly Talk BH Meetup|Bernardo Vasconcellos|2026-11-11T19:30|2026-11-12T19:30/);
-assert.equal(await (async () => { try { await access(new URL('../dist/client/preview/index.html', import.meta.url)); return true; } catch { return false; } })(), false, 'Draft preview content must not be emitted as a public static page.');
+assert.equal(await (async () => { try { await access(new URL('preview/index.html', outputDirectory)); return true; } catch { return false; } })(), false, 'Draft preview content must not be emitted as a public static page.');
 
 console.log('Generated PT/EN SEO, sitemap, invite, logo, CMS configuration and draft-preview checks passed.');
