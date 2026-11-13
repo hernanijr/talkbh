@@ -44,7 +44,7 @@ assert.match(admin, /name="robots" content="noindex, nofollow, noarchive"/);
 assert.match(admin, /decap-cms@3\.17\.1/);
 assert.match(cmsConfig, /name: turbo-github/);
 assert.match(cmsConfig, /publish_mode: editorial_workflow/);
-assert.match(cmsConfig, /turbo_site_id: SET_AFTER_CREATING_TALK_BH_SITE/);
+assert.doesNotMatch(cmsConfig, /turbo_site_id: SET_AFTER_CREATING_TALK_BH_SITE/);
 
 assert.match(sitemap, /https:\/\/talk\.bh\//);
 assert.match(sitemap, /https:\/\/talk\.bh\/en\//);
