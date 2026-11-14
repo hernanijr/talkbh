@@ -22,5 +22,15 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Build static site
+      - name: Audit dependencies for vulnerabilities
+        run: npm audit --audit-level=moderate
+      - name: Check Astro and TypeScript
+        run: npm run check
+      - name: Test event and CMS content rules
+        run: npm test
+      - name: Build Cloudflare Worker and prerendered pages
         run: npm run build
+      - name: Validate generated language and SEO output
+        run: npm run validate:build
+      - name: Validate static Worker deployment configuration
+        run: npm run validate:deploy

@@ -1,0 +1,58 @@
+backend:
+  name: turbo-github
+  turbo_site_id: 63bc3ac0-e116-4c37-9e8d-a6d47b2010ac
+  branch: main
+  squash_merges: true
+
+publish_mode: editorial_workflow
+media_folder: public/images/community
+public_folder: /images/community
+locale: pt
+
+site_url: https://talk.bh
+display_url: https://talk.bh
+logo_url: /images/brand/talk-bh-logo.webp
+
+collections:
+  - name: community
+    label: Eventos e fotos
+    files:
+      - name: community
+        label: Conteúdo da comunidade
+        file: src/data/community-content.json
+        format: json
+        preview_path: /
+        fields:
+          - label: Próximos encontros
+            name: meetups
+            widget: list
+            required: false
+            summary: "{{fields.date}} · {{fields.venue}}"
+            hint: "Adicione apenas eventos confirmados. A data e o horário são sempre no fuso de Belo Horizonte."
+            fields:
+              - { label: Título em português, name: title_pt, widget: string, required: true }
+              - { label: Title in English, name: title_en, widget: string, required: true }
+              - { label: Data (AAAA-MM-DD), name: date, widget: string, required: true, pattern: ['^\d{4}-\d{2}-\d{2}$', 'Use AAAA-MM-DD, por exemplo 2027-04-18.'] }
+              - { label: Horário (HH:MM), name: time, widget: string, required: true, pattern: ['^([01]\d|2[0-3]):[0-5]\d$', 'Use o formato de 24 horas, por exemplo 19:30.'] }
+              - label: Situação
+                name: status
+                widget: select
+                options:
+                  - { label: Confirmado, value: scheduled }
+                  - { label: Cancelado, value: cancelled }
+                default: scheduled
+              - { label: Local, name: venue, widget: string, required: true, default: Charada Savassi Cervejaria Artesanal }
+              - { label: Endereço completo, name: address, widget: string, required: true, default: 'Rua Paraíba, 523 — Belo Horizonte, MG' }
+              - { label: Cidade, name: city, widget: string, required: true, default: 'Belo Horizonte, Minas Gerais, Brasil' }
+              - { label: Link do Google Maps, name: maps_url, widget: string, required: false }
+          - label: Galeria de fotos
+            name: gallery
+            widget: list
+            required: false
+            summary: "{{fields.alt_pt}}"
+            hint: "Galeria vazia fica oculta. Para publicar, adicione de 1 a 6 fotos reais, com autorização e descrições nos dois idiomas."
+            fields:
+              - { label: Foto, name: image, widget: image, required: true }
+              - { label: Descrição acessível em português, name: alt_pt, widget: string, required: true }
+              - { label: Accessible description in English, name: alt_en, widget: string, required: true }
+              - { label: Autorização de uso confirmada, name: rights_confirmed, widget: boolean, required: true, default: false }

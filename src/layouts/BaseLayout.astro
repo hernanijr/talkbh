@@ -1,12 +1,52 @@
 ---
 import '../styles/global.css';
 import { site, type Language } from '../data/site';
-const { lang, title, description } = Astro.props as { lang: Language; title: string; description: string };
+import type { CommunityMeetup } from '../data/community-content';
+const { lang, title, description, event } = Astro.props as { lang: Language; title: string; description: string; event?: CommunityMeetup };
 const domain = site.brand.domain.replace(/\/$/, '');
 const canonical = lang === 'en' ? `${domain}/en/` : `${domain}/`;
 const portugueseUrl = `${domain}/`;
 const englishUrl = `${domain}/en/`;
 const socialImage = `${domain}/social-card.svg`;
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: site.brand.name,
+  url: domain,
+  logo: `${domain}/images/brand/talk-bh-logo.webp`,
+  description,
+  areaServed: { '@type': 'City', name: 'Belo Horizonte' },
+  sameAs: [site.social.instagram],
+  makesOffer: {
+    '@type': 'Offer',
+    price: 0,
+    priceCurrency: 'BRL',
+    description: lang === 'pt-BR'
+      ? 'Participação gratuita. Cada participante paga apenas pelo que consumir no estabelecimento.'
+      : 'Participation is free. Each participant pays only for their own food and drinks at the venue.',
+  },
+};
+const eventSchema = event?.title?.[lang] && event.date ? {
+  '@context': 'https://schema.org',
+  '@type': 'Event',
+  name: event.title[lang],
+  startDate: event.date,
+  eventStatus: 'https://schema.org/EventScheduled',
+  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  location: {
+    '@type': 'Place',
+    name: event.venue,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: event.address,
+      addressLocality: 'Belo Horizonte',
+      addressRegion: 'MG',
+      addressCountry: 'BR',
+    },
+    ...(event.mapsUrl ? { hasMap: event.mapsUrl } : {}),
+  },
+  organizer: { '@type': 'Organization', name: site.brand.name, url: domain },
+} : undefined;
 ---
 <!doctype html>
 <html lang={lang}>
@@ -35,7 +75,8 @@ const socialImage = `${domain}/social-card.svg`;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <script type="application/ld+json" set:html={JSON.stringify({ '@context':'https://schema.org', '@type':'Organization', name:site.brand.name, url:domain, description, areaServed:{ '@type':'City', name:'Belo Horizonte' }, sameAs:[site.social.instagram] })} />
+    <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
+    {eventSchema && <script type="application/ld+json" set:html={JSON.stringify(eventSchema)} />}
   </head>
   <body><slot /></body>
 </html>

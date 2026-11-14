@@ -1,0 +1,14 @@
+* { box-sizing: border-box; }
+body { margin: 0; color: #171717; background: #f5f3ef; font-family: Arial, sans-serif; }
+.talkbh-preview { max-width: 780px; margin: 24px auto; padding: 28px; }
+.talkbh-preview__eyebrow { color: #e32636; font: 700 11px/1.4 monospace; letter-spacing: .1em; text-transform: uppercase; }
+.talkbh-preview h1 { margin: 10px 0 24px; font-size: clamp(30px, 6vw, 56px); line-height: 1; }
+.talkbh-preview__event { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; border-top: 1px solid #2223; padding-top: 20px; }
+.talkbh-preview__card { padding: 20px; background: #fff; border-left: 3px solid #e32636; }
+.talkbh-preview__label { color: #666; font: 11px monospace; text-transform: uppercase; }
+.talkbh-preview__value { margin: 8px 0 16px; font-size: 20px; font-weight: 700; }
+.talkbh-preview__photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 24px; }
+.talkbh-preview__photo { min-height: 130px; background: #e8e5df; padding: 12px; font-size: 12px; border-radius: 4px; overflow: hidden; }
+.talkbh-preview__photo-img { width: 100%; height: 120px; object-fit: cover; display: block; margin-bottom: 8px; border-radius: 2px; }
+.talkbh-preview__notice { margin-top: 20px; padding: 14px; background: #171717; color: #fff; font-size: 13px; }
+@media (max-width: 560px) { .talkbh-preview { padding: 16px; } .talkbh-preview__event { grid-template-columns: 1fr; } .talkbh-preview__photos { grid-template-columns: 1fr; } }
