@@ -8,6 +8,7 @@ body { margin: 0; color: #171717; background: #f5f3ef; font-family: Arial, sans-
 .talkbh-preview__label { color: #666; font: 11px monospace; text-transform: uppercase; }
 .talkbh-preview__value { margin: 8px 0 16px; font-size: 20px; font-weight: 700; }
 .talkbh-preview__photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 24px; }
-.talkbh-preview__photo { min-height: 130px; background: #e8e5df; padding: 12px; font-size: 12px; }
+.talkbh-preview__photo { min-height: 130px; background: #e8e5df; padding: 12px; font-size: 12px; border-radius: 4px; overflow: hidden; }
+.talkbh-preview__photo-img { width: 100%; height: 120px; object-fit: cover; display: block; margin-bottom: 8px; border-radius: 2px; }
 .talkbh-preview__notice { margin-top: 20px; padding: 14px; background: #171717; color: #fff; font-size: 13px; }
 @media (max-width: 560px) { .talkbh-preview { padding: 16px; } .talkbh-preview__event { grid-template-columns: 1fr; } .talkbh-preview__photos { grid-template-columns: 1fr; } }

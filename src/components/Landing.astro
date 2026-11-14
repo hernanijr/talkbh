@@ -24,7 +24,7 @@ const mapsUrl = getGoogleMapsUrl(meetup.mapsUrl);
 const galleryAssets = import.meta.glob<ImageMetadata>('../assets/community/*.{avif,gif,jpg,jpeg,png,webp}', { eager: true, import: 'default' });
 const galleryPhotos: (CommunityPhoto & { asset?: ImageMetadata })[] = [];
 for (const photo of gallery.slice(0, 6)) {
-  const asset = photo.file ? galleryAssets[`../assets/community/${photo.file}`] : undefined;
+  const asset = photo.file ? (galleryAssets[`../assets/community/${photo.file}`] ?? { src: `/images/community/${photo.file}`, width: 1200, height: 900, format: 'jpeg' } as unknown as ImageMetadata) : undefined;
   if (asset) galleryPhotos.push({ ...photo, asset });
 }
 const currentMeetupStatus = getMeetupStatus(meetup);

@@ -29,11 +29,15 @@
         h('h2', null, 'Nenhum encontro confirmado'),
         h('p', null, 'O site continuará direcionando visitantes à comunidade do WhatsApp.'),
       ),
-      photos.length ? h('section', { className: 'talkbh-preview__photos' }, ...photos.slice(0, 6).map((photo, index) => h('article', { className: 'talkbh-preview__photo', key: `${photo.image ?? index}` },
-        h('strong', null, text(photo.alt_pt, `Foto ${index + 1}`)),
-        h('p', null, text(photo.alt_en, 'English description missing')),
-        h('p', null, photo.rights_confirmed ? 'Autorização confirmada' : 'Confirme a autorização antes de enviar para revisão.'),
-      ))) : null,
+      photos.length ? h('section', { className: 'talkbh-preview__photos' }, ...photos.slice(0, 6).map((photo, index) => {
+        const imageSrc = photo.image ? (photo.image.startsWith('http') || photo.image.startsWith('/') ? photo.image : `/${photo.image}`) : null;
+        return h('article', { className: 'talkbh-preview__photo', key: `${photo.image ?? index}` },
+          imageSrc ? h('img', { src: imageSrc, alt: text(photo.alt_pt, ''), className: 'talkbh-preview__photo-img' }) : null,
+          h('strong', null, text(photo.alt_pt, `Foto ${index + 1}`)),
+          h('p', null, text(photo.alt_en, 'English description missing')),
+          h('p', null, photo.rights_confirmed ? 'Autorização confirmada' : 'Confirme a autorização antes de enviar para revisão.')
+        );
+      })) : null,
       h('p', { className: 'talkbh-preview__notice' }, 'A versão completa do site estará disponível na prévia do Cloudflare ligada ao pull request.'),
     );
   }
