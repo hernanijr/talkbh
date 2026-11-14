@@ -85,10 +85,10 @@ const hash = (id: string) => `#${id}`;
         <div class="relative mx-auto flex aspect-square w-full max-w-[410px] items-center justify-center lg:mr-2">
           <div class="absolute inset-[8%] rotate-[-7deg] border border-black/15"></div>
           <div class="absolute inset-[16%] rotate-[8deg] bg-talk"></div>
-          <div class="relative flex h-[74%] w-[74%] flex-col items-center justify-center border border-black/15 bg-white p-5 text-ink shadow-[14px_14px_0_#171717]">
-            <img src="/images/brand/talk-bh-mark.webp" alt="Talk BH" width="520" height="387" class="h-24 w-auto max-w-[180px] object-contain sm:h-28 sm:max-w-[200px]" fetchpriority="high" decoding="async" />
-            <span class="mono mt-3 px-1 text-center text-[9px] uppercase tracking-[.18em] text-black/75">{lang === 'pt-BR' ? 'Aprender um novo idioma abre um novo mapa' : 'Learning a new language opens a new map'}</span>
-            <span class="absolute -bottom-5 -right-4 h-0 w-0 border-l-[22px] border-t-[22px] border-l-transparent border-t-white"></span>
+          <div class="relative flex h-[70%] w-[70%] flex-col items-center justify-center bg-ink text-white shadow-[14px_14px_0_#f5f3ef]">
+            <span class="display text-[clamp(5rem,11vw,8.5rem)] font-bold leading-none tracking-[-.12em]">T<span class="text-talk">!</span></span>
+            <span class="mono mt-5 text-center text-[9px] uppercase tracking-[.18em]">{lang === 'pt-BR' ? 'Um novo idioma, um novo mapa' : 'A new language, a new map'}</span>
+            <span class="absolute -bottom-5 -right-4 h-0 w-0 border-l-[22px] border-t-[22px] border-l-transparent border-t-ink"></span>
           </div>
           <span class="mono absolute -right-2 top-5 rotate-90 text-[10px] uppercase text-black/45">BH · MG · BR</span>
           <span class="absolute -bottom-5 left-2 display text-6xl font-bold text-talk">“</span>
