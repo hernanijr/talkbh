@@ -5,7 +5,7 @@ backend:
   squash_merges: true
 
 publish_mode: editorial_workflow
-media_folder: src/assets/community
+media_folder: public/images/community
 public_folder: /images/community
 locale: pt
 
