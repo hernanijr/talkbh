@@ -3,7 +3,7 @@ export type Language = 'pt-BR' | 'en';
 export const site = {
   brand: { name: 'Talk BH', domain: 'https://talk.bh', location: 'Belo Horizonte, MG' },
   social: { instagram: 'https://www.instagram.com/talk_bh/', whatsapp: 'https://chat.whatsapp.com/IjYG3WsRlMf2XM3Ie5oTe9' },
-  whatsappQr: '/images/community/whatsapp-invite.png',
+  whatsappQr: '/images/community/whatsapp-invite.svg',
   meetup: {
     status: 'scheduled' as 'scheduled' | 'cancelled',
     date: null as string | null,

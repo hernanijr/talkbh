@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { Image } from 'astro:assets';
+import talkBhLogo from '../assets/brand/talk-bh-logo.webp';
 import type { ImageMetadata } from 'astro';
 import { copy, site, type Language } from '../data/site';
 import { getGoogleMapsUrl, getMeetupStatus, getWhatsAppInvite } from '../data/meetup';
@@ -22,10 +23,11 @@ const dateText = validEventDate ? new Intl.DateTimeFormat(lang, { weekday:'long'
 const timeText = validEventDate ? new Intl.DateTimeFormat(lang, { hour:'2-digit', minute:'2-digit', hour12:false, timeZone:'America/Sao_Paulo' }).format(eventDate) : '';
 const mapsUrl = getGoogleMapsUrl(meetup.mapsUrl);
 const galleryAssets = import.meta.glob<ImageMetadata>('../assets/community/*.{avif,gif,jpg,jpeg,png,webp}', { eager: true, import: 'default' });
-const galleryPhotos: (CommunityPhoto & { asset?: ImageMetadata })[] = [];
+const galleryPhotos: (CommunityPhoto & { asset: ImageMetadata })[] = [];
 for (const photo of gallery.slice(0, 6)) {
-  const asset = photo.file ? (galleryAssets[`../assets/community/${photo.file}`] ?? { src: `/images/community/${photo.file}`, width: 1200, height: 900, format: 'jpeg' } as unknown as ImageMetadata) : undefined;
-  if (asset) galleryPhotos.push({ ...photo, asset });
+  const asset = galleryAssets[`../assets/community/${photo.file}`];
+  if (!asset) throw new Error(`Community photo "${photo.file}" was not prepared from public/images/community.`);
+  galleryPhotos.push({ ...photo, asset });
 }
 const currentMeetupStatus = getMeetupStatus(meetup);
 const meetupForSchema = currentMeetupStatus === 'today' || currentMeetupStatus === 'upcoming'
@@ -38,7 +40,7 @@ const hash = (id: string) => `#${id}`;
   <header class="sticky top-0 z-50 border-b border-black/10 bg-paper/95 backdrop-blur-sm">
     <nav class="wrap flex h-[76px] items-center justify-between gap-5" aria-label={lang === 'pt-BR' ? 'Navegação principal' : 'Main navigation'}>
       <a href={lang === 'en' ? '/en/' : '/'} class="flex shrink-0 items-center no-underline" aria-label={lang === 'pt-BR' ? 'Página inicial do Talk BH' : 'Talk BH home'}>
-        <img src="/images/brand/talk-bh-logo.webp" alt="" width="660" height="486" fetchpriority="high" decoding="async" class="block h-[64px] w-auto max-w-[88px] object-contain sm:h-[70px] sm:max-w-[96px]" />
+        <Image src={talkBhLogo} alt="" width={192} format="webp" fetchpriority="high" loading="eager" decoding="async" class="block h-[64px] w-auto max-w-[88px] object-contain sm:h-[70px] sm:max-w-[96px]" />
       </a>
       <div class="hidden items-center gap-6 lg:flex">
         <a class="text-[13px] font-semibold no-underline hover:text-talk-text" href={hash('sobre')}>{t.nav.about}</a>
@@ -117,11 +119,11 @@ const hash = (id: string) => `#${id}`;
       <div class="wrap relative grid gap-12 lg:grid-cols-[1.1fr_.9fr_220px]">
         <div><p class="mono mb-7 text-[10px] text-white">03 / {t.community.eyebrow}</p><h2 class="display max-w-[740px] text-5xl font-semibold leading-[.98] md:text-7xl" set:html={t.community.title}></h2><p class="mt-7 max-w-lg text-lg leading-[1.7] text-white">{t.community.text}</p><a class="mt-9 inline-flex items-center gap-5 bg-ink px-6 py-[18px] text-sm font-bold text-white no-underline transition hover:bg-white hover:text-ink" href={joinUrl} target="_blank" rel="noopener noreferrer">{communityActionLabel}<span class="text-lg" aria-hidden="true">↗</span></a>{!wa && <p class="mt-4 text-sm text-white">{t.community.fallback}</p>}</div>
         <div class="flex items-center lg:pl-6"><ul class="w-full list-none border-y border-white/40 p-0">{t.community.bullets.map((item,i)=><li class="flex items-center gap-5 border-b border-white/35 py-5 last:border-b-0"><span class="mono text-xs text-white">0{i+1}</span><span class="text-[15px] font-medium">{item}</span><span class="ml-auto text-xl" aria-hidden="true">↗</span></li>)}</ul></div>
-        {wa && <figure class="m-0 flex flex-col items-center self-center bg-white p-3 text-center text-ink"><img class="block w-full max-w-[190px]" src={site.whatsappQr} alt={lang === 'pt-BR' ? 'QR code para entrar no grupo do WhatsApp Talk BH' : 'QR code to join the Talk BH WhatsApp group'} loading="lazy" decoding="async" /><figcaption class="px-1 pt-3 text-xs font-semibold leading-relaxed">{t.community.scan}</figcaption></figure>}
+        {wa && <figure class="m-0 flex flex-col items-center self-center bg-white p-3 text-center text-ink"><img class="block w-full max-w-[190px]" src={site.whatsappQr} width="190" height="190" alt={lang === 'pt-BR' ? 'QR code para entrar no grupo do WhatsApp Talk BH' : 'QR code to join the Talk BH WhatsApp group'} loading="lazy" decoding="async" /><figcaption class="px-1 pt-3 text-xs font-semibold leading-relaxed">{t.community.scan}</figcaption></figure>}
       </div>
     </section>
 
-    {galleryPhotos.length > 0 && <section class="bg-paper py-20 md:py-28"><div class="wrap"><p class="mono mb-5 text-[10px] text-talk-text">{t.gallery.eyebrow}</p><h2 class="display text-5xl font-semibold md:text-6xl">{t.gallery.title}</h2><div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{galleryPhotos.map((photo)=><figure class="m-0"><Image class="aspect-[4/3] w-full object-cover" src={photo.asset!} alt={photo.alt[lang]} format="webp" widths={[480, 768, 1200]} sizes="(max-width: 639px) calc(100vw - 32px), (max-width: 1023px) calc(50vw - 24px), 380px" loading="lazy" decoding="async" /></figure>)}</div></div></section>}
+    {galleryPhotos.length > 0 && <section class="bg-paper py-20 md:py-28"><div class="wrap"><p class="mono mb-5 text-[10px] text-talk-text">{t.gallery.eyebrow}</p><h2 class="display text-5xl font-semibold md:text-6xl">{t.gallery.title}</h2><div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{galleryPhotos.map((photo)=><figure class="m-0"><Image class="aspect-[4/3] w-full object-cover" src={photo.asset} alt={photo.alt[lang]} format="webp" widths={[320, 640, 960]} sizes="(max-width: 639px) calc(100vw - 32px), (max-width: 1023px) calc(50vw - 24px), 380px" loading="lazy" decoding="async" /></figure>)}</div></div></section>}
 
     <section id="encontro" class="bg-paper py-24 md:py-32" data-meetup-state data-event-date={meetup.date ?? ''} data-event-status={meetup.status}>
       <div class="wrap"><div class="flex flex-wrap items-end justify-between gap-7 border-b border-black/20 pb-8"><div><p class="mono mb-6 text-[10px] text-talk-text" data-meetup-eyebrow data-active-label={t.meetup.eyebrow} data-follow-label={t.meetup.followEyebrow}>04 / {t.meetup.followEyebrow}</p><h2 class="display max-w-3xl text-5xl font-semibold leading-[1] md:text-7xl" data-meetup-title data-active-label={t.meetup.title} data-follow-label={t.meetup.followTitle}>{t.meetup.followTitle}</h2></div><span class="mono border border-black/20 px-3 py-2 text-[9px] uppercase" data-meetup-badge data-today-label={t.meetup.today}>TALK BH</span></div>

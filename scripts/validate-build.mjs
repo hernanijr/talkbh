@@ -40,6 +40,36 @@ for (const [language, schemaBlocks] of [['Portuguese', ptSchema], ['English', en
   }
 }
 await access(new URL('images/brand/talk-bh-logo.webp', outputDirectory));
+await access(new URL('images/community/whatsapp-invite.svg', outputDirectory));
+assert.match(pt, /whatsapp-invite\.svg/);
+assert.match(en, /whatsapp-invite\.svg/);
+const communityContent = JSON.parse(await readFile(new URL('../src/data/community-content.json', import.meta.url), 'utf8'));
+const galleryPhotos = Array.isArray(communityContent.gallery) ? communityContent.gallery : [];
+const imageTags = (html) => html.split('<img').slice(1).map((part) => '<img' + part.split('>')[0] + '>');
+for (const photo of galleryPhotos) {
+  const photoUrl = new URL(photo.image, 'https://talk.bh');
+  assert.equal(photoUrl.origin, 'https://talk.bh', 'Community photos must use local CMS assets.');
+  assert.ok(photoUrl.pathname.startsWith('/images/community/'), 'Community photos must use the CMS media folder.');
+  const fileName = decodeURIComponent(photoUrl.pathname.slice('/images/community/'.length));
+  assert.ok(fileName && !fileName.includes('/') && !fileName.includes(String.fromCharCode(92)), 'Community photo paths must reference one filename.');
+  await access(new URL('images/community/' + encodeURIComponent(fileName), outputDirectory));
+
+  const ptTag = imageTags(pt).find((tag) => tag.includes('alt="' + photo.alt_pt + '"'));
+  const enTag = imageTags(en).find((tag) => tag.includes('alt="' + photo.alt_en + '"'));
+  assert.ok(ptTag, 'The Portuguese page should render every published community photo.');
+  assert.ok(enTag, 'The English page should render every published community photo.');
+  assert.ok(ptTag.includes('srcset='), 'Community photos should use Astro responsive image variants.');
+  assert.ok(enTag.includes('srcset='), 'Community photos should use Astro responsive image variants.');
+  assert.ok(ptTag.includes('.webp'), 'Community photos should be delivered as WebP.');
+  assert.ok(enTag.includes('.webp'), 'Community photos should be delivered as WebP.');
+}
+
+const adminPreview = await read('admin/preview.js');
+const adminStyles = await read('admin/admin.css');
+assert.ok(admin.includes('/admin/admin.css'), 'The CMS editor should load its thumbnail stylesheet.');
+assert.ok(adminPreview.includes('getAsset'), 'The CMS preview should resolve Decap image assets.');
+assert.ok(adminStyles.includes('max-height: 160px'), 'CMS editor thumbnails should have a display-height limit.');
+
 await access(new URL('images/brand/talk-bh-mark.webp', outputDirectory));
 assert.match(pt, /BELO HORIZONTE · BRASIL/);
 assert.match(en, /BELO HORIZONTE · BRAZIL/);
