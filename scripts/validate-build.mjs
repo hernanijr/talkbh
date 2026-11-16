@@ -71,6 +71,37 @@ assert.ok(adminPreview.includes('getAsset'), 'The CMS preview should resolve Dec
 assert.ok(adminStyles.includes('max-height: 160px'), 'CMS editor thumbnails should have a display-height limit.');
 
 await access(new URL('images/brand/talk-bh-mark.webp', outputDirectory));
+const localFontFiles = [
+  'dm-sans-latin-ext-400-normal.woff2',
+  'dm-sans-latin-400-normal.woff2',
+  'dm-sans-latin-ext-500-normal.woff2',
+  'dm-sans-latin-500-normal.woff2',
+  'dm-sans-latin-ext-600-normal.woff2',
+  'dm-sans-latin-600-normal.woff2',
+  'dm-sans-latin-ext-700-normal.woff2',
+  'dm-sans-latin-700-normal.woff2',
+  'dm-mono-latin-ext-400-normal.woff2',
+  'dm-mono-latin-400-normal.woff2',
+  'dm-mono-latin-ext-500-normal.woff2',
+  'dm-mono-latin-500-normal.woff2',
+  'space-grotesk-latin-ext-400-normal.woff2',
+  'space-grotesk-latin-400-normal.woff2',
+  'space-grotesk-latin-ext-500-normal.woff2',
+  'space-grotesk-latin-500-normal.woff2',
+  'space-grotesk-latin-ext-600-normal.woff2',
+  'space-grotesk-latin-600-normal.woff2',
+  'space-grotesk-latin-ext-700-normal.woff2',
+  'space-grotesk-latin-700-normal.woff2',
+];
+for (const fontFile of localFontFiles) {
+  await access(new URL(`fonts/${fontFile}`, outputDirectory));
+}
+for (const html of [pt, en]) {
+  assert.match(html, /href="\/fonts\/dm-sans-latin-400-normal\.woff2"/);
+  assert.match(html, /href="\/fonts\/dm-mono-latin-400-normal\.woff2"/);
+  assert.match(html, /href="\/fonts\/space-grotesk-latin-700-normal\.woff2"/);
+  assert.doesNotMatch(html, /fonts\.(googleapis|gstatic)\.com/);
+}
 assert.match(pt, /BELO HORIZONTE · BRASIL/);
 assert.match(en, /BELO HORIZONTE · BRAZIL/);
 assert.match(pt, /Um novo idioma, um novo mapa/i);
