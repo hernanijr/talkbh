@@ -15,7 +15,10 @@ assert.match(pt, /<html lang="pt-BR">/);
 assert.match(en, /<html lang="en">/);
 assert.match(pt, /<link rel="canonical" href="https:\/\/talk\.bh\//);
 assert.match(en, /<link rel="canonical" href="https:\/\/talk\.bh\/en\//);
+assert.match(pt, /Desenvolvimento do site:[\\s\\S]{0,250}href="https:\\/\\/hernani\\.dev"[^>]*>Hernani<\\/a>/);
+assert.match(en, /Website development:[\\s\\S]{0,250}href="https:\\/\\/hernani\\.dev"[^>]*>Hernani<\\/a>/);
 for (const html of [pt, en]) {
+  assert.equal((html.match(/class="cta-arrow"/g) ?? []).length, 2, 'Both hero CTA arrows should use the matching SVG icon style.');
   assert.match(html, /hreflang="pt-BR"/);
   assert.match(html, /hreflang="en"/);
   assert.match(html, /https:\/\/chat\.whatsapp\.com\/IjYG3WsRlMf2XM3Ie5oTe9/);
