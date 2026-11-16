@@ -23,11 +23,10 @@ const dateText = validEventDate ? new Intl.DateTimeFormat(lang, { weekday:'long'
 const timeText = validEventDate ? new Intl.DateTimeFormat(lang, { hour:'2-digit', minute:'2-digit', hour12:false, timeZone:'America/Sao_Paulo' }).format(eventDate) : '';
 const mapsUrl = getGoogleMapsUrl(meetup.mapsUrl);
 const galleryAssets = import.meta.glob<ImageMetadata>('../assets/community/*.{avif,gif,jpg,jpeg,png,webp}', { eager: true, import: 'default' });
-const galleryPhotos: (CommunityPhoto & { asset?: ImageMetadata })[] = [];
+const galleryPhotos: (CommunityPhoto & { asset: ImageMetadata })[] = [];
 for (const photo of gallery.slice(0, 6)) {
-  // Existing source assets use Astro's responsive image pipeline. New Decap CMS uploads
-  // remain in public/images/community until they are moved into src/assets.
   const asset = galleryAssets[`../assets/community/${photo.file}`];
+  if (!asset) throw new Error(`Community photo "${photo.file}" was not prepared from public/images/community.`);
   galleryPhotos.push({ ...photo, asset });
 }
 const currentMeetupStatus = getMeetupStatus(meetup);
@@ -124,7 +123,7 @@ const hash = (id: string) => `#${id}`;
       </div>
     </section>
 
-    {galleryPhotos.length > 0 && <section class="bg-paper py-20 md:py-28"><div class="wrap"><p class="mono mb-5 text-[10px] text-talk">{t.gallery.eyebrow}</p><h2 class="display text-5xl font-semibold md:text-6xl">{t.gallery.title}</h2><div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{galleryPhotos.map((photo)=><figure class="m-0">{photo.asset ? <Image class="aspect-[4/3] w-full object-cover" src={photo.asset} alt={photo.alt[lang]} format="webp" widths={[320, 640, 960]} sizes="(max-width: 639px) calc(100vw - 32px), (max-width: 1023px) calc(50vw - 24px), 380px" loading="lazy" decoding="async" /> : <img class="aspect-[4/3] w-full object-cover" src={`/images/community/${photo.file}`} width="1200" height="900" alt={photo.alt[lang]} loading="lazy" decoding="async" />}</figure>)}</div></div></section>}
+    {galleryPhotos.length > 0 && <section class="bg-paper py-20 md:py-28"><div class="wrap"><p class="mono mb-5 text-[10px] text-talk">{t.gallery.eyebrow}</p><h2 class="display text-5xl font-semibold md:text-6xl">{t.gallery.title}</h2><div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{galleryPhotos.map((photo)=><figure class="m-0"><Image class="aspect-[4/3] w-full object-cover" src={photo.asset} alt={photo.alt[lang]} format="webp" widths={[320, 640, 960]} sizes="(max-width: 639px) calc(100vw - 32px), (max-width: 1023px) calc(50vw - 24px), 380px" loading="lazy" decoding="async" /></figure>)}</div></div></section>}
 
     <section id="encontro" class="bg-paper py-24 md:py-32" data-meetup-state data-event-date={meetup.date ?? ''} data-event-status={meetup.status}>
       <div class="wrap"><div class="flex flex-wrap items-end justify-between gap-7 border-b border-black/20 pb-8"><div><p class="mono mb-6 text-[10px] text-talk" data-meetup-eyebrow data-active-label={t.meetup.eyebrow} data-follow-label={t.meetup.followEyebrow}>04 / {t.meetup.followEyebrow}</p><h2 class="display max-w-3xl text-5xl font-semibold leading-[1] md:text-7xl" data-meetup-title data-active-label={t.meetup.title} data-follow-label={t.meetup.followTitle}>{t.meetup.followTitle}</h2></div><span class="mono border border-black/20 px-3 py-2 text-[9px] uppercase" data-meetup-badge data-today-label={t.meetup.today}>TALK BH</span></div>

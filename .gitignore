@@ -8,3 +8,7 @@ dist/
 .dev.vars*
 !.dev.vars.example
 .DS_Store
+
+# Generated from Decap CMS originals before Astro's image pipeline runs.
+src/assets/community/*
+!src/assets/community/.gitkeep

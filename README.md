@@ -32,7 +32,9 @@ Meetup location is the Charada Savassi Cervejaria Artesanal at Rua Paraíba, 523
 
 ## Community photos
 
-Only use real Talk BH photographs with permission. Add up to six photos with descriptive Portuguese and English alt text; the site hides the gallery when there are no photos and optimizes local assets at build time. Do not add stock or generated people photos.
+Only use real Talk BH photographs with permission. Add up to six photos with descriptive Portuguese and English alt text; the site hides the gallery when there are no photos. Do not add stock or generated people photos.
+
+Decap CMS originals stay in `public/images/community`, preserving stable URLs for the editor and its preview pane. Before `npm run dev`, `npm run check`, and `npm run build`, `scripts/prepare-community-images.mjs` copies only the gallery-referenced originals into the Git-ignored `src/assets/community` directory. Astro then generates responsive WebP variants for the public site. Never edit or commit the generated copies; update photos through the CMS or the canonical public media folder.
 
 ## Social links
 

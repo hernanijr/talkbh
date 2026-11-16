@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
+    "dev": "node scripts/prepare-community-images.mjs && astro dev",
+    "build": "node scripts/prepare-community-images.mjs && astro build",
     "preview": "astro preview",
-    "check": "astro check",
+    "check": "node scripts/prepare-community-images.mjs && astro check",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "validate:build": "node scripts/validate-build.mjs",
     "validate:deploy": "wrangler deploy --dry-run --config wrangler.jsonc"
