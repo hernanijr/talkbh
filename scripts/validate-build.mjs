@@ -67,10 +67,10 @@ for (const fontFile of localFontFiles) {
   await access(new URL(`fonts/${fontFile}`, outputDirectory));
 }
 for (const html of [pt, en]) {
-  assert.match(html, /fonts\/dm-sans-latin-400-normal\\.woff2/);
-  assert.match(html, /fonts\/dm-mono-latin-400-normal\\.woff2/);
-  assert.match(html, /fonts\/space-grotesk-latin-700-normal\\.woff2/);
-  assert.doesNotMatch(html, /fonts\\.(googleapis|gstatic)\\.com/);
+  assert.match(html, /href="\/fonts\/dm-sans-latin-400-normal\.woff2"/);
+  assert.match(html, /href="\/fonts\/dm-mono-latin-400-normal\.woff2"/);
+  assert.match(html, /href="\/fonts\/space-grotesk-latin-700-normal\.woff2"/);
+  assert.doesNotMatch(html, /fonts\.(googleapis|gstatic)\.com/);
 }
 assert.match(pt, /BELO HORIZONTE · BRASIL/);
 assert.match(en, /BELO HORIZONTE · BRAZIL/);
