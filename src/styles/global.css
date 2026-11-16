@@ -183,6 +183,9 @@
 @theme {
   --color-ink: #171717;
   --color-talk: #E32636;
+  /* Accessible text variants: dark red on light surfaces, light red on dark surfaces. */
+  --color-talk-text: #B81F2D;
+  --color-talk-on-dark: #FF6673;
   --color-paper: #F5F3EF;
   --color-mute: #858585;
   --font-display: 'Space Grotesk', sans-serif;

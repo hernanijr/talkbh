@@ -6,7 +6,7 @@
   const h = React.createElement;
   const text = (value, fallback = '—') => typeof value === 'string' && value.trim() ? value : fallback;
 
-  function Preview({ entry }) {
+  function Preview({ entry, getAsset }) {
     const source = entry.getIn(['data'])?.toJS?.() ?? {};
     const meetups = Array.isArray(source.meetups) ? source.meetups : [];
     const photos = Array.isArray(source.gallery) ? source.gallery : [];
@@ -30,9 +30,19 @@
         h('p', null, 'O site continuará direcionando visitantes à comunidade do WhatsApp.'),
       ),
       photos.length ? h('section', { className: 'talkbh-preview__photos' }, ...photos.slice(0, 6).map((photo, index) => {
-        const imageSrc = photo.image ? (photo.image.startsWith('http') || photo.image.startsWith('/') ? photo.image : `/${photo.image}`) : null;
+        const imagePath = typeof photo.image === 'string' ? photo.image : '';
+        let imageSrc = null;
+        if (imagePath) {
+          const fallbackImage = imagePath.startsWith('http') || imagePath.startsWith('/') ? imagePath : '/' + imagePath;
+          try {
+            const asset = typeof getAsset === 'function' ? getAsset(imagePath) : null;
+            imageSrc = asset ? asset.toString() : fallbackImage;
+          } catch {
+            imageSrc = fallbackImage;
+          }
+        }
         return h('article', { className: 'talkbh-preview__photo', key: `${photo.image ?? index}` },
-          imageSrc ? h('img', { src: imageSrc, alt: text(photo.alt_pt, ''), className: 'talkbh-preview__photo-img' }) : null,
+          imageSrc ? h('img', { src: imageSrc, alt: text(photo.alt_pt, ''), className: 'talkbh-preview__photo-img', loading: 'lazy', decoding: 'async' }) : null,
           h('strong', null, text(photo.alt_pt, `Foto ${index + 1}`)),
           h('p', null, text(photo.alt_en, 'English description missing')),
           h('p', null, photo.rights_confirmed ? 'Autorização confirmada' : 'Confirme a autorização antes de enviar para revisão.')
