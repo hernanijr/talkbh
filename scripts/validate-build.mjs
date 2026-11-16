@@ -41,8 +41,8 @@ for (const [language, schemaBlocks] of [['Portuguese', ptSchema], ['English', en
 }
 await access(new URL('images/brand/talk-bh-logo.webp', outputDirectory));
 await access(new URL('images/community/whatsapp-invite.svg', outputDirectory));
-assert.match(pt, /whatsapp-invite\\.svg/);
-assert.match(en, /whatsapp-invite\\.svg/);
+assert.match(pt, /whatsapp-invite\.svg/);
+assert.match(en, /whatsapp-invite\.svg/);
 await access(new URL('images/brand/talk-bh-mark.webp', outputDirectory));
 assert.match(pt, /BELO HORIZONTE · BRASIL/);
 assert.match(en, /BELO HORIZONTE · BRAZIL/);
