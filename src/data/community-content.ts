@@ -123,7 +123,7 @@ function meetupFromRecord(record: MeetupRecord, strict: boolean): CommunityMeetu
   );
   if (!titlePt || !titleEn || !validDate || !validEndDate || !validPrice || !validStatus
     || !venue || !address || !validMapsUrl || !validStructuredFields) {
-    if (strict) throw new Error('A meetup needs bilingual titles and descriptions, a valid date/time, an optional valid end time, a local event image, a non-negative admission price, status, venue and address; the Maps URL must be valid HTTPS Google Maps.');
+    if (strict) throw new Error('A meetup needs bilingual titles and descriptions, a valid date/time, an optional valid end time, an optional local event image, a non-negative admission price, status, venue and address; the Maps URL must be valid HTTPS Google Maps.');
     return undefined;
   }
   return {
