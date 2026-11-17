@@ -2,6 +2,7 @@ import { getGoogleMapsUrl, getMeetupStatus, type MeetupStatus } from './meetup.t
 import { site, type Language } from './site.ts';
 
 export type CommunityMeetup = {
+  slug?: string;
   title?: Record<Language, string>;
   description?: Record<Language, string>;
   date: string | null;
@@ -26,6 +27,7 @@ export type CommunityContent = {
 };
 
 type MeetupRecord = {
+  slug?: unknown;
   title_pt?: unknown;
   title_en?: unknown;
   description_pt?: unknown;
@@ -72,6 +74,20 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
 
 function clean(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
+}
+
+function slugify(value: string): string {
+  return value.normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 48)
+    .replace(/-+$/g, '');
+}
+
+export function createMeetupSlug(title: string, date: string): string {
+  return `${slugify(title) || 'talk-bh'}-${date}`;
 }
 
 function toDateTime(date: string, time: string): string | undefined {
@@ -123,16 +139,20 @@ function meetupFromRecord(record: MeetupRecord, strict: boolean): CommunityMeetu
   const validPrice = entryPrice === undefined || (Number.isFinite(entryPrice) && entryPrice >= 0);
   const validStatus = status === 'scheduled' || status === 'cancelled';
   const validMapsUrl = !mapsUrl || Boolean(getGoogleMapsUrl(mapsUrl));
+  const suppliedSlug = clean(record.slug);
+  const slug = suppliedSlug || (validDate ? createMeetupSlug(titlePt, date) : '');
+  const validSlug = slug.length <= 80 && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
   const validStructuredFields = !strict || (
     Boolean(descriptionPt) && Boolean(descriptionEn)
     && entryPrice !== undefined && validPrice
   );
   if (!titlePt || !titleEn || !validDate || !validEndDate || !validPrice || !validStatus
-    || !venue || !address || !validMapsUrl || !validStructuredFields) {
-    if (strict) throw new Error('A meetup needs bilingual titles and descriptions, a valid date/time, an optional valid end time, a non-negative admission price, status, venue and address; the Maps URL must be valid HTTPS Google Maps.');
+    || !venue || !address || !validMapsUrl || !validSlug || !validStructuredFields) {
+    if (strict) throw new Error('A meetup needs bilingual titles and descriptions, a valid date/time, an optional valid end time, a unique URL slug, a non-negative admission price, status, venue and address; the Maps URL must be valid HTTPS Google Maps.');
     return undefined;
   }
   return {
+    slug,
     title: { 'pt-BR': titlePt, en: titleEn },
     description: { 'pt-BR': descriptionPt, en: descriptionEn },
     date: validDate,
@@ -162,10 +182,9 @@ function photoFromRecord(record: PhotoRecord, strict: boolean): CommunityPhoto |
   return { file, alt: { 'pt-BR': altPt, en: altEn } };
 }
 
-export function normalizeCommunityContent(input: unknown, now = new Date(), strict = false): CommunityContent {
+export function normalizeCommunityMeetups(input: unknown, now = new Date(), strict = false): CommunityMeetup[] {
   const record = asRecord(input) as ContentRecord | undefined;
   const meetupRecords = Array.isArray(record?.meetups) ? record.meetups : [];
-  const photoRecords = Array.isArray(record?.gallery) ? record.gallery : [];
   const posterValue = record?.next_meetup_poster;
   const posterRecord = asRecord(posterValue) as NextMeetupPosterRecord | undefined;
   const posterDate = clean(posterRecord?.event_date);
@@ -189,6 +208,30 @@ export function normalizeCommunityContent(input: unknown, now = new Date(), stri
     return meetup ? [meetup] : [];
   });
 
+  if (strict && new Set(meetups.map((meetup) => meetup.slug)).size !== meetups.length) {
+    throw new Error('Each meetup must have a unique URL slug.');
+  }
+
+  const upcoming = meetups
+    .filter((meetup) => meetup.status === 'scheduled' && ['today', 'upcoming'].includes(getMeetupStatus(meetup, now)))
+    .sort((a, b) => Date.parse(a.date!) - Date.parse(b.date!))[0];
+
+  return meetups.map((meetup) => {
+    const posterMatchesMeetup = Boolean(
+      upcoming?.slug === meetup.slug
+        && meetup.date
+        && posterDate === meetup.date.slice(0, 10)
+        && validPosterImage,
+    );
+    return posterMatchesMeetup ? { ...meetup, image: posterImage } : meetup;
+  });
+}
+
+export function normalizeCommunityContent(input: unknown, now = new Date(), strict = false): CommunityContent {
+  const record = asRecord(input) as ContentRecord | undefined;
+  const meetups = normalizeCommunityMeetups(input, now, strict);
+  const photoRecords = Array.isArray(record?.gallery) ? record.gallery : [];
+
   const upcoming = meetups
     .filter((meetup) => meetup.status === 'scheduled' && ['today', 'upcoming'].includes(getMeetupStatus(meetup, now)))
     .sort((a, b) => Date.parse(a.date!) - Date.parse(b.date!))[0];
@@ -207,16 +250,8 @@ export function normalizeCommunityContent(input: unknown, now = new Date(), stri
   });
   if (strict && gallery.length > 6) throw new Error('The published community gallery can contain no more than six photos.');
 
-  const posterMatchesUpcoming = Boolean(
-    upcoming?.date
-      && posterDate === upcoming.date.slice(0, 10)
-      && validPosterImage,
-  );
-
   return {
-    meetup: upcoming
-      ? { ...upcoming, ...(posterMatchesUpcoming ? { image: posterImage } : {}) }
-      : cancelled ?? { ...fallbackContent.meetup, date: null, status: 'scheduled' },
+    meetup: upcoming ?? cancelled ?? { ...fallbackContent.meetup, date: null, status: 'scheduled' },
     gallery: gallery.slice(0, 6),
   };
 }
