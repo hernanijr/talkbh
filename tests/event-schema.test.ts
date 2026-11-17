@@ -79,7 +79,7 @@ test('omits expired or cancelled meetups from Event JSON-LD after their schedule
   }, now, true).meetup;
   const cancelled = normalizeCommunityContent({
     ...source,
-    meetups: [{ ...source.meetups[0], status: 'cancelled' }],
+    meetups: [{ ...source.meetups[0], date: '2026-11-16', status: 'cancelled' }],
   }, now, true).meetup;
 
   assert.equal(createEventSchema(expired, 'pt-BR', now), undefined);
