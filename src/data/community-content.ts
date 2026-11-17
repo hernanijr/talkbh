@@ -61,6 +61,7 @@ type RecurringScheduleRecord = {
   city?: unknown;
   address?: unknown;
   maps_url?: unknown;
+  default_image?: unknown;
 };
 
 type ScheduleExceptionRecord = {
@@ -209,6 +210,7 @@ type NormalizedRecurringSchedule = {
   city: string;
   address: string;
   mapsUrl: string;
+  image?: string;
 };
 
 function zonedDateParts(date: Date, timeZone: string): Record<string, string> {
@@ -305,6 +307,8 @@ function normalizeRecurringSchedule(value: unknown, strict: boolean): Normalized
   const city = clean(record.city) || 'Belo Horizonte, Minas Gerais, Brasil';
   const address = clean(record.address);
   const mapsUrl = clean(record.maps_url);
+  const defaultImage = clean(record.default_image);
+  const validDefaultImage = !defaultImage || /^\/images\/events\/[a-z0-9][a-z0-9._-]*\.(avif|jpe?g|png|svg|webp)$/i.test(defaultImage);
   let timezoneIsValid = true;
   try {
     new Intl.DateTimeFormat('en', { timeZone: timezone }).format(new Date(0));
@@ -318,6 +322,7 @@ function normalizeRecurringSchedule(value: unknown, strict: boolean): Normalized
     && Boolean(descriptionPt) && Boolean(descriptionEn)
     && Number.isFinite(entryPrice) && entryPrice >= 0
     && Boolean(venue) && Boolean(address)
+    && validDefaultImage
     && (!mapsUrl || Boolean(getGoogleMapsUrl(mapsUrl)));
   if (!valid) {
     if (strict) throw new Error('An enabled recurring schedule needs a valid weekday, time, timezone, bilingual title and description, non-negative admission price, venue, address and optional Google Maps URL.');
@@ -337,6 +342,7 @@ function normalizeRecurringSchedule(value: unknown, strict: boolean): Normalized
     city,
     address,
     mapsUrl: getGoogleMapsUrl(mapsUrl) ?? '',
+    ...(defaultImage ? { image: defaultImage } : {}),
   };
 }
 
@@ -419,6 +425,7 @@ function nextRecurringMeetup(
         city: schedule.city,
         address: schedule.address,
         mapsUrl: schedule.mapsUrl,
+        ...(schedule.image ? { image: schedule.image } : {}),
         source: 'recurring',
         replacesDefaultSchedule: false,
       };
