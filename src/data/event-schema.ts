@@ -1,4 +1,5 @@
 import type { CommunityMeetup } from './community-content.ts';
+import { getMeetupStatus } from './meetup.ts';
 import { site, type Language } from './site.ts';
 
 export function createEventSchema(event: CommunityMeetup | undefined, lang: Language, now = new Date(), url?: string) {
@@ -6,8 +7,8 @@ export function createEventSchema(event: CommunityMeetup | undefined, lang: Lang
   if (!event || !name || !event.date) return undefined;
 
   const startTimestamp = Date.parse(event.date);
-  const endTimestamp = Date.parse(event.endDate ?? event.date);
-  if (!Number.isFinite(startTimestamp) || !Number.isFinite(endTimestamp) || endTimestamp <= now.getTime()) return undefined;
+  const lifecycleStatus = getMeetupStatus({ date: event.date, endDate: event.endDate, status: 'scheduled' }, now);
+  if (!Number.isFinite(startTimestamp) || lifecycleStatus === 'past' || lifecycleStatus === 'none') return undefined;
 
   const domain = site.brand.domain.replace(/\/$/, '');
   return {
