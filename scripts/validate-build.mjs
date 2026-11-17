@@ -176,7 +176,8 @@ assert.match(cmsConfig, /publish_mode: editorial_workflow/);
 assert.doesNotMatch(cmsConfig, /turbo_site_id: SET_AFTER_CREATING_TALK_BH_SITE/);
 assert.match(cmsConfig, /turbo_site_id: 63bc3ac0-e116-4c37-9e8d-a6d47b2010ac/);
 assert.match(cmsConfig, /name: next_meetup_poster/);
-assert.match(cmsConfig, /name: event_date, widget: date/);
+assert.match(cmsConfig, /name: event_date, widget: string, required: true, hint: "Use AAAA-MM-DD/);
+assert.doesNotMatch(cmsConfig, /name: event_date, widget: date/);
 
 assert.match(sitemap, /https:\/\/talk\.bh\//);
 assert.match(sitemap, /https:\/\/talk\.bh\/en\//);
