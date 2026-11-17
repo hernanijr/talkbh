@@ -106,12 +106,12 @@ const pageCopy = lang === 'en'
   lang={lang}
   title={pageTitle}
   description={description}
-  event={event}
+  event={!permanentPage ? event : undefined}
   canonicalUrl={canonicalUrl}
   portugueseUrl={portugueseUrl}
   englishUrl={englishUrl}
   socialImageUrl={socialImageUrl}
-  openGraphType="article"
+  openGraphType={permanentPage ? 'website' : 'article'}
 >
   <main id="main" class="min-h-screen bg-paper">
     <header class="border-b border-black/10 bg-paper">
