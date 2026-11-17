@@ -8,10 +8,10 @@ const { event, lang } = Astro.props as { event: CommunityMeetup; lang: Language 
 const title = event.title?.[lang] ?? 'Talk BH';
 const description = event.description?.[lang] ?? '';
 const homeUrl = lang === 'en' ? '/en/' : '/';
-const alternateHomeUrl = lang === 'en' ? '/' : '/en/';
 const slug = event.slug ?? 'talk-bh';
 const eventPathPt = `/eventos/${slug}/`;
 const eventPathEn = `/en/events/${slug}/`;
+const alternateEventUrl = lang === 'en' ? eventPathPt : eventPathEn;
 const domain = site.brand.domain.replace(/\/$/, '');
 const canonicalUrl = `${domain}${lang === 'en' ? eventPathEn : eventPathPt}`;
 const portugueseUrl = `${domain}${eventPathPt}`;
@@ -53,7 +53,7 @@ const pageCopy = lang === 'en'
       freeNote: 'Participation is free. Each attendee pays only for their own food and drinks at the venue.',
       noSignup: 'No registration or reservation required.',
       directions: 'Get directions',
-      join: 'Join the WhatsApp community',
+      join: wa ? 'Join the WhatsApp community' : 'Message Talk BH on Instagram',
       updates: 'Follow the community for future meetups and updates.',
       cancelled: 'This meetup has been cancelled. Follow the community for future announcements.',
       past: 'This meetup has taken place. Join the community to hear about future dates.',
@@ -70,7 +70,7 @@ const pageCopy = lang === 'en'
       freeNote: 'A participação é gratuita. Cada pessoa paga apenas pelo que consumir no estabelecimento.',
       noSignup: 'Não precisa de inscrição ou reserva.',
       directions: 'Como chegar',
-      join: 'Entrar na comunidade do WhatsApp',
+      join: wa ? 'Entrar na comunidade do WhatsApp' : 'Falar com o Talk BH no Instagram',
       updates: 'Acompanhe a comunidade para saber dos próximos encontros e novidades.',
       cancelled: 'Este encontro foi cancelado. Acompanhe a comunidade para os próximos anúncios.',
       past: 'Este encontro já aconteceu. Entre na comunidade para saber as próximas datas.',
@@ -96,7 +96,7 @@ const pageCopy = lang === 'en'
       <nav class="wrap flex min-h-[76px] items-center justify-between gap-4" aria-label={lang === 'en' ? 'Event navigation' : 'Navegação do evento'}>
         <a href={homeUrl} class="display text-2xl font-bold tracking-[-.08em] text-ink no-underline">talk<span class="text-talk-text">.</span>bh</a>
         <div class="flex items-center gap-3">
-          <a href={alternateHomeUrl} class="border border-talk/40 bg-white px-3 py-2 text-xs font-bold uppercase text-talk-text no-underline">{lang === 'en' ? 'PT' : 'EN'} ↗</a>
+          <a href={alternateEventUrl} class="border border-talk/40 bg-white px-3 py-2 text-xs font-bold uppercase text-talk-text no-underline">{lang === 'en' ? 'PT' : 'EN'} ↗</a>
           <a href={homeUrl} class="text-sm font-semibold text-ink underline underline-offset-4">{pageCopy.back}</a>
         </div>
       </nav>
