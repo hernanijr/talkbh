@@ -28,7 +28,7 @@ Edit `src/data/site.ts` for brand settings, Instagram and WhatsApp URLs, and all
 
 Talk BH participation is free and requires no registration, reservation, or purchase. Food and drinks at the venue are optional; each person pays only for what they choose to order. These confirmed policies are reflected in both language versions.
 
-Meetup location is the Charada Savassi Cervejaria Artesanal at Rua Paraíba, 523, Belo Horizonte. Meetup and photo content is centralized in `src/data/community-content.json` and managed in the `/admin/` panel. See the [operational content guide](docs/manual-painel-conteudo.md) for the event publishing workflow, required fields, poster handling, review and publication checklist.
+The default meetup schedule is managed in `src/data/community-content.json` through the `/admin/` panel. It is configured weekly on Wednesdays at 18:30, starting 25 November 2026, in `America/Sao_Paulo`. The schedule can be disabled, skipped for a specific week, or replaced by a special event. Individual meetup records and community photos are managed in the same CMS entry. See the [operational content guide](docs/manual-painel-conteudo.md) for recurring schedule controls, special events, exceptions, event publishing, poster handling and review workflow.
 
 ## Community photos
 
