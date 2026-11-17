@@ -63,7 +63,7 @@ const galleryPhotos = Array.isArray(communityContent.gallery) ? communityContent
 const eventRecords = Array.isArray(communityContent.meetups) ? communityContent.meetups : [];
 const nextMeetupPoster = communityContent.next_meetup_poster;
 if (nextMeetupPoster) {
-  assert.match(nextMeetupPoster.event_date, /^\\d{4}-\\d{2}-\\d{2}$/, 'The poster must be linked to an explicit meetup date.');
+  assert.match(nextMeetupPoster.event_date, /^\d{4}-\d{2}-\d{2}$/, 'The poster must be linked to an explicit meetup date.');
   const posterUrl = new URL(nextMeetupPoster.image, 'https://talk.bh');
   assert.equal(posterUrl.origin, 'https://talk.bh', 'The next meetup poster must use the Talk BH domain.');
   assert.ok(posterUrl.pathname.startsWith('/images/events/'), 'The next meetup poster must use the dedicated media folder.');
