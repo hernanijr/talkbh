@@ -49,6 +49,7 @@ type MeetupRecord = {
 type RecurringScheduleRecord = {
   enabled?: unknown;
   weekday?: unknown;
+  start_date?: unknown;
   time?: unknown;
   timezone?: unknown;
   title_pt?: unknown;
@@ -198,6 +199,7 @@ function meetupFromRecord(record: MeetupRecord, strict: boolean): CommunityMeetu
 type NormalizedRecurringSchedule = {
   enabled: boolean;
   weekday: number;
+  startDate: string;
   time: string;
   timezone: string;
   title: Record<Language, string>;
@@ -224,7 +226,7 @@ function zonedDateParts(date: Date, timeZone: string): Record<string, string> {
 }
 
 function dateKeyParts(date: string): { year: number; month: number; day: number } | undefined {
-  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) return undefined;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return undefined;
   const [year, month, day] = date.split('-').map(Number);
   const calendarDate = new Date(Date.UTC(year, month - 1, day));
   if (calendarDate.getUTCFullYear() !== year || calendarDate.getUTCMonth() !== month - 1
@@ -252,7 +254,7 @@ function mondayOfWeek(date: string): string {
 
 function toZonedDateTime(date: string, time: string, timeZone: string): string | undefined {
   const calendar = dateKeyParts(date);
-  if (!calendar || !/^\\d{2}:\\d{2}$/.test(time)) return undefined;
+  if (!calendar || !/^\d{2}:\d{2}$/.test(time)) return undefined;
   const [hour, minute] = time.split(':').map(Number);
   if (hour > 23 || minute > 59) return undefined;
 
@@ -287,6 +289,11 @@ function normalizeRecurringSchedule(value: unknown, strict: boolean): Normalized
   if (!record || record.enabled !== true) return undefined;
 
   const weekday = typeof record.weekday === 'number' ? record.weekday : Number.NaN;
+  const startDate = clean(record.start_date);
+  const startDateParts = dateKeyParts(startDate);
+  const startDateWeekday = startDateParts
+    ? new Date(Date.UTC(startDateParts.year, startDateParts.month - 1, startDateParts.day)).getUTCDay()
+    : -1;
   const time = clean(record.time);
   const timezone = clean(record.timezone) || 'America/Sao_Paulo';
   const titlePt = clean(record.title_pt);
@@ -305,7 +312,8 @@ function normalizeRecurringSchedule(value: unknown, strict: boolean): Normalized
     timezoneIsValid = false;
   }
   const valid = Number.isInteger(weekday) && weekday >= 0 && weekday <= 6
-    && /^\\d{2}:\\d{2}$/.test(time) && Boolean(toZonedDateTime('2026-01-07', time, timezone))
+    && Boolean(startDateParts) && startDateWeekday === weekday
+    && /^\d{2}:\d{2}$/.test(time) && Boolean(toZonedDateTime(startDate, time, timezone))
     && timezoneIsValid && Boolean(titlePt) && Boolean(titleEn)
     && Boolean(descriptionPt) && Boolean(descriptionEn)
     && Number.isFinite(entryPrice) && entryPrice >= 0
@@ -319,6 +327,7 @@ function normalizeRecurringSchedule(value: unknown, strict: boolean): Normalized
   return {
     enabled: true,
     weekday,
+    startDate,
     time,
     timezone,
     title: { 'pt-BR': titlePt, en: titleEn },
@@ -362,14 +371,24 @@ function nextRecurringMeetup(
   const today = `${nowParts.year}-${nowParts.month}-${nowParts.day}`;
   const todayParts = dateKeyParts(today);
   if (!todayParts) return undefined;
-  const currentWeekday = new Date(Date.UTC(todayParts.year, todayParts.month - 1, todayParts.day)).getUTCDay();
-  let daysUntil = (schedule.weekday - currentWeekday + 7) % 7;
-  let candidateDate = addCalendarDays(today, daysUntil);
-  let candidateDateTime = toZonedDateTime(candidateDate, schedule.time, schedule.timezone);
-  if (!candidateDateTime) return undefined;
-  if (Date.parse(candidateDateTime) <= now.getTime()) {
-    daysUntil += 7;
+
+  let candidateDate: string;
+  if (today <= schedule.startDate) {
+    candidateDate = schedule.startDate;
+    const firstOccurrence = toZonedDateTime(candidateDate, schedule.time, schedule.timezone);
+    if (!firstOccurrence) return undefined;
+    if (Date.parse(firstOccurrence) <= now.getTime()) {
+      candidateDate = addCalendarDays(candidateDate, 7);
+    }
+  } else {
+    const currentWeekday = new Date(Date.UTC(todayParts.year, todayParts.month - 1, todayParts.day)).getUTCDay();
+    const daysUntil = (schedule.weekday - currentWeekday + 7) % 7;
     candidateDate = addCalendarDays(today, daysUntil);
+    const occurrence = toZonedDateTime(candidateDate, schedule.time, schedule.timezone);
+    if (!occurrence) return undefined;
+    if (Date.parse(occurrence) <= now.getTime()) {
+      candidateDate = addCalendarDays(candidateDate, 7);
+    }
   }
 
   for (let attempt = 0; attempt < 104; attempt += 1) {
@@ -377,7 +396,8 @@ function nextRecurringMeetup(
     if (!occurrenceDate) return undefined;
     const week = mondayOfWeek(occurrenceDate);
     const replacedBySpecial = manualMeetups.some((meetup) => (
-      meetup.replacesDefaultSchedule === true
+      meetup.status === 'scheduled'
+      && meetup.replacesDefaultSchedule === true
       && meetup.date
       && mondayOfWeek(meetup.date.slice(0, 10)) === week
     ));
