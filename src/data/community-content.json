@@ -60,7 +60,8 @@
     "venue": "Charada Savassi Cervejaria Artesanal",
     "address": "Rua Paraíba, 523 — Belo Horizonte, MG",
     "city": "Belo Horizonte, Minas Gerais, Brasil",
-    "maps_url": "https://www.google.com/maps/search/?api=1&query=Charada+Savassi+Cervejaria+Artesanal%2C+Rua+Para%C3%ADba%2C+523%2C+Belo+Horizonte%2C+MG"
+    "maps_url": "https://www.google.com/maps/search/?api=1&query=Charada+Savassi+Cervejaria+Artesanal%2C+Rua+Para%C3%ADba%2C+523%2C+Belo+Horizonte%2C+MG",
+    "default_image": "/images/events/weekly-meetup.svg"
   },
   "schedule_exceptions": []
 }
