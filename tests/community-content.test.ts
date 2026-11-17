@@ -103,7 +103,7 @@ test('a special meetup replaces the default occurrence only when explicitly flag
     schedule_exceptions: [],
     gallery: [],
   }, new Date('2026-11-24T12:00:00-03:00'), true);
-  assert.equal(replaced.meetup.date, '2026-11-27T23:00:00.000Z');
+  assert.equal(replaced.meetup.date, '2026-11-27T20:00:00-03:00');
   assert.equal(replaced.meetup.slug, 'talk-bh-2026-11-27');
 
   const additional = normalizeCommunityContent({
