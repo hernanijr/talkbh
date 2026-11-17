@@ -78,7 +78,10 @@ test('recurring schedule starts on Wednesday November 25 and repeats every week 
   assert.equal(beforeFirstStart.date, '2026-11-25T21:30:00.000Z');
 
   const afterFirstStart = normalizeCommunityContent(input, new Date('2026-11-25T18:31:00-03:00'), true).meetup;
-  assert.equal(afterFirstStart.date, '2026-12-02T21:30:00.000Z');
+  assert.equal(afterFirstStart.date, '2026-11-25T21:30:00.000Z');
+
+  const followingDay = normalizeCommunityContent(input, new Date('2026-11-26T00:01:00-03:00'), true).meetup;
+  assert.equal(followingDay.date, '2026-12-02T21:30:00.000Z');
 });
 
 test('recurring schedule can skip one Wednesday without disabling future weeks', () => {
