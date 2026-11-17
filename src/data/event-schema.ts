@@ -16,7 +16,7 @@ export function createEventSchema(event: CommunityMeetup | undefined, lang: Lang
     ...(event.description?.[lang] ? { description: event.description[lang] } : {}),
     startDate: event.date,
     ...(event.endDate ? { endDate: event.endDate } : {}),
-    ...(event.image ? { image: new URL(event.image, `${domain}/`).href } : {}),
+    image: new URL(event.image ?? '/social-card.svg', `${domain}/`).href,
     eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     location: {
