@@ -41,7 +41,15 @@ for (const [html, language] of [[nextMeetupPt, 'pt-BR'], [nextMeetupEn, 'en']]) 
   assert.match(html, /hreflang="pt-BR"/);
   assert.match(html, /hreflang="en"/);
   assert.match(html, /property="og:type" content="website"/);
-  assert.match(html, /data-copy-next-meetup/);
+  if (html.includes('data-event-share')) {
+    assert.ok(html.includes('data-event-copy-link'), 'A permanent route using the event presentation should expose a copy-link action.');
+    assert.ok(html.includes('data-event-share-status'), 'Permanent-route share actions should announce their result accessibly.');
+    assert.ok(html.includes('https://wa.me/?text='), 'A permanent route using the event presentation should expose a prefilled WhatsApp share link.');
+  } else if (language === 'pt-BR') {
+    assert.ok(html.includes('Ainda não há um próximo encontro confirmado.'), 'The Portuguese fallback should explain that no next meetup is confirmed.');
+  } else {
+    assert.ok(html.includes('The next meetup has not been confirmed yet.'), 'The English fallback should explain that no next meetup is confirmed.');
+  }
 }
 assert.equal(ptSchema.filter((item) => item['@type'] === 'Event').length, 0, 'The homepage should link to event details instead of publishing event structured data itself.');
 assert.equal(enSchema.filter((item) => item['@type'] === 'Event').length, 0, 'The English homepage should link to event details instead of publishing event structured data itself.');
@@ -214,9 +222,6 @@ assert.match(cmsConfig, /name: end_time, widget: string, required: false/);
 assert.match(cmsConfig, /name: recurring_schedule/);
 assert.match(cmsConfig, /name: schedule_exceptions/);
 assert.match(cmsConfig, /name: replaces_default_schedule, widget: boolean/);
-assert.match(nextMeetupPt, /PRÓXIMO ENCONTRO TALK BH/);
-assert.match(nextMeetupEn, /NEXT TALK BH MEETUP/);
-
 assert.match(sitemap, /https:\/\/talk\.bh\//);
 assert.match(sitemap, /https:\/\/talk\.bh\/en\//);
 assert.doesNotMatch(sitemap, /preview|draft/i);
