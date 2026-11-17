@@ -1,19 +1,19 @@
 {
   "meetups": [
     {
+      "description_pt": "Encontro descontraído para praticar inglês por meio de conversas e karaokê. Pessoas de todos os níveis são bem-vindas. A entrada é gratuita, e participantes têm desconto na cerveja; o consumo é pago à parte.",
       "maps_url": "https://www.google.com/maps/search/?api=1&query=Charada+Pub+Savassi%2C+Rua+Para%C3%ADba%2C+523%2C+Belo+Horizonte%2C+MG",
       "title_pt": "Talk & Sing — conversação em inglês e karaokê",
-      "title_en": "Talk & Sing — English conversation and karaoke",
-      "description_pt": "Encontro descontraído para praticar inglês por meio de conversas e karaokê. Pessoas de todos os níveis são bem-vindas. A entrada é gratuita, e participantes têm desconto na cerveja; o consumo é pago à parte.",
-      "description_en": "A relaxed meetup to practice English through conversation and karaoke. All English levels are welcome. Admission is free, and participants receive a beer discount; purchases are paid separately.",
       "city": "Belo Horizonte, Minas Gerais, Brasil",
+      "description_en": "A relaxed meetup to practice English through conversation and karaoke. All English levels are welcome. Admission is free, and participants receive a beer discount; purchases are paid separately.",
       "time": "18:30",
-      "end_time": "00:00",
       "date": "2026-11-17",
       "venue": "Charada Pub Savassi",
-      "entry_price": 0,
+      "title_en": "Talk & Sing — English conversation and karaoke",
+      "end_time": "00:00",
       "status": "scheduled",
-      "address": "Rua Paraíba, 523 — Belo Horizonte, MG"
+      "address": "Rua Paraíba, 523 — Belo Horizonte, MG",
+      "entry_price": 0
     }
   ],
   "gallery": [
@@ -41,5 +41,8 @@
       "alt_pt": "Talk BH 2026",
       "alt_en": "Talk BH 2026"
     }
-  ]
+  ],
+  "next_meetup_poster": {
+    "image": "/images/events/whatsapp-image-2026-11-17-at-10.08.08.jpeg"
+  }
 }
