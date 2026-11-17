@@ -41,9 +41,11 @@ for (const [language, schemaBlocks] of [['Portuguese', ptSchema], ['English', en
     assert.ok(Date.parse(event.endDate ?? event.startDate) > Date.now(), 'Only ongoing or future meetups may be emitted as Event structured data.');
     assert.equal(event.eventStatus, 'https://schema.org/EventScheduled');
     assert.ok(event.description, 'Event structured data should include a localized description.');
-    if (event.image) {
-      assert.ok(event.image.startsWith('https://talk.bh/images/events/'), 'Event images in structured data should use the crawlable local media folder.');
-    }
+    assert.ok(
+      event.image === 'https://talk.bh/social-card.svg'
+        || event.image.startsWith('https://talk.bh/images/events/'),
+      'Event structured data should use the current poster or the stable site default image.',
+    );
     if (event.endDate) {
       assert.ok(Date.parse(event.endDate) > Date.parse(event.startDate), 'Event end date must follow its start date.');
     }
@@ -59,13 +61,14 @@ assert.match(en, /whatsapp-invite\.svg/);
 const communityContent = JSON.parse(await readFile(new URL('../src/data/community-content.json', import.meta.url), 'utf8'));
 const galleryPhotos = Array.isArray(communityContent.gallery) ? communityContent.gallery : [];
 const eventRecords = Array.isArray(communityContent.meetups) ? communityContent.meetups : [];
-for (const event of eventRecords) {
-  if (!event.image) continue;
-  const eventImageUrl = new URL(event.image, 'https://talk.bh');
-  assert.equal(eventImageUrl.origin, 'https://talk.bh', 'Event images must use the Talk BH domain.');
-  assert.ok(eventImageUrl.pathname.startsWith('/images/events/'), 'Event images must use the dedicated media folder.');
-  const fileName = decodeURIComponent(eventImageUrl.pathname.slice('/images/events/'.length));
-  assert.ok(fileName && !fileName.includes('/') && !fileName.includes(String.fromCharCode(92)), 'Event image paths must reference one filename.');
+const nextMeetupPoster = communityContent.next_meetup_poster;
+if (nextMeetupPoster) {
+  assert.match(nextMeetupPoster.event_date, /^\\d{4}-\\d{2}-\\d{2}$/, 'The poster must be linked to an explicit meetup date.');
+  const posterUrl = new URL(nextMeetupPoster.image, 'https://talk.bh');
+  assert.equal(posterUrl.origin, 'https://talk.bh', 'The next meetup poster must use the Talk BH domain.');
+  assert.ok(posterUrl.pathname.startsWith('/images/events/'), 'The next meetup poster must use the dedicated media folder.');
+  const fileName = decodeURIComponent(posterUrl.pathname.slice('/images/events/'.length));
+  assert.ok(fileName && !fileName.includes('/') && !fileName.includes(String.fromCharCode(92)), 'The poster path must reference one filename.');
   await access(new URL('images/events/' + encodeURIComponent(fileName), outputDirectory));
 }
 const imageTags = (html) => html.split('<img').slice(1).map((part) => '<img' + part.split('>')[0] + '>');
@@ -135,6 +138,8 @@ assert.match(cmsConfig, /name: turbo-github/);
 assert.match(cmsConfig, /publish_mode: editorial_workflow/);
 assert.doesNotMatch(cmsConfig, /turbo_site_id: SET_AFTER_CREATING_TALK_BH_SITE/);
 assert.match(cmsConfig, /turbo_site_id: 63bc3ac0-e116-4c37-9e8d-a6d47b2010ac/);
+assert.match(cmsConfig, /name: next_meetup_poster/);
+assert.match(cmsConfig, /name: event_date, widget: date/);
 
 assert.match(sitemap, /https:\/\/talk\.bh\//);
 assert.match(sitemap, /https:\/\/talk\.bh\/en\//);
