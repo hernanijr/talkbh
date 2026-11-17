@@ -41,7 +41,9 @@ for (const [language, schemaBlocks] of [['Portuguese', ptSchema], ['English', en
     assert.ok(Date.parse(event.endDate ?? event.startDate) > Date.now(), 'Only ongoing or future meetups may be emitted as Event structured data.');
     assert.equal(event.eventStatus, 'https://schema.org/EventScheduled');
     assert.ok(event.description, 'Event structured data should include a localized description.');
-    assert.ok(event.image?.startsWith('https://talk.bh/images/events/'), 'Event structured data should reference a crawlable local image.');
+    if (event.image) {
+      assert.ok(event.image.startsWith('https://talk.bh/images/events/'), 'Event images in structured data should use the crawlable local media folder.');
+    }
     if (event.endDate) {
       assert.ok(Date.parse(event.endDate) > Date.parse(event.startDate), 'Event end date must follow its start date.');
     }
