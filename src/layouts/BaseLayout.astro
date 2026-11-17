@@ -3,12 +3,32 @@ import '../styles/global.css';
 import { site, type Language } from '../data/site';
 import type { CommunityMeetup } from '../data/community-content';
 import { createEventSchema } from '../data/event-schema';
-const { lang, title, description, event } = Astro.props as { lang: Language; title: string; description: string; event?: CommunityMeetup };
+const {
+  lang,
+  title,
+  description,
+  event,
+  canonicalUrl,
+  portugueseUrl: portugueseUrlOverride,
+  englishUrl: englishUrlOverride,
+  socialImageUrl,
+  openGraphType,
+} = Astro.props as {
+  lang: Language;
+  title: string;
+  description: string;
+  event?: CommunityMeetup;
+  canonicalUrl?: string;
+  portugueseUrl?: string;
+  englishUrl?: string;
+  socialImageUrl?: string;
+  openGraphType?: 'website' | 'article';
+};
 const domain = site.brand.domain.replace(/\/$/, '');
-const canonical = lang === 'en' ? `${domain}/en/` : `${domain}/`;
-const portugueseUrl = `${domain}/`;
-const englishUrl = `${domain}/en/`;
-const socialImage = `${domain}/social-card.svg`;
+const canonical = canonicalUrl ?? (lang === 'en' ? `${domain}/en/` : `${domain}/`);
+const portugueseUrl = portugueseUrlOverride ?? `${domain}/`;
+const englishUrl = englishUrlOverride ?? `${domain}/en/`;
+const socialImage = socialImageUrl ?? (event?.image ? new URL(event.image, `${domain}/`).href : `${domain}/social-card.svg`);
 const orgSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
@@ -27,7 +47,7 @@ const orgSchema = {
       : 'Participation is free. Each participant pays only for their own food and drinks at the venue.',
   },
 };
-const eventSchema = createEventSchema(event, lang);
+const eventSchema = createEventSchema(event, lang, new Date(), canonical);
 ---
 <!doctype html>
 <html lang={lang}>
@@ -41,7 +61,7 @@ const eventSchema = createEventSchema(event, lang);
     <link rel="alternate" hreflang="pt-BR" href={portugueseUrl} />
     <link rel="alternate" hreflang="en" href={englishUrl} />
     <link rel="alternate" hreflang="x-default" href={portugueseUrl} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={openGraphType ?? 'website'} />
     <meta property="og:site_name" content="Talk BH" />
     <meta property="og:locale" content={lang === 'pt-BR' ? 'pt_BR' : 'en_US'} />
     <meta property="og:locale:alternate" content={lang === 'pt-BR' ? 'en_US' : 'pt_BR'} />
