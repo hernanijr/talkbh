@@ -131,7 +131,7 @@ function meetupFromRecord(record: MeetupRecord, strict: boolean): CommunityMeetu
     description: { 'pt-BR': descriptionPt, en: descriptionEn },
     date: validDate,
     ...(endDate ? { endDate } : {}),
-    image,
+    ...(image ? { image } : {}),
     entryPrice,
     status,
     venue,
