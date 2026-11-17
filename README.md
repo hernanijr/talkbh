@@ -38,7 +38,7 @@ Decap CMS originals stay in `public/images/community`, preserving stable URLs fo
 
 ## Social links
 
-The official WhatsApp invite URL is configured in `social.whatsapp`, and its QR image is stored at `public/images/community/whatsapp-invite.png`. Replace both when the invite changes. Until a valid WhatsApp URL is configured, community buttons open the official Instagram profile with matching fallback labels. Change `social.instagram` to update Instagram links.
+The official WhatsApp invite URL is configured in `social.whatsapp`, and its QR image is stored at `public/images/community/whatsapp-invite.svg`. Replace both when the invite changes. Until a valid WhatsApp URL is configured, community buttons open the official Instagram profile with matching fallback labels. Change `social.instagram` to update Instagram links.
 
 ## Build
 
