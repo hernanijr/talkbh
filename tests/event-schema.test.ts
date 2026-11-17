@@ -25,12 +25,13 @@ const source = {
 
 test('builds bilingual Event JSON-LD for an ongoing meetup with midnight rollover, image and free admission', () => {
   const event = normalizeCommunityContent(source, now, true).meetup;
-  const pt = createEventSchema(event, 'pt-BR', now);
-  const en = createEventSchema(event, 'en', now);
+  const pt = createEventSchema(event, 'pt-BR', now, 'https://talk.bh/eventos/talk-sing-2026-11-17/');
+  const en = createEventSchema(event, 'en', now, 'https://talk.bh/en/events/talk-sing-2026-11-17/');
 
   assert.equal(pt?.['@type'], 'Event');
   assert.equal(pt?.name, source.meetups[0].title_pt);
   assert.equal(pt?.description, source.meetups[0].description_pt);
+  assert.equal(pt?.url, 'https://talk.bh/eventos/talk-sing-2026-11-17/');
   assert.equal(pt?.startDate, '2026-11-17T18:30:00-03:00');
   assert.equal(pt?.endDate, '2026-11-18T00:00:00-03:00');
   assert.equal(pt?.image, 'https://talk.bh/images/events/test-event.webp');
@@ -62,7 +63,16 @@ test('falls back to the default after the linked meetup has passed', () => {
   assert.equal(schema?.image, 'https://talk.bh/social-card.svg');
 });
 
-test('omits expired or cancelled meetups from Event JSON-LD', () => {
+test('uses EventCancelled for a cancelled event that has not started yet', () => {
+  const cancelledEvent = normalizeCommunityContent({
+    ...source,
+    meetups: [{ ...source.meetups[0], status: 'cancelled' }],
+  }, new Date('2026-11-17T12:00:00-03:00'), true).meetup;
+  const schema = createEventSchema(cancelledEvent, 'pt-BR', new Date('2026-11-17T12:00:00-03:00'));
+  assert.equal(schema?.eventStatus, 'https://schema.org/EventCancelled');
+});
+
+test('omits expired or cancelled meetups from Event JSON-LD after their scheduled time', () => {
   const expired = normalizeCommunityContent({
     ...source,
     meetups: [{ ...source.meetups[0], date: '2026-11-16' }],
