@@ -54,6 +54,14 @@ test('rolls event end times after midnight into the next calendar date', () => {
   assert.equal(content.meetup.endDate, '2026-11-14T00:00:00-03:00');
 });
 
+test('keeps a same-day meetup active when no confirmed end time is provided', () => {
+  const { end_time: _endTime, ...withoutEndTime } = meetup('2026-11-13', '18:30');
+  const event = normalizeCommunityContent({ meetups: [withoutEndTime], gallery: [] }, now, true).meetup;
+
+  assert.equal(getMeetupStatus(event, new Date('2026-11-13T22:00:00-03:00')), 'today');
+  assert.equal(getMeetupStatus(event, new Date('2026-11-14T00:00:00-03:00')), 'past');
+});
+
 test('normalizes descriptions, matching next meetup poster and free admission', () => {
   const content = normalizeCommunityContent({
     meetups: [meetup('2026-11-20')],
