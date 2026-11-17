@@ -54,8 +54,16 @@ test('rolls event end times after midnight into the next calendar date', () => {
 test('normalizes descriptions, local event image and free admission', () => {
   const content = normalizeCommunityContent({ meetups: [meetup('2026-11-20')], gallery: [] }, now, true);
   assert.equal(content.meetup.description?.['pt-BR'], 'Encontro para praticar inglês.');
-  assert.equal(content.meetup.image, '/images/events/test-event.svg');
+  assert.equal(content.meetup.image, '/images/events/test-event.webp');
   assert.equal(content.meetup.entryPrice, 0);
+});
+
+test('accepts a meetup without an event poster image', () => {
+  const recordWithoutImage = meetup('2026-11-20');
+  delete recordWithoutImage.image;
+  const content = normalizeCommunityContent({ meetups: [recordWithoutImage], gallery: [] }, now, true);
+  assert.equal(content.meetup.image, undefined);
+  assert.equal(content.meetup.title?.['pt-BR'], 'Talk BH');
 });
 
 test('a future cancellation is preserved when no scheduled meetup is upcoming', () => {
