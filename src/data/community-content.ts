@@ -396,7 +396,7 @@ function nextRecurringMeetup(
     candidateDate = addCalendarDays(today, daysUntil);
     const occurrence = toZonedDateTime(candidateDate, schedule.time, schedule.timezone);
     if (!occurrence) return undefined;
-    if (Date.parse(occurrence) <= now.getTime()) {
+    if (candidateDate !== today && Date.parse(occurrence) <= now.getTime()) {
       candidateDate = addCalendarDays(candidateDate, 7);
     }
   }
