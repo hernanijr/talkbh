@@ -35,6 +35,7 @@ collections:
               - { label: Descrição em português, name: description_pt, widget: text, required: true }
               - { label: Description in English, name: description_en, widget: text, required: true }
               - { label: Data (AAAA-MM-DD), name: date, widget: string, required: true, hint: "Use AAAA-MM-DD, por exemplo 2027-04-18." }
+              - { label: Slug da URL, name: slug, widget: string, required: false, hint: "Opcional. Se vazio, o site gera um slug a partir do título em português e da data; mantenha-o estável depois de publicar." }
               - { label: Horário de início (HH:MM), name: time, widget: string, required: true, hint: "Use HH:MM no fuso de Belo Horizonte." }
               - { label: Horário de término (HH:MM), name: end_time, widget: string, required: false, hint: "Opcional. Use 00:00 se o evento terminar à meia-noite." }
               - { label: Valor da entrada (BRL), name: entry_price, widget: number, required: true, default: 0, value_type: float, min: 0 }
