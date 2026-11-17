@@ -43,7 +43,7 @@ const formattedPrice = event.entryPrice === 0
 const shareMessage = lang === 'en'
   ? `Check out this Talk BH meetup: ${title}, ${dateText} at ${timeText}.`
   : `Olha este encontro do Talk BH: ${title}, ${dateText}, às ${timeText}.`;
-const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(`${shareMessage}\\n${canonicalUrl}`)}`;
+const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(`${shareMessage}\n${canonicalUrl}`)}`;
 const pageTitle = lang === 'en'
   ? `${title} | Talk BH — English meetup in Belo Horizonte`
   : `${title} | Talk BH — Encontro em Belo Horizonte`;
