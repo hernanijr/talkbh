@@ -5,6 +5,24 @@ import { getGoogleMapsUrl, getMeetupStatus } from '../src/data/meetup.ts';
 
 const now = new Date('2026-11-13T12:00:00-03:00');
 
+
+const recurringSchedule = {
+  enabled: true,
+  weekday: 3,
+  start_date: '2026-11-25',
+  time: '18:30',
+  timezone: 'America/Sao_Paulo',
+  title_pt: 'Talk BH — encontro semanal de conversação em inglês',
+  title_en: 'Talk BH — weekly English conversation meetup',
+  description_pt: 'Encontro semanal para praticar inglês em um ambiente leve e informal.',
+  description_en: 'A weekly meetup to practice English in a relaxed, informal setting.',
+  entry_price: 0,
+  venue: 'Charada Savassi Cervejaria Artesanal',
+  city: 'Belo Horizonte, Minas Gerais, Brasil',
+  address: 'Rua Paraíba, 523 — Belo Horizonte, MG',
+  maps_url: 'https://www.google.com/maps/search/?api=1&query=Charada+Savassi',
+};
+
 const meetup = (date: string, time = '19:30', status = 'scheduled', endTime = '21:30') => ({
   title_pt: 'Talk BH', title_en: 'Talk BH',
   description_pt: 'Encontro para praticar inglês.', description_en: 'A meetup to practice English.',
@@ -46,6 +64,73 @@ test('content selects the nearest future meetup and keeps bilingual photo alt te
   assert.equal(content.meetup.image, '/images/events/next-meetup.webp');
   assert.equal(content.gallery.length, 1);
   assert.equal(content.gallery[0].alt['pt-BR'], 'Pessoas conversando');
+});
+
+
+test('recurring schedule starts on Wednesday November 25 and repeats every week at 18:30', () => {
+  const input = { meetups: [], recurring_schedule: recurringSchedule, schedule_exceptions: [], gallery: [] };
+  const beforeThisWednesday = normalizeCommunityContent(input, new Date('2026-11-18T12:00:00-03:00'), true).meetup;
+  assert.equal(beforeThisWednesday.date, '2026-11-25T21:30:00.000Z');
+  assert.equal(beforeThisWednesday.source, 'recurring');
+  assert.equal(beforeThisWednesday.slug, undefined);
+
+  const beforeFirstStart = normalizeCommunityContent(input, new Date('2026-11-25T17:59:00-03:00'), true).meetup;
+  assert.equal(beforeFirstStart.date, '2026-11-25T21:30:00.000Z');
+
+  const afterFirstStart = normalizeCommunityContent(input, new Date('2026-11-25T18:31:00-03:00'), true).meetup;
+  assert.equal(afterFirstStart.date, '2026-12-02T21:30:00.000Z');
+});
+
+test('recurring schedule can skip one Wednesday without disabling future weeks', () => {
+  const content = normalizeCommunityContent({
+    meetups: [],
+    recurring_schedule: recurringSchedule,
+    schedule_exceptions: [{ date: '2026-11-25', reason: 'No meetup this week' }],
+    gallery: [],
+  }, new Date('2026-11-18T12:00:00-03:00'), true);
+
+  assert.equal(content.meetup.date, '2026-12-02T21:30:00.000Z');
+});
+
+test('a special meetup replaces the default occurrence only when explicitly flagged', () => {
+  const special = { ...meetup('2026-11-27', '20:00'), replaces_default_schedule: true };
+  const replaced = normalizeCommunityContent({
+    meetups: [special],
+    recurring_schedule: recurringSchedule,
+    schedule_exceptions: [],
+    gallery: [],
+  }, new Date('2026-11-24T12:00:00-03:00'), true);
+  assert.equal(replaced.meetup.date, '2026-11-27T23:00:00.000Z');
+  assert.equal(replaced.meetup.slug, 'talk-bh-2026-11-27');
+
+  const additional = normalizeCommunityContent({
+    meetups: [{ ...special, replaces_default_schedule: false }],
+    recurring_schedule: recurringSchedule,
+    schedule_exceptions: [],
+    gallery: [],
+  }, new Date('2026-11-24T12:00:00-03:00'), true);
+  assert.equal(additional.meetup.date, '2026-11-25T21:30:00.000Z');
+  assert.equal(additional.meetup.source, 'recurring');
+});
+
+test('a disabled recurring schedule leaves only explicitly registered meetups', () => {
+  const content = normalizeCommunityContent({
+    meetups: [],
+    recurring_schedule: { ...recurringSchedule, enabled: false },
+    schedule_exceptions: [],
+    gallery: [],
+  }, new Date('2026-11-18T12:00:00-03:00'), true);
+
+  assert.equal(content.meetup.date, null);
+});
+
+test('recurring schedule rejects a first date that does not match its configured weekday', () => {
+  assert.throws(() => normalizeCommunityContent({
+    meetups: [],
+    recurring_schedule: { ...recurringSchedule, start_date: '2026-11-24' },
+    schedule_exceptions: [],
+    gallery: [],
+  }, new Date('2026-11-18T12:00:00-03:00'), true));
 });
 
 test('rolls event end times after midnight into the next calendar date', () => {
