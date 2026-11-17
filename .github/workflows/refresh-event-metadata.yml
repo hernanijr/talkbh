@@ -1,0 +1,29 @@
+name: Refresh time-sensitive event metadata
+
+on:
+  schedule:
+    # 00:05 in Belo Horizonte (UTC-3), after the local calendar day changes.
+    - cron: '5 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    name: Rebuild event metadata
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger the production Cloudflare Worker build
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.TALK_BH_CLOUDFLARE_DEPLOY_HOOK }}
+        run: |
+          set -euo pipefail
+          if [ -z "${DEPLOY_HOOK_URL:-}" ]; then
+            echo "::error::Configure the TALK_BH_CLOUDFLARE_DEPLOY_HOOK repository secret."
+            exit 1
+          fi
+
+          response="$(curl --fail --silent --show-error --request POST "$DEPLOY_HOOK_URL")"
+          echo "$response" | jq -e '.success == true' >/dev/null
+          echo "$response" | jq '{success, result: {branch: .result.branch, worker: .result.worker, build_uuid: .result.build_uuid}}'

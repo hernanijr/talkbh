@@ -32,8 +32,12 @@ collections:
             fields:
               - { label: Título em português, name: title_pt, widget: string, required: true }
               - { label: Title in English, name: title_en, widget: string, required: true }
-              - { label: Data (AAAA-MM-DD), name: date, widget: string, required: true, pattern: ['^\d{4}-\d{2}-\d{2}$', 'Use AAAA-MM-DD, por exemplo 2027-04-18.'] }
-              - { label: Horário (HH:MM), name: time, widget: string, required: true, pattern: ['^([01]\d|2[0-3]):[0-5]\d$', 'Use o formato de 24 horas, por exemplo 19:30.'] }
+              - { label: Descrição em português, name: description_pt, widget: text, required: true }
+              - { label: Description in English, name: description_en, widget: text, required: true }
+              - { label: Data (AAAA-MM-DD), name: date, widget: string, required: true, hint: "Use AAAA-MM-DD, por exemplo 2027-04-18." }
+              - { label: Horário de início (HH:MM), name: time, widget: string, required: true, hint: "Use HH:MM no fuso de Belo Horizonte." }
+              - { label: Horário de término (HH:MM), name: end_time, widget: string, required: false, hint: "Opcional. Use 00:00 se o evento terminar à meia-noite." }
+              - { label: Valor da entrada (BRL), name: entry_price, widget: number, required: true, default: 0, value_type: float, min: 0 }
               - label: Situação
                 name: status
                 widget: select
@@ -45,6 +49,22 @@ collections:
               - { label: Endereço completo, name: address, widget: string, required: true, default: 'Rua Paraíba, 523 — Belo Horizonte, MG' }
               - { label: Cidade, name: city, widget: string, required: true, default: 'Belo Horizonte, Minas Gerais, Brasil' }
               - { label: Link do Google Maps, name: maps_url, widget: string, required: false }
+          - label: Arte do próximo encontro
+            name: next_meetup_poster
+            widget: object
+            required: false
+            collapsed: true
+            summary: "Evento em {{fields.event_date}}"
+            hint: "Associe a arte à data exata do encontro. Quando essa data passar ou deixar de ser o próximo encontro, ela será ignorada automaticamente e o site usará a imagem padrão."
+            fields:
+              - { label: Data do encontro associado, name: event_date, widget: date, required: true, format: "YYYY-MM-DD" }
+              - label: Imagem de divulgação
+                name: image
+                widget: image
+                required: true
+                media_folder: /public/images/events
+                public_folder: /images/events
+                hint: "Prefira WebP ou JPG otimizado; proporção horizontal 16:9."
           - label: Galeria de fotos
             name: gallery
             widget: list
