@@ -113,7 +113,7 @@ function meetupFromRecord(record: MeetupRecord, strict: boolean): CommunityMeetu
   const validDate = toDateTime(date, time);
   const endDate = endTime ? toEndDateTime(date, time, endTime) : undefined;
   const validEndDate = !endTime || Boolean(endDate);
-  const validImage = /^\/images\/events\/[a-z0-9][a-z0-9._-]*\.(avif|jpe?g|png|svg|webp)$/i.test(image);
+  const validImage = !image || /^\/images\/events\/[a-z0-9][a-z0-9._-]*\.(avif|jpe?g|png|svg|webp)$/i.test(image);
   const validPrice = entryPrice === undefined || (Number.isFinite(entryPrice) && entryPrice >= 0);
   const validStatus = status === 'scheduled' || status === 'cancelled';
   const validMapsUrl = !mapsUrl || Boolean(getGoogleMapsUrl(mapsUrl));
