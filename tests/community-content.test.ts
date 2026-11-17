@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { normalizeCommunityContent } from '../src/data/community-content.ts';
+import { createMeetupSlug, normalizeCommunityContent, normalizeCommunityMeetups } from '../src/data/community-content.ts';
 import { getGoogleMapsUrl, getMeetupStatus } from '../src/data/meetup.ts';
 
 const now = new Date('2026-11-13T12:00:00-03:00');
@@ -42,6 +42,7 @@ test('content selects the nearest future meetup and keeps bilingual photo alt te
 
   assert.equal(content.meetup.date, '2026-11-20T19:30:00-03:00');
   assert.equal(content.meetup.title?.en, 'Talk BH');
+  assert.equal(content.meetup.slug, 'talk-bh-2026-11-20');
   assert.equal(content.meetup.image, '/images/events/next-meetup.webp');
   assert.equal(content.gallery.length, 1);
   assert.equal(content.gallery[0].alt['pt-BR'], 'Pessoas conversando');
@@ -51,6 +52,14 @@ test('rolls event end times after midnight into the next calendar date', () => {
   const content = normalizeCommunityContent({ meetups: [meetup('2026-11-13', '18:30', 'scheduled', '00:00')], gallery: [] }, now);
   assert.equal(content.meetup.date, '2026-11-13T18:30:00-03:00');
   assert.equal(content.meetup.endDate, '2026-11-14T00:00:00-03:00');
+});
+
+test('keeps a same-day meetup active when no confirmed end time is provided', () => {
+  const { end_time: _endTime, ...withoutEndTime } = meetup('2026-11-13', '18:30');
+  const event = normalizeCommunityContent({ meetups: [withoutEndTime], gallery: [] }, now, true).meetup;
+
+  assert.equal(getMeetupStatus(event, new Date('2026-11-13T22:00:00-03:00')), 'today');
+  assert.equal(getMeetupStatus(event, new Date('2026-11-14T00:00:00-03:00')), 'past');
 });
 
 test('normalizes descriptions, matching next meetup poster and free admission', () => {
@@ -121,4 +130,24 @@ test('Google Maps CTA accepts only HTTPS Google Maps URLs', () => {
   assert.ok(getGoogleMapsUrl('https://maps.google.com/?q=Belo+Horizonte'));
   assert.equal(getGoogleMapsUrl('http://maps.google.com/?q=Belo+Horizonte'), undefined);
   assert.equal(getGoogleMapsUrl('https://example.com/'), undefined);
+});
+
+test('generates safe date-qualified event slugs and accepts an explicit stable slug', () => {
+  assert.equal(createMeetupSlug('Talk & Sing — conversação em inglês', '2026-11-17'), 'talk-sing-conversacao-em-ingles-2026-11-17');
+  const generated = normalizeCommunityMeetups({ meetups: [meetup('2026-11-20')] }, now, true);
+  assert.equal(generated[0].slug, 'talk-bh-2026-11-20');
+
+  const custom = normalizeCommunityMeetups({
+    meetups: [{ ...meetup('2026-11-20'), slug: 'talk-bh-community-night' }],
+  }, now, true);
+  assert.equal(custom[0].slug, 'talk-bh-community-night');
+});
+
+test('rejects duplicate event URLs before static generation', () => {
+  assert.throws(() => normalizeCommunityMeetups({
+    meetups: [
+      meetup('2026-11-20'),
+      { ...meetup('2026-11-20'), title_pt: 'Different title', title_en: 'Different title', slug: 'talk-bh-2026-11-20' },
+    ],
+  }, now, true));
 });

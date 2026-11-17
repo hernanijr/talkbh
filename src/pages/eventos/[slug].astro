@@ -1,0 +1,16 @@
+---
+import EventPage from '../../components/EventPage.astro';
+import contentFile from '../../data/community-content.json';
+import { normalizeCommunityMeetups, type CommunityMeetup } from '../../data/community-content';
+
+export function getStaticPaths() {
+  return normalizeCommunityMeetups(contentFile, new Date(), true)
+    .flatMap((event) => event.slug
+      ? [{ params: { slug: event.slug }, props: { event } }]
+      : []);
+}
+
+const { event } = Astro.props as { event: CommunityMeetup };
+---
+
+<EventPage event={event} lang="pt-BR" />

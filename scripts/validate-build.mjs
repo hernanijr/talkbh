@@ -29,6 +29,8 @@ const structuredData = (html) => [...html.matchAll(/<script type="application\/l
   .map((match) => JSON.parse(match[1]));
 const ptSchema = structuredData(pt);
 const enSchema = structuredData(en);
+assert.equal(ptSchema.filter((item) => item['@type'] === 'Event').length, 0, 'The homepage should link to event details instead of publishing event structured data itself.');
+assert.equal(enSchema.filter((item) => item['@type'] === 'Event').length, 0, 'The English homepage should link to event details instead of publishing event structured data itself.');
 for (const [language, schemaBlocks] of [['Portuguese', ptSchema], ['English', enSchema]]) {
   const organization = schemaBlocks.find((item) => item['@type'] === 'Organization');
   assert.ok(organization, `The ${language} page should expose Organization structured data.`);
@@ -37,22 +39,6 @@ for (const [language, schemaBlocks] of [['Portuguese', ptSchema], ['English', en
   assert.equal(organization.makesOffer.price, 0);
   assert.equal(organization.makesOffer.priceCurrency, 'BRL');
   assert.match(organization.makesOffer.description, /free|gratuita/i);
-  for (const event of schemaBlocks.filter((item) => item['@type'] === 'Event')) {
-    assert.ok(Date.parse(event.endDate ?? event.startDate) > Date.now(), 'Only ongoing or future meetups may be emitted as Event structured data.');
-    assert.equal(event.eventStatus, 'https://schema.org/EventScheduled');
-    assert.ok(event.description, 'Event structured data should include a localized description.');
-    assert.ok(
-      event.image === 'https://talk.bh/social-card.svg'
-        || event.image.startsWith('https://talk.bh/images/events/'),
-      'Event structured data should use the current poster or the stable site default image.',
-    );
-    if (event.endDate) {
-      assert.ok(Date.parse(event.endDate) > Date.parse(event.startDate), 'Event end date must follow its start date.');
-    }
-    assert.ok(Number.isFinite(event.offers?.price) && event.offers.price >= 0, 'Event offers should expose a valid admission price.');
-    assert.equal(event.offers.priceCurrency, 'BRL');
-    assert.equal(event.performer, undefined, 'Do not invent performers for community conversation meetups.');
-  }
 }
 await access(new URL('images/brand/talk-bh-logo.webp', outputDirectory));
 await access(new URL('images/community/whatsapp-invite.svg', outputDirectory));
@@ -70,6 +56,70 @@ if (nextMeetupPoster) {
   const fileName = decodeURIComponent(posterUrl.pathname.slice('/images/events/'.length));
   assert.ok(fileName && !fileName.includes('/') && !fileName.includes(String.fromCharCode(92)), 'The poster path must reference one filename.');
   await access(new URL('images/events/' + encodeURIComponent(fileName), outputDirectory));
+}
+
+const slugifyEvent = (title) => title.normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '')
+  .slice(0, 48)
+  .replace(/-+$/g, '') || 'talk-bh';
+
+for (const record of eventRecords) {
+  const slug = record.slug || `${slugifyEvent(record.title_pt)}-${record.date}`;
+  assert.match(slug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Event slugs must be URL-safe.');
+  const ptUrl = `https://talk.bh/eventos/${slug}/`;
+  const enUrl = `https://talk.bh/en/events/${slug}/`;
+  const ptEventPage = await read(`eventos/${slug}/index.html`);
+  const enEventPage = await read(`en/events/${slug}/index.html`);
+  assert.ok(ptEventPage.includes(`<link rel="canonical" href="${ptUrl}"`), 'Portuguese event pages need a self-referencing canonical URL.');
+  assert.ok(enEventPage.includes(`<link rel="canonical" href="${enUrl}"`), 'English event pages need a self-referencing canonical URL.');
+  for (const [html, ownUrl] of [[ptEventPage, ptUrl], [enEventPage, enUrl]]) {
+    assert.ok(html.includes(`hreflang="pt-BR" href="${ptUrl}"`), 'Event pages must expose the Portuguese alternate.');
+    assert.ok(html.includes(`hreflang="en" href="${enUrl}"`), 'Event pages must expose the English alternate.');
+    assert.ok(html.includes(`property="og:url" content="${ownUrl}"`), 'Event Open Graph URL must match its canonical URL.');
+    assert.ok(html.includes('property="og:type" content="article"'), 'Event pages should use article Open Graph metadata.');
+    assert.ok(html.includes(`property="og:image"`), 'Event pages should provide an Open Graph image.');
+    assert.ok(html.includes('object-contain'), 'Event posters must be displayed in full without cropping.');
+    assert.ok(!html.includes('object-cover'), 'Event posters must not use crop-to-fill styling.');
+    assert.ok(html.includes('data-event-share'), 'Event pages should expose the native share action.');
+    assert.ok(html.includes('data-event-copy-link'), 'Event pages should expose a copy-link action.');
+    assert.ok(html.includes('https://wa.me/?text='), 'Event pages should expose a prefilled WhatsApp share link.');
+    assert.ok(html.includes('data-event-share-status'), 'Share actions should announce their result accessibly.');
+  }
+
+  const ptEventNodes = structuredData(ptEventPage).filter((item) => item['@type'] === 'Event');
+  const enEventNodes = structuredData(enEventPage).filter((item) => item['@type'] === 'Event');
+  assert.equal(ptEventNodes.length, enEventNodes.length, 'Both language variants must expose the same event-schema eligibility.');
+  assert.ok(ptEventNodes.length <= 1, 'An event detail page must describe one event only.');
+  if (ptEventNodes.length === 1) {
+    const ptEvent = ptEventNodes[0];
+    const enEvent = enEventNodes[0];
+    assert.equal(ptEvent.url, ptUrl);
+    assert.equal(enEvent.url, enUrl);
+    assert.equal(ptEvent.name, record.title_pt);
+    assert.equal(enEvent.name, record.title_en);
+    assert.equal(ptEvent.description, record.description_pt);
+    assert.equal(enEvent.description, record.description_en);
+    assert.ok(
+      ptEvent.image === 'https://talk.bh/social-card.svg'
+        || ptEvent.image.startsWith('https://talk.bh/images/events/'),
+      'Event schema should use the uploaded poster or the stable site fallback.',
+    );
+    assert.ok(['https://schema.org/EventScheduled', 'https://schema.org/EventCancelled'].includes(ptEvent.eventStatus));
+    assert.equal(ptEvent.offers.priceCurrency, 'BRL');
+    assert.equal(ptEvent.performer, undefined);
+    if (record.end_time) {
+      assert.ok(ptEvent.endDate, 'A confirmed end time should be represented in Event JSON-LD.');
+      assert.equal(enEvent.endDate, ptEvent.endDate, 'Both language variants must expose the same event end time.');
+    } else {
+      assert.equal(ptEvent.endDate, undefined, 'Do not infer endDate when the CMS has no confirmed event end time.');
+      assert.equal(enEvent.endDate, undefined, 'Do not infer endDate in the English page either.');
+    }
+  }
+  assert.ok(sitemap.includes(`<loc>${ptUrl}</loc>`), 'The Portuguese event URL should be included in the sitemap.');
+  assert.ok(sitemap.includes(`<loc>${enUrl}</loc>`), 'The English event URL should be included in the sitemap.');
 }
 const imageTags = (html) => html.split('<img').slice(1).map((part) => '<img' + part.split('>')[0] + '>');
 for (const photo of galleryPhotos) {
@@ -139,13 +189,16 @@ assert.match(cmsConfig, /publish_mode: editorial_workflow/);
 assert.doesNotMatch(cmsConfig, /turbo_site_id: SET_AFTER_CREATING_TALK_BH_SITE/);
 assert.match(cmsConfig, /turbo_site_id: 63bc3ac0-e116-4c37-9e8d-a6d47b2010ac/);
 assert.match(cmsConfig, /name: next_meetup_poster/);
-assert.match(cmsConfig, /name: event_date, widget: date/);
+assert.match(cmsConfig, /name: event_date, widget: string, required: true, hint: "Use AAAA-MM-DD/);
+assert.doesNotMatch(cmsConfig, /name: event_date, widget: date/);
+assert.match(cmsConfig, /name: end_time, widget: string, required: false/);
 
 assert.match(sitemap, /https:\/\/talk\.bh\//);
 assert.match(sitemap, /https:\/\/talk\.bh\/en\//);
 assert.doesNotMatch(sitemap, /preview|draft/i);
 assert.match(robots, /Sitemap: https:\/\/talk\.bh\/sitemap\.xml/);
-assert.match(robots, /Disallow: \/admin\//);
+assert.match(robots, /Allow: \//);
+assert.doesNotMatch(robots, /Disallow: \/admin\//, 'Search crawlers must be able to read the Admin page noindex directive.');
 assert.doesNotMatch(pt, /description_en|Weekly Talk BH Meetup|Bernardo Vasconcellos|2026-11-11T19:30|2026-11-12T19:30/);
 assert.equal(await (async () => { try { await access(new URL('preview/index.html', outputDirectory)); return true; } catch { return false; } })(), false, 'Draft preview content must not be emitted as a public static page.');
 

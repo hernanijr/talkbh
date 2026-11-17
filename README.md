@@ -26,9 +26,9 @@ The language suggestion uses the browser's supported languages and remembers the
 
 Edit `src/data/site.ts` for brand settings, Instagram and WhatsApp URLs, and all Portuguese and English page copy. Keep translations aligned when changing copy. The WhatsApp URL currently points to the official Talk BH community. If it is unavailable, leave it empty; buttons fall back to Instagram.
 
-Talk BH participation is free and requires no registration or reservation. Guests pay only for food and drinks they order at the venue. These confirmed policies are reflected in both language versions.
+Talk BH participation is free and requires no registration, reservation, or purchase. Food and drinks at the venue are optional; each person pays only for what they choose to order. These confirmed policies are reflected in both language versions.
 
-Meetup location is the Charada Savassi Cervejaria Artesanal at Rua Paraíba, 523, Belo Horizonte. The former fallback date, 12 November 2026 at 19:30, has passed and was cleared; no next event is announced until organizers confirm its date and time. Meetup and photo content is centralized in `src/data/community-content.json` and managed in the `/admin/` panel after its Decap Turbo site ID is configured. Do not enter event dates until organizers confirm them.
+Meetup location is the Charada Savassi Cervejaria Artesanal at Rua Paraíba, 523, Belo Horizonte. Meetup and photo content is centralized in `src/data/community-content.json` and managed in the `/admin/` panel. See the [operational content guide](docs/manual-painel-conteudo.md) for the event publishing workflow, required fields, poster handling, review and publication checklist.
 
 ## Community photos
 
@@ -38,7 +38,7 @@ Decap CMS originals stay in `public/images/community`, preserving stable URLs fo
 
 ## Social links
 
-The official WhatsApp invite URL is configured in `social.whatsapp`, and its QR image is stored at `public/images/community/whatsapp-invite.png`. Replace both when the invite changes. Until a valid WhatsApp URL is configured, community buttons open the official Instagram profile with matching fallback labels. Change `social.instagram` to update Instagram links.
+The official WhatsApp invite URL is configured in `social.whatsapp`, and its QR image is stored at `public/images/community/whatsapp-invite.svg`. Replace both when the invite changes. Until a valid WhatsApp URL is configured, community buttons open the official Instagram profile with matching fallback labels. Change `social.instagram` to update Instagram links.
 
 ## Build
 
@@ -51,6 +51,6 @@ Run the same checks as CI with `npm run check`, `npm test`, `npm run build`, and
 
 ## CMS and Cloudflare Workers deployment
 
-The `/admin/` panel uses Decap CMS with the Decap Turbo Free backend. The organizers confirmed one panel editor; other admins review content pull requests in GitHub. The site ID is still a setup value in `public/admin/config.yml`; until that is filled in after creating the free site, the CMS login is not connected. Do not opt into paid trials or plans. See [the CMS evaluation and setup steps](docs/cms-evaluation.md).
+The `/admin/` panel uses Decap CMS with the Decap Turbo Free backend. The site ID is configured in `public/admin/config.yml`; the current arrangement supports one panel editor, while other reviewers approve content pull requests in GitHub. Do not opt into paid trials or plans. See [the CMS evaluation and setup steps](docs/cms-evaluation.md) and the [operational content guide](docs/manual-painel-conteudo.md).
 
 Cloudflare builds the Astro static site with `npm run build`. [wrangler.jsonc](wrangler.jsonc) explicitly deploys `./dist` as static assets, so the Worker does not require a `SESSION` KV binding. `main` remains production; code and approved content changes go through reviewed pull requests. CMS drafts use Decap's editorial workflow and are proposed as GitHub pull requests; the content and uploaded photos are stored in Git. Only a reviewed merge triggers the production Worker build. The production domain and canonical metadata use `https://talk.bh`. Public pages use localized canonical and `hreflang` tags. Only a confirmed future meetup receives Event structured data. See [CONTRIBUTING.md](CONTRIBUTING.md) for the deployment process and [the CMS evaluation](docs/cms-evaluation.md) for setup steps.

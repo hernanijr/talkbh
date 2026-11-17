@@ -12,7 +12,6 @@ const source = {
     description_en: 'A relaxed meetup to practice English and sing.',
     date: '2026-11-17',
     time: '18:30',
-    end_time: '00:00',
     entry_price: 0,
     status: 'scheduled',
     venue: 'Charada Pub Savassi',
@@ -23,20 +22,41 @@ const source = {
   gallery: [],
 };
 
-test('builds bilingual Event JSON-LD for an ongoing meetup with midnight rollover, image and free admission', () => {
+test('builds bilingual Event JSON-LD without inventing an unconfirmed end time', () => {
   const event = normalizeCommunityContent(source, now, true).meetup;
-  const pt = createEventSchema(event, 'pt-BR', now);
-  const en = createEventSchema(event, 'en', now);
+  const pt = createEventSchema(event, 'pt-BR', now, 'https://talk.bh/eventos/talk-sing-2026-11-17/');
+  const en = createEventSchema(event, 'en', now, 'https://talk.bh/en/events/talk-sing-2026-11-17/');
 
   assert.equal(pt?.['@type'], 'Event');
   assert.equal(pt?.name, source.meetups[0].title_pt);
   assert.equal(pt?.description, source.meetups[0].description_pt);
+  assert.equal(pt?.url, 'https://talk.bh/eventos/talk-sing-2026-11-17/');
   assert.equal(pt?.startDate, '2026-11-17T18:30:00-03:00');
-  assert.equal(pt?.endDate, '2026-11-18T00:00:00-03:00');
+  assert.equal(pt?.endDate, undefined);
   assert.equal(pt?.image, 'https://talk.bh/images/events/test-event.webp');
   assert.deepEqual(pt?.offers, { '@type': 'Offer', price: 0, priceCurrency: 'BRL' });
   assert.equal(en?.name, source.meetups[0].title_en);
   assert.equal(en?.description, source.meetups[0].description_en);
+});
+
+test('includes an explicitly confirmed end time and rolls it into the next day', () => {
+  const event = normalizeCommunityContent({
+    ...source,
+    meetups: [{ ...source.meetups[0], end_time: '00:00' }],
+  }, now, true).meetup;
+  const schema = createEventSchema(event, 'pt-BR', now);
+
+  assert.equal(schema?.endDate, '2026-11-18T00:00:00-03:00');
+});
+
+test('keeps an event schema available after the start time on the event day when no end is confirmed', () => {
+  const event = normalizeCommunityContent(source, now, true).meetup;
+  const afterStart = new Date('2026-11-17T22:00:00-03:00');
+  const schema = createEventSchema(event, 'pt-BR', afterStart);
+
+  assert.ok(schema);
+  assert.equal(schema?.endDate, undefined);
+  assert.equal(createEventSchema(event, 'pt-BR', new Date('2026-11-18T00:00:00-03:00')), undefined);
 });
 
 test('uses the site default image when no poster is configured', () => {
@@ -62,14 +82,23 @@ test('falls back to the default after the linked meetup has passed', () => {
   assert.equal(schema?.image, 'https://talk.bh/social-card.svg');
 });
 
-test('omits expired or cancelled meetups from Event JSON-LD', () => {
+test('uses EventCancelled for a cancelled event that has not started yet', () => {
+  const cancelledEvent = normalizeCommunityContent({
+    ...source,
+    meetups: [{ ...source.meetups[0], status: 'cancelled' }],
+  }, new Date('2026-11-17T12:00:00-03:00'), true).meetup;
+  const schema = createEventSchema(cancelledEvent, 'pt-BR', new Date('2026-11-17T12:00:00-03:00'));
+  assert.equal(schema?.eventStatus, 'https://schema.org/EventCancelled');
+});
+
+test('omits expired or cancelled meetups from Event JSON-LD after their scheduled time', () => {
   const expired = normalizeCommunityContent({
     ...source,
     meetups: [{ ...source.meetups[0], date: '2026-11-16' }],
   }, now, true).meetup;
   const cancelled = normalizeCommunityContent({
     ...source,
-    meetups: [{ ...source.meetups[0], status: 'cancelled' }],
+    meetups: [{ ...source.meetups[0], date: '2026-11-16', status: 'cancelled' }],
   }, now, true).meetup;
 
   assert.equal(createEventSchema(expired, 'pt-BR', now), undefined);

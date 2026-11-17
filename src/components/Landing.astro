@@ -22,6 +22,9 @@ const validEventDate = eventDate && !Number.isNaN(eventDate.getTime());
 const dateText = validEventDate ? new Intl.DateTimeFormat(lang, { weekday:'long', day:'numeric', month:'long', year:'numeric', timeZone:'America/Sao_Paulo' }).format(eventDate) : '';
 const timeText = validEventDate ? new Intl.DateTimeFormat(lang, { hour:'2-digit', minute:'2-digit', hour12:false, timeZone:'America/Sao_Paulo' }).format(eventDate) : '';
 const mapsUrl = getGoogleMapsUrl(meetup.mapsUrl);
+const eventDetailsUrl = meetup.slug
+  ? (lang === 'en' ? `/en/events/${meetup.slug}/` : `/eventos/${meetup.slug}/`)
+  : undefined;
 const galleryAssets = import.meta.glob<ImageMetadata>('../assets/community/*.{avif,gif,jpg,jpeg,png,webp}', { eager: true, import: 'default' });
 const galleryPhotos: (CommunityPhoto & { asset: ImageMetadata })[] = [];
 for (const photo of gallery.slice(0, 6)) {
@@ -29,12 +32,9 @@ for (const photo of gallery.slice(0, 6)) {
   if (!asset) throw new Error(`Community photo "${photo.file}" was not prepared from public/images/community.`);
   galleryPhotos.push({ ...photo, asset });
 }
-const meetupForSchema = meetup.status === 'scheduled'
-  ? { ...meetup, mapsUrl: mapsUrl ?? '' }
-  : undefined;
 const hash = (id: string) => `#${id}`;
 ---
-<BaseLayout lang={lang} title={t.title} description={t.description} event={meetupForSchema}>
+<BaseLayout lang={lang} title={t.title} description={t.description}>
   <a class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-white focus:p-3" href="#main">{lang === 'pt-BR' ? 'Pular para o conteúdo' : 'Skip to content'}</a>
   <header class="sticky top-0 z-50 border-b border-black/10 bg-paper/95 backdrop-blur-sm">
     <nav class="wrap flex h-[76px] items-center justify-between gap-5" aria-label={lang === 'pt-BR' ? 'Navegação principal' : 'Main navigation'}>
@@ -126,7 +126,7 @@ const hash = (id: string) => `#${id}`;
 
     <section id="encontro" class="bg-paper py-24 md:py-32" data-meetup-state data-event-date={meetup.date ?? ''} data-event-end-date={meetup.endDate ?? ''} data-event-status={meetup.status}>
       <div class="wrap"><div class="flex flex-wrap items-end justify-between gap-7 border-b border-black/20 pb-8"><div><p class="mono mb-6 text-xs text-talk-text" data-meetup-eyebrow data-active-label={t.meetup.eyebrow} data-follow-label={t.meetup.followEyebrow}>04 / {t.meetup.followEyebrow}</p><h2 class="display max-w-3xl text-5xl font-semibold leading-[1] md:text-7xl" data-meetup-title data-active-label={t.meetup.title} data-follow-label={t.meetup.followTitle}>{t.meetup.followTitle}</h2></div><span class="mono border border-black/20 px-3 py-2 text-xs uppercase" data-meetup-badge data-today-label={t.meetup.today}>TALK BH</span></div>
-        <div class="grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-[.9fr_1.1fr_auto]" data-meetup-active hidden><div class="border-l-2 border-talk pl-5"><p class="mono text-xs text-black/60">{t.meetup.dateLabel}</p><p class="display mt-3 text-2xl font-semibold">{dateText}</p><p class="mono mt-5 text-xs text-black/60">{t.meetup.timeLabel}</p><p class="display mt-2 text-3xl font-semibold">{timeText}</p></div><div><p class="mono text-xs text-black/60">{t.meetup.venueLabel}</p><p class="display mt-3 text-3xl font-semibold">{meetup.venue}</p>{meetup.address && <p class="mt-2 text-sm leading-relaxed text-black/75">{meetup.address}</p>}<p class="mt-2 text-sm text-black/55">{meetup.city}</p>{mapsUrl && <a href={mapsUrl} target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 text-sm font-bold text-talk-text underline underline-offset-4">{t.meetup.directions}<span aria-hidden="true">↗</span></a>}</div><div class="flex flex-col items-start gap-3 sm:col-span-2 lg:col-span-1 lg:items-end lg:justify-center"><p class="text-sm font-semibold">{t.meetup.attendance}</p><a class="inline-flex items-center gap-4 bg-talk px-5 py-4 text-sm font-bold text-white no-underline hover:bg-ink" href={joinUrl} target="_blank" rel="noopener noreferrer">{wa ? t.meetup.cta : t.nav.joinFallback}<span aria-hidden="true">↗</span></a></div></div>
+        <div class="grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-[.9fr_1.1fr_auto]" data-meetup-active hidden><div class="border-l-2 border-talk pl-5"><p class="mono text-xs text-black/60">{t.meetup.dateLabel}</p><p class="display mt-3 text-2xl font-semibold">{dateText}</p><p class="mono mt-5 text-xs text-black/60">{t.meetup.timeLabel}</p><p class="display mt-2 text-3xl font-semibold">{timeText}</p></div><div><p class="mono text-xs text-black/60">{t.meetup.venueLabel}</p><p class="display mt-3 text-3xl font-semibold">{meetup.venue}</p>{meetup.address && <p class="mt-2 text-sm leading-relaxed text-black/75">{meetup.address}</p>}<p class="mt-2 text-sm text-black/55">{meetup.city}</p>{mapsUrl && <a href={mapsUrl} target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 text-sm font-bold text-talk-text underline underline-offset-4">{t.meetup.directions}<span aria-hidden="true">↗</span></a>}</div><div class="flex flex-col items-start gap-3 sm:col-span-2 lg:col-span-1 lg:items-end lg:justify-center"><p class="text-sm font-semibold">{t.meetup.attendance}</p><a class="inline-flex items-center gap-4 bg-talk px-5 py-4 text-sm font-bold text-white no-underline hover:bg-ink" href={joinUrl} target="_blank" rel="noopener noreferrer">{wa ? t.meetup.cta : t.nav.joinFallback}<span aria-hidden="true">↗</span></a>{eventDetailsUrl && <a class="text-sm font-bold text-talk-text underline underline-offset-4" href={eventDetailsUrl}>{t.meetup.details} ↗</a>}</div></div>
         <div class="flex flex-wrap items-center justify-between gap-6 py-8" data-meetup-fallback data-message-past={t.meetup.expired} data-message-cancelled={t.meetup.cancelled} data-message-none={t.meetup.upcoming}><p class="max-w-xl text-base leading-relaxed text-black/65" data-meetup-message>{t.meetup.noscript}</p><a class="inline-flex items-center gap-4 bg-talk px-6 py-4 text-sm font-bold text-white no-underline hover:bg-ink" href={joinUrl} target="_blank" rel="noopener noreferrer">{communityActionLabel}<span aria-hidden="true">↗</span></a></div>
       </div>
     </section>

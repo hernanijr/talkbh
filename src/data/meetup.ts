@@ -29,7 +29,9 @@ export function getMeetupStatus(meetup: Meetup, now = new Date()): MeetupStatus 
   const eventDay = dateKey(eventDate);
   const today = dateKey(now);
   const eventEnd = meetup.endDate ? new Date(meetup.endDate) : undefined;
-  const isOngoing = Boolean(eventEnd && !Number.isNaN(eventEnd.getTime()) && eventEnd.getTime() > now.getTime());
+  const hasConfirmedFutureEnd = Boolean(eventEnd && !Number.isNaN(eventEnd.getTime()) && eventEnd.getTime() > now.getTime());
+  const isSameDayWithoutConfirmedEnd = eventDay === today && eventDate.getTime() <= now.getTime() && !meetup.endDate;
+  const isOngoing = hasConfirmedFutureEnd || isSameDayWithoutConfirmedEnd;
 
   if (eventDay < today) return isOngoing ? 'today' : 'past';
   if (eventDay === today) return eventDate.getTime() <= now.getTime() ? (isOngoing ? 'today' : 'past') : 'today';

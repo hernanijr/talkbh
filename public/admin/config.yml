@@ -35,8 +35,9 @@ collections:
               - { label: Descrição em português, name: description_pt, widget: text, required: true }
               - { label: Description in English, name: description_en, widget: text, required: true }
               - { label: Data (AAAA-MM-DD), name: date, widget: string, required: true, hint: "Use AAAA-MM-DD, por exemplo 2027-04-18." }
+              - { label: Slug da URL, name: slug, widget: string, required: false, hint: "Opcional. Se vazio, o site gera um slug a partir do título em português e da data; mantenha-o estável depois de publicar." }
               - { label: Horário de início (HH:MM), name: time, widget: string, required: true, hint: "Use HH:MM no fuso de Belo Horizonte." }
-              - { label: Horário de término (HH:MM), name: end_time, widget: string, required: false, hint: "Opcional. Use 00:00 se o evento terminar à meia-noite." }
+              - { label: Horário de término (HH:MM), name: end_time, widget: string, required: false, hint: "Opcional. Preencha apenas quando o horário previsto de término do encontro estiver confirmado. Não use o horário de fechamento do estabelecimento." }
               - { label: Valor da entrada (BRL), name: entry_price, widget: number, required: true, default: 0, value_type: float, min: 0 }
               - label: Situação
                 name: status
@@ -57,14 +58,14 @@ collections:
             summary: "Evento em {{fields.event_date}}"
             hint: "Associe a arte à data exata do encontro. Quando essa data passar ou deixar de ser o próximo encontro, ela será ignorada automaticamente e o site usará a imagem padrão."
             fields:
-              - { label: Data do encontro associado, name: event_date, widget: date, required: true, format: "YYYY-MM-DD" }
+              - { label: Data do encontro associado (AAAA-MM-DD), name: event_date, widget: string, required: true, hint: "Use AAAA-MM-DD, por exemplo 2026-11-17. A data deve corresponder exatamente à data do encontro." }
               - label: Imagem de divulgação
                 name: image
                 widget: image
                 required: true
                 media_folder: /public/images/events
                 public_folder: /images/events
-                hint: "Prefira WebP ou JPG otimizado; proporção horizontal 16:9."
+                hint: "Prefira WebP ou JPG otimizado. O site preserva a proporção original e exibe o cartaz inteiro, sem recortar."
           - label: Galeria de fotos
             name: gallery
             widget: list
