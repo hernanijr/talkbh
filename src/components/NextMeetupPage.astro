@@ -31,6 +31,7 @@ const enUrl = eventSlug ? `/en/events/${eventSlug}/` : '/en/next-meetup/';
 const fixedPtUrl = `${site.brand.domain}${eventSlug ? '/eventos/' + eventSlug + '/' : '/proximo-encontro/'}`;
 const fixedEnUrl = `${site.brand.domain}${eventSlug ? '/en/events/' + eventSlug + '/' : '/en/next-meetup/'}`;
 const pageUrl = lang === 'en' ? fixedEnUrl : fixedPtUrl;
+const permanentShareUrl = `${site.brand.domain}${lang === 'en' ? '/en/next-meetup/' : '/proximo-encontro/'}`;
 const title = lang === 'en'
   ? (hasDate ? `${meetup.title?.en ?? 'Next Talk BH meetup'} | Talk BH` : 'Next meetup | Talk BH')
   : (hasDate ? `${meetup.title?.['pt-BR'] ?? 'Próximo encontro Talk BH'} | Talk BH` : 'Próximo encontro | Talk BH');
@@ -46,8 +47,8 @@ const priceText = meetup.entryPrice === 0
   : meetup.entryPrice === undefined ? undefined
   : new Intl.NumberFormat(lang, { style: 'currency', currency: 'BRL' }).format(meetup.entryPrice);
 const shareText = lang === 'en'
-  ? `The next Talk BH meetup: ${meetup.title?.en ?? 'Talk BH'}, ${dateText} at ${timeText}. ${pageUrl}`
-  : `Próximo encontro do Talk BH: ${meetup.title?.['pt-BR'] ?? 'Talk BH'}, ${dateText}, às ${timeText}. ${pageUrl}`;
+  ? `The next Talk BH meetup: ${meetup.title?.en ?? 'Talk BH'}, ${dateText} at ${timeText}. ${permanentShareUrl}`
+  : `Próximo encontro do Talk BH: ${meetup.title?.['pt-BR'] ?? 'Talk BH'}, ${dateText}, às ${timeText}. ${permanentShareUrl}`;
 const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
 const homeUrl = lang === 'en' ? '/en/' : '/';
 const copy = lang === 'en'
