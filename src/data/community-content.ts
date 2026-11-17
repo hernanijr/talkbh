@@ -33,13 +33,17 @@ type MeetupRecord = {
   date?: unknown;
   time?: unknown;
   end_time?: unknown;
-  image?: unknown;
   entry_price?: unknown;
   status?: unknown;
   venue?: unknown;
   city?: unknown;
   address?: unknown;
   maps_url?: unknown;
+};
+
+type NextMeetupPosterRecord = {
+  event_date?: unknown;
+  image?: unknown;
 };
 
 type PhotoRecord = {
@@ -49,7 +53,11 @@ type PhotoRecord = {
   rights_confirmed?: unknown;
 };
 
-type ContentRecord = { meetups?: unknown; gallery?: unknown };
+type ContentRecord = {
+  meetups?: unknown;
+  next_meetup_poster?: unknown;
+  gallery?: unknown;
+};
 
 const fallbackContent: CommunityContent = {
   meetup: { ...site.meetup },
@@ -102,7 +110,6 @@ function meetupFromRecord(record: MeetupRecord, strict: boolean): CommunityMeetu
   const date = clean(record.date);
   const time = clean(record.time);
   const endTime = clean(record.end_time);
-  const image = clean(record.image);
   const entryPrice = record.entry_price === undefined ? undefined
     : typeof record.entry_price === 'number' ? record.entry_price : Number.NaN;
   const status = record.status;
@@ -113,17 +120,16 @@ function meetupFromRecord(record: MeetupRecord, strict: boolean): CommunityMeetu
   const validDate = toDateTime(date, time);
   const endDate = endTime ? toEndDateTime(date, time, endTime) : undefined;
   const validEndDate = !endTime || Boolean(endDate);
-  const validImage = !image || /^\/images\/events\/[a-z0-9][a-z0-9._-]*\.(avif|jpe?g|png|svg|webp)$/i.test(image);
   const validPrice = entryPrice === undefined || (Number.isFinite(entryPrice) && entryPrice >= 0);
   const validStatus = status === 'scheduled' || status === 'cancelled';
   const validMapsUrl = !mapsUrl || Boolean(getGoogleMapsUrl(mapsUrl));
   const validStructuredFields = !strict || (
-    Boolean(descriptionPt) && Boolean(descriptionEn) && validImage
+    Boolean(descriptionPt) && Boolean(descriptionEn)
     && entryPrice !== undefined && validPrice
   );
   if (!titlePt || !titleEn || !validDate || !validEndDate || !validPrice || !validStatus
     || !venue || !address || !validMapsUrl || !validStructuredFields) {
-    if (strict) throw new Error('A meetup needs bilingual titles and descriptions, a valid date/time, an optional valid end time, an optional local event image, a non-negative admission price, status, venue and address; the Maps URL must be valid HTTPS Google Maps.');
+    if (strict) throw new Error('A meetup needs bilingual titles and descriptions, a valid date/time, an optional valid end time, a non-negative admission price, status, venue and address; the Maps URL must be valid HTTPS Google Maps.');
     return undefined;
   }
   return {
@@ -131,7 +137,6 @@ function meetupFromRecord(record: MeetupRecord, strict: boolean): CommunityMeetu
     description: { 'pt-BR': descriptionPt, en: descriptionEn },
     date: validDate,
     ...(endDate ? { endDate } : {}),
-    ...(image ? { image } : {}),
     entryPrice,
     status,
     venue,
@@ -161,6 +166,18 @@ export function normalizeCommunityContent(input: unknown, now = new Date(), stri
   const record = asRecord(input) as ContentRecord | undefined;
   const meetupRecords = Array.isArray(record?.meetups) ? record.meetups : [];
   const photoRecords = Array.isArray(record?.gallery) ? record.gallery : [];
+  const posterValue = record?.next_meetup_poster;
+  const posterRecord = asRecord(posterValue) as NextMeetupPosterRecord | undefined;
+  const posterDate = clean(posterRecord?.event_date);
+  const posterImage = clean(posterRecord?.image);
+  const posterHasValues = Boolean(posterDate || posterImage);
+  const validPosterDate = Boolean(toDateTime(posterDate, '00:00'));
+  const validPosterImage = /^\/images\/events\/[a-z0-9][a-z0-9._-]*\.(avif|jpe?g|png|svg|webp)$/i.test(posterImage);
+  const validPosterShape = posterValue === undefined || posterValue === null || Boolean(posterRecord);
+  const validPoster = validPosterShape && (!posterHasValues || (validPosterDate && validPosterImage));
+  if (strict && !validPoster) {
+    throw new Error('The next meetup poster needs a valid event date and a local image under /images/events/.');
+  }
 
   const meetups = meetupRecords.flatMap((item) => {
     const meetupRecord = asRecord(item) as MeetupRecord | undefined;
@@ -190,8 +207,16 @@ export function normalizeCommunityContent(input: unknown, now = new Date(), stri
   });
   if (strict && gallery.length > 6) throw new Error('The published community gallery can contain no more than six photos.');
 
+  const posterMatchesUpcoming = Boolean(
+    upcoming?.date
+      && posterDate === upcoming.date.slice(0, 10)
+      && validPosterImage,
+  );
+
   return {
-    meetup: upcoming ?? cancelled ?? { ...fallbackContent.meetup, date: null, status: 'scheduled' },
+    meetup: upcoming
+      ? { ...upcoming, ...(posterMatchesUpcoming ? { image: posterImage } : {}) }
+      : cancelled ?? { ...fallbackContent.meetup, date: null, status: 'scheduled' },
     gallery: gallery.slice(0, 6),
   };
 }
