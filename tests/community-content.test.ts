@@ -8,7 +8,7 @@ const now = new Date('2026-11-13T12:00:00-03:00');
 const meetup = (date: string, time = '19:30', status = 'scheduled', endTime = '21:30') => ({
   title_pt: 'Talk BH', title_en: 'Talk BH',
   description_pt: 'Encontro para praticar inglês.', description_en: 'A meetup to practice English.',
-  date, time, end_time: endTime, image: '/images/events/test-event.svg', entry_price: 0, status,
+  date, time, end_time: endTime, image: '/images/events/test-event.webp', entry_price: 0, status,
   venue: 'Charada Savassi Cervejaria Artesanal', address: 'Rua Paraíba, 523',
 });
 
