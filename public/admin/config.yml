@@ -58,7 +58,7 @@ collections:
             summary: "Evento em {{fields.event_date}}"
             hint: "Associe a arte à data exata do encontro. Quando essa data passar ou deixar de ser o próximo encontro, ela será ignorada automaticamente e o site usará a imagem padrão."
             fields:
-              - { label: Data do encontro associado, name: event_date, widget: date, required: true, format: "YYYY-MM-DD" }
+              - { label: Data do encontro associado (AAAA-MM-DD), name: event_date, widget: string, required: true, hint: "Use AAAA-MM-DD, por exemplo 2026-11-17. A data deve corresponder exatamente à data do encontro." }
               - label: Imagem de divulgação
                 name: image
                 widget: image
