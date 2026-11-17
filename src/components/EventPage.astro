@@ -40,6 +40,10 @@ const formattedPrice = event.entryPrice === 0
   : event.entryPrice === undefined
     ? undefined
     : new Intl.NumberFormat(lang, { style: 'currency', currency: 'BRL' }).format(event.entryPrice);
+const shareMessage = lang === 'en'
+  ? `Check out this Talk BH meetup: ${title}, ${dateText} at ${timeText}.`
+  : `Olha este encontro do Talk BH: ${title}, ${dateText}, às ${timeText}.`;
+const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(`${shareMessage}\\n${canonicalUrl}`)}`;
 const pageTitle = lang === 'en'
   ? `${title} | Talk BH — English meetup in Belo Horizonte`
   : `${title} | Talk BH — Encontro em Belo Horizonte`;
@@ -55,6 +59,13 @@ const pageCopy = lang === 'en'
       directions: 'Get directions',
       join: wa ? 'Join the WhatsApp community' : 'Message Talk BH on Instagram',
       updates: 'Follow the community for future meetups and updates.',
+      share: 'Share this meetup',
+      shareNative: 'Share',
+      shareWhatsapp: 'Send on WhatsApp',
+      copyLink: 'Copy link',
+      copied: 'Link copied.',
+      shareFallback: 'Sharing is unavailable here. The event link was copied instead.',
+      copyFallback: 'Could not copy automatically. Copy the page URL from your browser.',
       cancelled: 'This meetup has been cancelled. Follow the community for future announcements.',
       past: 'This meetup has taken place. Join the community to hear about future dates.',
       home: 'Explore Talk BH',
@@ -72,6 +83,13 @@ const pageCopy = lang === 'en'
       directions: 'Como chegar',
       join: wa ? 'Entrar na comunidade do WhatsApp' : 'Falar com o Talk BH no Instagram',
       updates: 'Acompanhe a comunidade para saber dos próximos encontros e novidades.',
+      share: 'Compartilhe este encontro',
+      shareNative: 'Compartilhar',
+      shareWhatsapp: 'Enviar pelo WhatsApp',
+      copyLink: 'Copiar link',
+      copied: 'Link copiado.',
+      shareFallback: 'O compartilhamento não está disponível aqui. O link do evento foi copiado.',
+      copyFallback: 'Não foi possível copiar automaticamente. Copie a URL do evento no navegador.',
       cancelled: 'Este encontro foi cancelado. Acompanhe a comunidade para os próximos anúncios.',
       past: 'Este encontro já aconteceu. Entre na comunidade para saber as próximas datas.',
       home: 'Conheça o Talk BH',
@@ -114,9 +132,7 @@ const pageCopy = lang === 'en'
           <img
             src={event.image ?? '/social-card.svg'}
             alt={lang === 'en' ? `Event artwork for ${title}` : `Arte de divulgação de ${title}`}
-            width="1200"
-            height="630"
-            class="block aspect-[16/9] w-full object-cover"
+            class="block h-auto max-h-[640px] w-full object-contain"
             fetchpriority="high"
             decoding="async"
           />
@@ -166,6 +182,37 @@ const pageCopy = lang === 'en'
           <a href={joinUrl} target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-3 bg-talk px-5 py-3 text-center text-sm font-bold text-white no-underline transition hover:bg-ink">{pageCopy.join} ↗</a>
           <p class="mt-4 text-xs leading-relaxed text-black/55">{pageCopy.updates}</p>
         </div>
+        <div class="mt-6 border-t border-black/10 pt-5">
+          <p class="mono text-xs font-semibold uppercase tracking-[.12em] text-talk-text">{pageCopy.share}</p>
+          <div class="mt-3 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              data-event-share
+              data-share-url={canonicalUrl}
+              data-share-title={title}
+              data-share-text={shareMessage}
+              data-share-fallback={pageCopy.shareFallback}
+              data-copy-fallback={pageCopy.copyFallback}
+              data-copy-success={pageCopy.copied}
+              class="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 bg-ink px-4 py-3 text-sm font-bold text-white transition hover:bg-talk"
+            >{pageCopy.shareNative} ↗</button>
+            <a
+              href={whatsappShareUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex min-h-11 items-center justify-center border border-black/20 px-3 py-3 text-center text-sm font-semibold text-ink no-underline transition hover:border-talk hover:text-talk-text"
+            >{pageCopy.shareWhatsapp} ↗</a>
+            <button
+              type="button"
+              data-event-copy-link
+              data-copy-url={canonicalUrl}
+              data-copy-fallback={pageCopy.copyFallback}
+              data-copy-success={pageCopy.copied}
+              class="inline-flex min-h-11 items-center justify-center border border-black/20 px-3 py-3 text-sm font-semibold text-ink transition hover:border-talk hover:text-talk-text"
+            >{pageCopy.copyLink}</button>
+          </div>
+          <p class="mt-3 min-h-4 text-xs leading-relaxed text-black/55" role="status" aria-live="polite" data-event-share-status></p>
+        </div>
       </aside>
     </article>
   </main>
@@ -178,3 +225,56 @@ const pageCopy = lang === 'en'
     </div>
   </footer>
 </BaseLayout>
+
+
+<script>
+  const shareButton = document.querySelector<HTMLButtonElement>('[data-event-share]');
+  const copyButton = document.querySelector<HTMLButtonElement>('[data-event-copy-link]');
+  const shareStatus = document.querySelector<HTMLElement>('[data-event-share-status]');
+
+  const announce = (message: string) => {
+    if (shareStatus) shareStatus.textContent = message;
+  };
+
+  const copyEventUrl = async (url: string) => {
+    if (!navigator.clipboard?.writeText) throw new Error('Clipboard API is unavailable.');
+    await navigator.clipboard.writeText(url);
+  };
+
+  copyButton?.addEventListener('click', async () => {
+    const url = copyButton.dataset.copyUrl;
+    if (!url) return;
+
+    try {
+      await copyEventUrl(url);
+      announce(copyButton.dataset.copySuccess ?? '');
+    } catch {
+      announce(copyButton.dataset.copyFallback ?? '');
+    }
+  });
+
+  shareButton?.addEventListener('click', async () => {
+    const url = shareButton.dataset.shareUrl;
+    if (!url) return;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareButton.dataset.shareTitle,
+          text: shareButton.dataset.shareText,
+          url,
+        });
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+      }
+    }
+
+    try {
+      await copyEventUrl(url);
+      announce(shareButton.dataset.shareFallback ?? '');
+    } catch {
+      announce(shareButton.dataset.copyFallback ?? '');
+    }
+  });
+</script>
