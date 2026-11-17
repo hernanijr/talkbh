@@ -197,7 +197,7 @@ assert.match(sitemap, /https:\/\/talk\.bh\//);
 assert.match(sitemap, /https:\/\/talk\.bh\/en\//);
 assert.doesNotMatch(sitemap, /preview|draft/i);
 assert.match(robots, /Sitemap: https:\/\/talk\.bh\/sitemap\.xml/);
-assert.match(robots, /Disallow: \/admin\//);
+assert.match(robots, /Allow: \//);\nassert.doesNotMatch(robots, /Disallow: \/admin\//, 'Search crawlers must be able to read the Admin page noindex directive.');
 assert.doesNotMatch(pt, /description_en|Weekly Talk BH Meetup|Bernardo Vasconcellos|2026-11-11T19:30|2026-11-12T19:30/);
 assert.equal(await (async () => { try { await access(new URL('preview/index.html', outputDirectory)); return true; } catch { return false; } })(), false, 'Draft preview content must not be emitted as a public static page.');
 
