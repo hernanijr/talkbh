@@ -13,7 +13,7 @@ const source = {
     date: '2026-11-17',
     time: '18:30',
     end_time: '00:00',
-    image: '/images/events/talk-and-sing-2026-11-17.svg',
+    image: '/images/events/test-event.webp',
     entry_price: 0,
     status: 'scheduled',
     venue: 'Charada Pub Savassi',
@@ -33,10 +33,17 @@ test('builds bilingual Event JSON-LD for an ongoing meetup with midnight rollove
   assert.equal(pt?.description, source.meetups[0].description_pt);
   assert.equal(pt?.startDate, '2026-11-17T18:30:00-03:00');
   assert.equal(pt?.endDate, '2026-11-18T00:00:00-03:00');
-  assert.equal(pt?.image, 'https://talk.bh/images/events/talk-and-sing-2026-11-17.svg');
+  assert.equal(pt?.image, 'https://talk.bh/images/events/test-event.webp');
   assert.deepEqual(pt?.offers, { '@type': 'Offer', price: 0, priceCurrency: 'BRL' });
   assert.equal(en?.name, source.meetups[0].title_en);
   assert.equal(en?.description, source.meetups[0].description_en);
+});
+
+test('omits the image property when a meetup has no poster', () => {
+  const { image: _image, ...meetupWithoutImage } = source.meetups[0];
+  const event = normalizeCommunityContent({ ...source, meetups: [meetupWithoutImage] }, now, true).meetup;
+  const schema = createEventSchema(event, 'pt-BR', now);
+  assert.equal(schema?.image, undefined);
 });
 
 test('omits expired or cancelled meetups from Event JSON-LD', () => {
