@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200" role="img" aria-labelledby="title desc">
+<title id="title">Talk &amp; Sing — Talk BH, 17 November 2026</title>
+<desc id="desc">Event poster for a free English conversation and karaoke meetup at Charada Pub Savassi in Belo Horizonte, starting at 18:30.</desc>
+<defs>
+  <pattern id="lines" width="22" height="22" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><path d="M0 0V22" stroke="#e8e5eb" stroke-width="4"/></pattern>
+  <pattern id="stars" width="130" height="130" patternUnits="userSpaceOnUse"><path d="M0 0L130 130M130 0L0 130" stroke="#ffffff" stroke-opacity=".06" stroke-width="2"/></pattern>
+  <linearGradient id="purple" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#71349a"/><stop offset="1" stop-color="#4a1d72"/></linearGradient>
+</defs>
+<rect width="1200" height="1200" fill="#faf9fa"/>
+<rect width="1200" height="470" fill="url(#lines)" opacity=".65"/>
+<path d="M0 690L1200 310V1200H0Z" fill="url(#purple)"/>
+<path d="M0 690L1200 310V1200H0Z" fill="url(#stars)"/>
+<g font-family="Arial,Helvetica,sans-serif" font-weight="900">
+  <text x="76" y="150" font-size="46" fill="#161316" letter-spacing="2">TALK</text>
+  <text x="236" y="150" font-size="46" fill="#df152c">&amp;</text>
+  <text x="300" y="150" font-size="46" fill="#161316" letter-spacing="2">SING</text>
+  <text x="78" y="210" font-size="26" fill="#5f287f" letter-spacing="4">TALK BH · BELO HORIZONTE</text>
+  <text x="1120" y="130" font-size="23" fill="#d9152c" text-anchor="end">TODOS OS NÍVEIS DE INGLÊS</text>
+  <text x="74" y="555" font-size="142" fill="#ffe12f" stroke="#5f287f" stroke-width="7" paint-order="stroke" letter-spacing="-3">TALK &amp;</text>
+  <text x="74" y="700" font-size="142" fill="#ffe12f" stroke="#5f287f" stroke-width="7" paint-order="stroke" letter-spacing="-3">SING</text>
+  <text x="82" y="790" font-size="58" fill="#ffffff">17 NOV 2026</text>
+  <text x="82" y="882" font-size="96" fill="#ffe12f">18:30</text>
+  <text x="82" y="954" font-size="36" fill="#ffffff">ENTRADA GRATUITA</text>
+  <text x="82" y="1006" font-size="25" fill="#ffffff">Conversação em inglês · Karaokê</text>
+  <text x="82" y="1082" font-size="42" fill="#ffe12f">CHARADA PUB SAVASSI</text>
+  <text x="82" y="1130" font-size="23" fill="#ffffff">Rua Paraíba, 523 · Belo Horizonte, MG</text>
+</g>
+<g transform="translate(900 850)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M0 -100a70 70 0 0 1 140 0v96a70 70 0 0 1-140 0z" stroke-width="12"/>
+  <path d="M-25 -35h190M-25 -8h190M-25 19h190M-25 46h190" stroke-width="9"/>
+  <path d="M-45 -30a118 118 0 0 0 0 84M185 -30a118 118 0 0 1 0 84" stroke-width="12"/>
+  <path d="M70 70v100m-42 0h84m-65 0l-15 25h96l-15-25" stroke-width="12"/>
+</g>
+<text x="1120" y="210" font-family="Arial,Helvetica,sans-serif" font-size="23" font-weight="700" fill="#d9152c" text-anchor="end">DESCONTO NA CERVEJA</text>
+</svg>

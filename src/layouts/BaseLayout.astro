@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import { site, type Language } from '../data/site';
 import type { CommunityMeetup } from '../data/community-content';
+import { createEventSchema } from '../data/event-schema';
 const { lang, title, description, event } = Astro.props as { lang: Language; title: string; description: string; event?: CommunityMeetup };
 const domain = site.brand.domain.replace(/\/$/, '');
 const canonical = lang === 'en' ? `${domain}/en/` : `${domain}/`;
@@ -26,27 +27,7 @@ const orgSchema = {
       : 'Participation is free. Each participant pays only for their own food and drinks at the venue.',
   },
 };
-const eventSchema = event?.title?.[lang] && event.date ? {
-  '@context': 'https://schema.org',
-  '@type': 'Event',
-  name: event.title[lang],
-  startDate: event.date,
-  eventStatus: 'https://schema.org/EventScheduled',
-  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-  location: {
-    '@type': 'Place',
-    name: event.venue,
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: event.address,
-      addressLocality: 'Belo Horizonte',
-      addressRegion: 'MG',
-      addressCountry: 'BR',
-    },
-    ...(event.mapsUrl ? { hasMap: event.mapsUrl } : {}),
-  },
-  organizer: { '@type': 'Organization', name: site.brand.name, url: domain },
-} : undefined;
+const eventSchema = createEventSchema(event, lang);
 ---
 <!doctype html>
 <html lang={lang}>

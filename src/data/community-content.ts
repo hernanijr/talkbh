@@ -3,7 +3,11 @@ import { site, type Language } from './site.ts';
 
 export type CommunityMeetup = {
   title?: Record<Language, string>;
+  description?: Record<Language, string>;
   date: string | null;
+  endDate?: string;
+  image?: string;
+  entryPrice?: number;
   status: 'scheduled' | 'cancelled';
   venue: string;
   city: string;
@@ -24,8 +28,13 @@ export type CommunityContent = {
 type MeetupRecord = {
   title_pt?: unknown;
   title_en?: unknown;
+  description_pt?: unknown;
+  description_en?: unknown;
   date?: unknown;
   time?: unknown;
+  end_time?: unknown;
+  image?: unknown;
+  entry_price?: unknown;
   status?: unknown;
   venue?: unknown;
   city?: unknown;
@@ -67,26 +76,63 @@ function toDateTime(date: string, time: string): string | undefined {
   return `${date}T${time}:00-03:00`;
 }
 
+function nextCalendarDate(date: string): string {
+  const [year, month, day] = date.split('-').map(Number);
+  const next = new Date(Date.UTC(year, month - 1, day + 1));
+  return [
+    String(next.getUTCFullYear()).padStart(4, '0'),
+    String(next.getUTCMonth() + 1).padStart(2, '0'),
+    String(next.getUTCDate()).padStart(2, '0'),
+  ].join('-');
+}
+
+function toEndDateTime(date: string, startTime: string, endTime: string): string | undefined {
+  if (!toDateTime(date, startTime) || !toDateTime(date, endTime)) return undefined;
+  const [startHour, startMinute] = startTime.split(':').map(Number);
+  const [endHour, endMinute] = endTime.split(':').map(Number);
+  const endIsNextDay = endHour * 60 + endMinute <= startHour * 60 + startMinute;
+  return toDateTime(endIsNextDay ? nextCalendarDate(date) : date, endTime);
+}
+
 function meetupFromRecord(record: MeetupRecord, strict: boolean): CommunityMeetup | undefined {
   const titlePt = clean(record.title_pt);
   const titleEn = clean(record.title_en);
+  const descriptionPt = clean(record.description_pt);
+  const descriptionEn = clean(record.description_en);
   const date = clean(record.date);
   const time = clean(record.time);
+  const endTime = clean(record.end_time);
+  const image = clean(record.image);
+  const entryPrice = record.entry_price === undefined ? undefined
+    : typeof record.entry_price === 'number' ? record.entry_price : Number.NaN;
   const status = record.status;
   const venue = clean(record.venue);
   const address = clean(record.address);
   const city = clean(record.city) || 'Belo Horizonte, Minas Gerais, Brasil';
   const mapsUrl = clean(record.maps_url);
   const validDate = toDateTime(date, time);
+  const endDate = endTime ? toEndDateTime(date, time, endTime) : undefined;
+  const validEndDate = !endTime || Boolean(endDate);
+  const validImage = /^\/images\/events\/[a-z0-9][a-z0-9._-]*\.(avif|jpe?g|png|svg|webp)$/i.test(image);
+  const validPrice = entryPrice === undefined || (Number.isFinite(entryPrice) && entryPrice >= 0);
   const validStatus = status === 'scheduled' || status === 'cancelled';
   const validMapsUrl = !mapsUrl || Boolean(getGoogleMapsUrl(mapsUrl));
-  if (!titlePt || !titleEn || !validDate || !validStatus || !venue || !address || !validMapsUrl) {
-    if (strict) throw new Error('A meetup needs bilingual titles, a valid Belo Horizonte date/time, status, venue and address; the Maps URL must be valid HTTPS Google Maps.');
+  const validStructuredFields = !strict || (
+    Boolean(descriptionPt) && Boolean(descriptionEn) && validImage
+    && entryPrice !== undefined && validPrice
+  );
+  if (!titlePt || !titleEn || !validDate || !validEndDate || !validPrice || !validStatus
+    || !venue || !address || !validMapsUrl || !validStructuredFields) {
+    if (strict) throw new Error('A meetup needs bilingual titles and descriptions, a valid date/time, an optional valid end time, a local event image, a non-negative admission price, status, venue and address; the Maps URL must be valid HTTPS Google Maps.');
     return undefined;
   }
   return {
     title: { 'pt-BR': titlePt, en: titleEn },
+    description: { 'pt-BR': descriptionPt, en: descriptionEn },
     date: validDate,
+    ...(endDate ? { endDate } : {}),
+    image,
+    entryPrice,
     status,
     venue,
     address,

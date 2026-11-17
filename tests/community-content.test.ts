@@ -5,8 +5,10 @@ import { getGoogleMapsUrl, getMeetupStatus } from '../src/data/meetup.ts';
 
 const now = new Date('2026-11-13T12:00:00-03:00');
 
-const meetup = (date: string, time = '19:30', status = 'scheduled') => ({
-  title_pt: 'Talk BH', title_en: 'Talk BH', date, time, status,
+const meetup = (date: string, time = '19:30', status = 'scheduled', endTime = '21:30') => ({
+  title_pt: 'Talk BH', title_en: 'Talk BH',
+  description_pt: 'Encontro para praticar inglês.', description_en: 'A meetup to practice English.',
+  date, time, end_time: endTime, image: '/images/events/test-event.svg', entry_price: 0, status,
   venue: 'Charada Savassi Cervejaria Artesanal', address: 'Rua Paraíba, 523',
 });
 
@@ -33,9 +35,17 @@ test('content selects the nearest future meetup and keeps bilingual photo alt te
   assert.equal(content.gallery[0].alt['pt-BR'], 'Pessoas conversando');
 });
 
-test('validates Belo Horizonte late-night times without shifting their local calendar date', () => {
-  const content = normalizeCommunityContent({ meetups: [meetup('2026-11-13', '23:30')], gallery: [] }, now);
-  assert.equal(content.meetup.date, '2026-11-13T23:30:00-03:00');
+test('rolls event end times after midnight into the next calendar date', () => {
+  const content = normalizeCommunityContent({ meetups: [meetup('2026-11-13', '18:30', 'scheduled', '00:00')], gallery: [] }, now);
+  assert.equal(content.meetup.date, '2026-11-13T18:30:00-03:00');
+  assert.equal(content.meetup.endDate, '2026-11-14T00:00:00-03:00');
+});
+
+test('normalizes descriptions, local event image and free admission', () => {
+  const content = normalizeCommunityContent({ meetups: [meetup('2026-11-20')], gallery: [] }, now, true);
+  assert.equal(content.meetup.description?.['pt-BR'], 'Encontro para praticar inglês.');
+  assert.equal(content.meetup.image, '/images/events/test-event.svg');
+  assert.equal(content.meetup.entryPrice, 0);
 });
 
 test('a future cancellation is preserved when no scheduled meetup is upcoming', () => {

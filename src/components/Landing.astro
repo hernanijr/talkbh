@@ -4,7 +4,7 @@ import { Image } from 'astro:assets';
 import talkBhLogo from '../assets/brand/talk-bh-logo.webp';
 import type { ImageMetadata } from 'astro';
 import { copy, site, type Language } from '../data/site';
-import { getGoogleMapsUrl, getMeetupStatus, getWhatsAppInvite } from '../data/meetup';
+import { getGoogleMapsUrl, getWhatsAppInvite } from '../data/meetup';
 import contentFile from '../data/community-content.json';
 import { normalizeCommunityContent, type CommunityMeetup, type CommunityPhoto } from '../data/community-content';
 const { lang } = Astro.props as { lang: Language };
@@ -29,9 +29,8 @@ for (const photo of gallery.slice(0, 6)) {
   if (!asset) throw new Error(`Community photo "${photo.file}" was not prepared from public/images/community.`);
   galleryPhotos.push({ ...photo, asset });
 }
-const currentMeetupStatus = getMeetupStatus(meetup);
-const meetupForSchema = currentMeetupStatus === 'today' || currentMeetupStatus === 'upcoming'
-  ? meetup.status === 'scheduled' ? { ...meetup, mapsUrl: mapsUrl ?? '' } : undefined
+const meetupForSchema = meetup.status === 'scheduled'
+  ? { ...meetup, mapsUrl: mapsUrl ?? '' }
   : undefined;
 const hash = (id: string) => `#${id}`;
 ---

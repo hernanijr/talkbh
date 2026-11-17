@@ -38,8 +38,14 @@ for (const [language, schemaBlocks] of [['Portuguese', ptSchema], ['English', en
   assert.equal(organization.makesOffer.priceCurrency, 'BRL');
   assert.match(organization.makesOffer.description, /free|gratuita/i);
   for (const event of schemaBlocks.filter((item) => item['@type'] === 'Event')) {
-    assert.ok(Date.parse(event.startDate) > Date.now(), 'Only future meetups may be emitted as Event structured data.');
+    assert.ok(Date.parse(event.endDate ?? event.startDate) > Date.now(), 'Only ongoing or future meetups may be emitted as Event structured data.');
     assert.equal(event.eventStatus, 'https://schema.org/EventScheduled');
+    assert.ok(event.description, 'Event structured data should include a localized description.');
+    assert.ok(event.image?.startsWith('https://talk.bh/images/events/'), 'Event structured data should reference a crawlable local image.');
+    assert.ok(Date.parse(event.endDate) > Date.parse(event.startDate), 'Event end date must follow its start date.');
+    assert.ok(Number.isFinite(event.offers?.price) && event.offers.price >= 0, 'Event offers should expose a valid admission price.');
+    assert.equal(event.offers.priceCurrency, 'BRL');
+    assert.equal(event.performer, undefined, 'Do not invent performers for community conversation meetups.');
   }
 }
 await access(new URL('images/brand/talk-bh-logo.webp', outputDirectory));
@@ -48,6 +54,16 @@ assert.match(pt, /whatsapp-invite\.svg/);
 assert.match(en, /whatsapp-invite\.svg/);
 const communityContent = JSON.parse(await readFile(new URL('../src/data/community-content.json', import.meta.url), 'utf8'));
 const galleryPhotos = Array.isArray(communityContent.gallery) ? communityContent.gallery : [];
+const eventRecords = Array.isArray(communityContent.meetups) ? communityContent.meetups : [];
+for (const event of eventRecords) {
+  if (!event.image) continue;
+  const eventImageUrl = new URL(event.image, 'https://talk.bh');
+  assert.equal(eventImageUrl.origin, 'https://talk.bh', 'Event images must use the Talk BH domain.');
+  assert.ok(eventImageUrl.pathname.startsWith('/images/events/'), 'Event images must use the dedicated media folder.');
+  const fileName = decodeURIComponent(eventImageUrl.pathname.slice('/images/events/'.length));
+  assert.ok(fileName && !fileName.includes('/') && !fileName.includes(String.fromCharCode(92)), 'Event image paths must reference one filename.');
+  await access(new URL('images/events/' + encodeURIComponent(fileName), outputDirectory));
+}
 const imageTags = (html) => html.split('<img').slice(1).map((part) => '<img' + part.split('>')[0] + '>');
 for (const photo of galleryPhotos) {
   const photoUrl = new URL(photo.image, 'https://talk.bh');

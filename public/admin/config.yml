@@ -32,8 +32,88 @@ collections:
             fields:
               - { label: Título em português, name: title_pt, widget: string, required: true }
               - { label: Title in English, name: title_en, widget: string, required: true }
-              - { label: Data (AAAA-MM-DD), name: date, widget: string, required: true, pattern: ['^\d{4}-\d{2}-\d{2}$', 'Use AAAA-MM-DD, por exemplo 2027-04-18.'] }
-              - { label: Horário (HH:MM), name: time, widget: string, required: true, pattern: ['^([01]\d|2[0-3]):[0-5]\d$', 'Use o formato de 24 horas, por exemplo 19:30.'] }
+              - { label: Descrição em português, name: description_pt, widget: text, required: true }
+              - { label: Description in English, name: description_en, widget: text, required: true }
+              - { label: Data (AAAA-MM-DD), name: date, widget: string, required: true, pattern: ['^\d{4}-\d{2}-\d{2}
+              - label: Situação
+                name: status
+                widget: select
+                options:
+                  - { label: Confirmado, value: scheduled }
+                  - { label: Cancelado, value: cancelled }
+                default: scheduled
+              - { label: Local, name: venue, widget: string, required: true, default: Charada Savassi Cervejaria Artesanal }
+              - { label: Endereço completo, name: address, widget: string, required: true, default: 'Rua Paraíba, 523 — Belo Horizonte, MG' }
+              - { label: Cidade, name: city, widget: string, required: true, default: 'Belo Horizonte, Minas Gerais, Brasil' }
+              - { label: Link do Google Maps, name: maps_url, widget: string, required: false }
+          - label: Galeria de fotos
+            name: gallery
+            widget: list
+            required: false
+            summary: "{{fields.alt_pt}}"
+            hint: "Galeria vazia fica oculta. Para publicar, adicione de 1 a 6 fotos reais, com autorização e descrições nos dois idiomas."
+            fields:
+              - { label: Foto, name: image, widget: image, required: true }
+              - { label: Descrição acessível em português, name: alt_pt, widget: string, required: true }
+              - { label: Accessible description in English, name: alt_en, widget: string, required: true }
+              - { label: Autorização de uso confirmada, name: rights_confirmed, widget: boolean, required: true, default: false }
+, 'Use AAAA-MM-DD, por exemplo 2027-04-18.'] }
+              - { label: Horário de início (HH:MM), name: time, widget: string, required: true, pattern: ['^([01]\d|2[0-3]):[0-5]\d
+              - label: Situação
+                name: status
+                widget: select
+                options:
+                  - { label: Confirmado, value: scheduled }
+                  - { label: Cancelado, value: cancelled }
+                default: scheduled
+              - { label: Local, name: venue, widget: string, required: true, default: Charada Savassi Cervejaria Artesanal }
+              - { label: Endereço completo, name: address, widget: string, required: true, default: 'Rua Paraíba, 523 — Belo Horizonte, MG' }
+              - { label: Cidade, name: city, widget: string, required: true, default: 'Belo Horizonte, Minas Gerais, Brasil' }
+              - { label: Link do Google Maps, name: maps_url, widget: string, required: false }
+          - label: Galeria de fotos
+            name: gallery
+            widget: list
+            required: false
+            summary: "{{fields.alt_pt}}"
+            hint: "Galeria vazia fica oculta. Para publicar, adicione de 1 a 6 fotos reais, com autorização e descrições nos dois idiomas."
+            fields:
+              - { label: Foto, name: image, widget: image, required: true }
+              - { label: Descrição acessível em português, name: alt_pt, widget: string, required: true }
+              - { label: Accessible description in English, name: alt_en, widget: string, required: true }
+              - { label: Autorização de uso confirmada, name: rights_confirmed, widget: boolean, required: true, default: false }
+, 'Use HH:MM, por exemplo 18:30.'] }
+              - { label: Horário de término (HH:MM), name: end_time, widget: string, required: false, pattern: ['^([01]\d|2[0-3]):[0-5]\d
+              - label: Situação
+                name: status
+                widget: select
+                options:
+                  - { label: Confirmado, value: scheduled }
+                  - { label: Cancelado, value: cancelled }
+                default: scheduled
+              - { label: Local, name: venue, widget: string, required: true, default: Charada Savassi Cervejaria Artesanal }
+              - { label: Endereço completo, name: address, widget: string, required: true, default: 'Rua Paraíba, 523 — Belo Horizonte, MG' }
+              - { label: Cidade, name: city, widget: string, required: true, default: 'Belo Horizonte, Minas Gerais, Brasil' }
+              - { label: Link do Google Maps, name: maps_url, widget: string, required: false }
+          - label: Galeria de fotos
+            name: gallery
+            widget: list
+            required: false
+            summary: "{{fields.alt_pt}}"
+            hint: "Galeria vazia fica oculta. Para publicar, adicione de 1 a 6 fotos reais, com autorização e descrições nos dois idiomas."
+            fields:
+              - { label: Foto, name: image, widget: image, required: true }
+              - { label: Descrição acessível em português, name: alt_pt, widget: string, required: true }
+              - { label: Accessible description in English, name: alt_en, widget: string, required: true }
+              - { label: Autorização de uso confirmada, name: rights_confirmed, widget: boolean, required: true, default: false }
+, 'Use HH:MM; se terminar depois da meia-noite, use 00:00.'] }
+              - { label: Valor da entrada (BRL), name: entry_price, widget: number, required: true, default: 0, value_type: float, min: 0 }
+              - label: Imagem do evento
+                name: image
+                widget: image
+                required: true
+                media_folder: /public/images/events
+                public_folder: /images/events
+                hint: 'Use uma imagem do evento em JPG, PNG, SVG ou WebP; prefira proporção 16:9, 4:3 ou 1:1.'
               - label: Situação
                 name: status
                 widget: select
