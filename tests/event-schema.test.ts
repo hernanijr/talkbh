@@ -13,13 +13,13 @@ const source = {
     date: '2026-11-17',
     time: '18:30',
     end_time: '00:00',
-    image: '/images/events/test-event.webp',
     entry_price: 0,
     status: 'scheduled',
     venue: 'Charada Pub Savassi',
     address: 'Rua Paraíba, 523 — Belo Horizonte, MG',
     city: 'Belo Horizonte, Minas Gerais, Brasil',
   }],
+  next_meetup_poster: { event_date: '2026-11-17', image: '/images/events/test-event.webp' },
   gallery: [],
 };
 
@@ -39,11 +39,27 @@ test('builds bilingual Event JSON-LD for an ongoing meetup with midnight rollove
   assert.equal(en?.description, source.meetups[0].description_en);
 });
 
-test('omits the image property when a meetup has no poster', () => {
-  const { image: _image, ...meetupWithoutImage } = source.meetups[0];
-  const event = normalizeCommunityContent({ ...source, meetups: [meetupWithoutImage] }, now, true).meetup;
+test('uses the site default image when no poster is configured', () => {
+  const { next_meetup_poster: _poster, ...sourceWithoutPoster } = source;
+  const event = normalizeCommunityContent(sourceWithoutPoster, now, true).meetup;
   const schema = createEventSchema(event, 'pt-BR', now);
-  assert.equal(schema?.image, undefined);
+  assert.equal(schema?.image, 'https://talk.bh/social-card.svg');
+});
+
+test('falls back to the default after the linked meetup has passed', () => {
+  const afterEvent = new Date('2026-11-18T12:00:00-03:00');
+  const event = normalizeCommunityContent({
+    ...source,
+    meetups: [
+      source.meetups[0],
+      { ...source.meetups[0], date: '2026-11-20', time: '19:30', end_time: '21:30' },
+    ],
+  }, afterEvent, true).meetup;
+  const schema = createEventSchema(event, 'pt-BR', afterEvent);
+
+  assert.equal(event.date, '2026-11-20T19:30:00-03:00');
+  assert.equal(event.image, undefined);
+  assert.equal(schema?.image, 'https://talk.bh/social-card.svg');
 });
 
 test('omits expired or cancelled meetups from Event JSON-LD', () => {
