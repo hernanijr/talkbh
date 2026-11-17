@@ -28,7 +28,7 @@ Edit `src/data/site.ts` for brand settings, Instagram and WhatsApp URLs, and all
 
 Talk BH participation is free and requires no registration or reservation. Guests pay only for food and drinks they order at the venue. These confirmed policies are reflected in both language versions.
 
-Meetup location is the Charada Savassi Cervejaria Artesanal at Rua Paraíba, 523, Belo Horizonte. The former fallback date, 12 November 2026 at 19:30, has passed and was cleared; no next event is announced until organizers confirm its date and time. Meetup and photo content is centralized in `src/data/community-content.json` and managed in the `/admin/` panel after its Decap Turbo site ID is configured. Do not enter event dates until organizers confirm them.
+Meetup location is the Charada Savassi Cervejaria Artesanal at Rua Paraíba, 523, Belo Horizonte. Meetup and photo content is centralized in `src/data/community-content.json` and managed in the `/admin/` panel. See the [operational content guide](docs/manual-painel-conteudo.md) for the event publishing workflow, required fields, poster handling, review and publication checklist.
 
 ## Community photos
 
