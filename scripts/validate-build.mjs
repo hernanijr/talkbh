@@ -110,7 +110,13 @@ for (const record of eventRecords) {
     assert.ok(['https://schema.org/EventScheduled', 'https://schema.org/EventCancelled'].includes(ptEvent.eventStatus));
     assert.equal(ptEvent.offers.priceCurrency, 'BRL');
     assert.equal(ptEvent.performer, undefined);
-    assert.equal(ptEvent.endDate, record.end_time ? ptEvent.endDate : undefined, 'Event endDate must only be emitted when an end time is explicitly configured.');
+    if (record.end_time) {
+      assert.ok(ptEvent.endDate, 'A confirmed end time should be represented in Event JSON-LD.');
+      assert.equal(enEvent.endDate, ptEvent.endDate, 'Both language variants must expose the same event end time.');
+    } else {
+      assert.equal(ptEvent.endDate, undefined, 'Do not infer endDate when the CMS has no confirmed event end time.');
+      assert.equal(enEvent.endDate, undefined, 'Do not infer endDate in the English page either.');
+    }
   }
   assert.ok(sitemap.includes(`<loc>${ptUrl}</loc>`), 'The Portuguese event URL should be included in the sitemap.');
   assert.ok(sitemap.includes(`<loc>${enUrl}</loc>`), 'The English event URL should be included in the sitemap.');
