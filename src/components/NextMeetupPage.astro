@@ -1,0 +1,190 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site, type Language } from '../data/site';
+import { getGoogleMapsUrl, getWhatsAppInvite, getMeetupStatus } from '../data/meetup';
+import { normalizeCommunityContent, type CommunityMeetup } from '../data/community-content';
+import contentFile from '../data/community-content.json';
+
+const { lang } = Astro.props as { lang: Language };
+const meetup: CommunityMeetup = normalizeCommunityContent(contentFile, new Date(), true).meetup;
+const status = getMeetupStatus(meetup);
+const hasDate = Boolean(meetup.date && !Number.isNaN(Date.parse(meetup.date)));
+const date = hasDate ? new Date(meetup.date!) : undefined;
+const dateText = date
+  ? new Intl.DateTimeFormat(lang, {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+      timeZone: 'America/Sao_Paulo',
+    }).format(date)
+  : '';
+const timeText = date
+  ? new Intl.DateTimeFormat(lang, {
+      hour: '2-digit', minute: '2-digit', hour12: false,
+      timeZone: 'America/Sao_Paulo',
+    }).format(date)
+  : '';
+const mapsUrl = getGoogleMapsUrl(meetup.mapsUrl);
+const wa = getWhatsAppInvite(site.social.whatsapp);
+const joinUrl = wa ?? site.social.instagram;
+const eventSlug = meetup.slug;
+const ptUrl = eventSlug ? `/eventos/${eventSlug}/` : '/proximo-encontro/';
+const enUrl = eventSlug ? `/en/events/${eventSlug}/` : '/en/next-meetup/';
+const fixedPtUrl = `${site.brand.domain}${eventSlug ? '/eventos/' + eventSlug + '/' : '/proximo-encontro/'}`;
+const fixedEnUrl = `${site.brand.domain}${eventSlug ? '/en/events/' + eventSlug + '/' : '/en/next-meetup/'}`;
+const pageUrl = lang === 'en' ? fixedEnUrl : fixedPtUrl;
+const title = lang === 'en'
+  ? (hasDate ? `${meetup.title?.en ?? 'Next Talk BH meetup'} | Talk BH` : 'Next meetup | Talk BH')
+  : (hasDate ? `${meetup.title?.['pt-BR'] ?? 'Próximo encontro Talk BH'} | Talk BH` : 'Próximo encontro | Talk BH');
+const description = hasDate
+  ? (meetup.description?.[lang] ?? (lang === 'en' ? 'Details of the next Talk BH meetup in Belo Horizonte.' : 'Detalhes do próximo encontro do Talk BH em Belo Horizonte.'))
+  : (lang === 'en'
+      ? 'Follow the Talk BH community for announcements about the next English conversation meetup in Belo Horizonte.'
+      : 'Acompanhe a comunidade Talk BH para saber quando será o próximo encontro de conversação em inglês em Belo Horizonte.');
+const isCancelled = status === 'cancelled';
+const isScheduled = status === 'today' || status === 'upcoming';
+const priceText = meetup.entryPrice === 0
+  ? (lang === 'en' ? 'Free to join' : 'Participação gratuita')
+  : meetup.entryPrice === undefined ? undefined
+  : new Intl.NumberFormat(lang, { style: 'currency', currency: 'BRL' }).format(meetup.entryPrice);
+const shareText = lang === 'en'
+  ? `The next Talk BH meetup: ${meetup.title?.en ?? 'Talk BH'}, ${dateText} at ${timeText}. ${pageUrl}`
+  : `Próximo encontro do Talk BH: ${meetup.title?.['pt-BR'] ?? 'Talk BH'}, ${dateText}, às ${timeText}. ${pageUrl}`;
+const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+const homeUrl = lang === 'en' ? '/en/' : '/';
+const copy = lang === 'en'
+  ? {
+      eyebrow: 'NEXT TALK BH MEETUP',
+      heading: 'The next meetup, always at this link.',
+      date: 'DATE',
+      time: 'TIME',
+      venue: 'VENUE',
+      admission: 'ADMISSION',
+      directions: 'Get directions',
+      join: wa ? 'Join the WhatsApp community' : 'Message Talk BH on Instagram',
+      share: 'Share on WhatsApp',
+      copy: 'Copy permanent link',
+      copied: 'Link copied.',
+      copyError: 'Could not copy the link automatically.',
+      eventDetails: 'View this meetup’s event page',
+      cancelled: 'This meetup has been cancelled. Follow the community for updates about the next date.',
+      noEvent: 'There is no confirmed upcoming meetup at the moment. Join the community to hear when the next one is announced.',
+      back: 'Back to Talk BH',
+      free: 'Taking part is free. Food and drinks at the venue are optional.',
+    }
+  : {
+      eyebrow: 'PRÓXIMO ENCONTRO TALK BH',
+      heading: 'O próximo encontro, sempre neste endereço.',
+      date: 'DATA',
+      time: 'HORÁRIO',
+      venue: 'LOCAL',
+      admission: 'ENTRADA',
+      directions: 'Como chegar',
+      join: wa ? 'Entrar na comunidade do WhatsApp' : 'Falar com o Talk BH no Instagram',
+      share: 'Compartilhar no WhatsApp',
+      copy: 'Copiar link permanente',
+      copied: 'Link copiado.',
+      copyError: 'Não foi possível copiar o link automaticamente.',
+      eventDetails: 'Ver página desta edição',
+      cancelled: 'Este encontro foi cancelado. Acompanhe a comunidade para saber a próxima data.',
+      noEvent: 'Ainda não há um próximo encontro confirmado. Entre na comunidade para receber novidades.',
+      back: 'Voltar ao Talk BH',
+      free: 'A participação é gratuita. O consumo no estabelecimento é opcional.',
+    };
+---
+
+<BaseLayout
+  lang={lang}
+  title={title}
+  description={description}
+  canonicalUrl={pageUrl}
+  portugueseUrl={fixedPtUrl}
+  englishUrl={fixedEnUrl}
+  socialImageUrl={meetup.image ? new URL(meetup.image, site.brand.domain + '/').href : `${site.brand.domain}/social-card.svg`}
+  openGraphType="website"
+>
+  <a class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-white focus:p-3" href="#main">
+    {lang === 'en' ? 'Skip to content' : 'Pular para o conteúdo'}
+  </a>
+  <header class="border-b border-black/10 bg-paper">
+    <div class="wrap flex min-h-[76px] items-center justify-between gap-4">
+      <a href={homeUrl} class="display text-3xl font-bold tracking-[-.08em] text-ink no-underline">talk<span class="text-talk-text">.</span>bh</a>
+      <nav class="flex items-center gap-4 text-sm font-semibold" aria-label={lang === 'en' ? 'Main navigation' : 'Navegação principal'}>
+        <a href={homeUrl} class="text-ink/70 underline-offset-4 hover:underline">{copy.back}</a>
+        <a href={lang === 'en' ? '/proximo-encontro/' : '/en/next-meetup/'} class="border border-talk/40 px-3 py-2 text-talk-text no-underline">
+          {lang === 'en' ? 'PT' : 'EN'}
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap mx-auto min-h-[72vh] py-16 md:py-24">
+    <div class="mx-auto max-w-4xl">
+      <p class="mono mb-6 text-xs font-semibold uppercase tracking-[.12em] text-talk-text">{copy.eyebrow}</p>
+      <h1 class="display max-w-4xl text-5xl font-semibold leading-[.98] md:text-7xl">
+        {hasDate ? (meetup.title?.[lang] ?? copy.heading) : copy.heading}
+      </h1>
+      {#if false}{/if}
+      {#if hasDate && isScheduled}
+        <p class="mt-7 max-w-3xl text-lg leading-[1.75] text-black/65">{meetup.description?.[lang]}</p>
+        <div class="mt-12 grid gap-8 border-y border-black/15 py-9 sm:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <p class="mono text-xs text-black/55">{copy.date}</p>
+            <p class="display mt-3 text-xl font-semibold capitalize">{dateText}</p>
+          </div>
+          <div>
+            <p class="mono text-xs text-black/55">{copy.time}</p>
+            <p class="display mt-3 text-2xl font-semibold">{timeText}</p>
+          </div>
+          <div>
+            <p class="mono text-xs text-black/55">{copy.venue}</p>
+            <p class="display mt-3 text-xl font-semibold">{meetup.venue}</p>
+            <p class="mt-2 text-sm leading-relaxed text-black/60">{meetup.address}</p>
+            {mapsUrl && <a class="mt-3 inline-flex text-sm font-bold text-talk-text underline underline-offset-4" href={mapsUrl} target="_blank" rel="noopener noreferrer">{copy.directions} ↗</a>}
+          </div>
+          <div>
+            <p class="mono text-xs text-black/55">{copy.admission}</p>
+            <p class="display mt-3 text-xl font-semibold">{priceText}</p>
+            <p class="mt-2 text-sm leading-relaxed text-black/60">{copy.free}</p>
+          </div>
+        </div>
+        <div class="mt-9 flex flex-wrap items-center gap-3">
+          <a class="inline-flex min-h-12 items-center gap-3 bg-talk px-5 py-3 text-sm font-bold text-white no-underline transition hover:bg-ink" href={joinUrl} target="_blank" rel="noopener noreferrer">{copy.join} ↗</a>
+          <a class="inline-flex min-h-12 items-center gap-3 border border-black/20 px-5 py-3 text-sm font-bold text-ink no-underline transition hover:bg-white" href={whatsappShareUrl} target="_blank" rel="noopener noreferrer">{copy.share} ↗</a>
+          <button class="min-h-12 border border-black/20 px-5 py-3 text-sm font-bold text-ink transition hover:bg-white" type="button" data-copy-next-meetup>{copy.copy}</button>
+          {eventSlug && <a class="text-sm font-bold text-talk-text underline underline-offset-4" href={lang === 'en' ? enUrl : ptUrl}>{copy.eventDetails} ↗</a>}
+        </div>
+        <p class="mt-3 min-h-6 text-sm text-black/60" aria-live="polite" data-next-meetup-copy-status></p>
+      {:else}
+        <div class="mt-10 border border-black/15 bg-white p-6 md:p-9">
+          <p class="text-base leading-[1.75] text-black/65">{isCancelled ? copy.cancelled : copy.noEvent}</p>
+          <a class="mt-6 inline-flex min-h-12 items-center gap-3 bg-talk px-5 py-3 text-sm font-bold text-white no-underline transition hover:bg-ink" href={joinUrl} target="_blank" rel="noopener noreferrer">{copy.join} ↗</a>
+        </div>
+      {/if}
+      <div class="mt-16 border-t border-black/15 pt-6">
+        <a href={homeUrl} class="text-sm font-semibold text-talk-text underline underline-offset-4">← {copy.back}</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-ink py-8 text-white">
+    <div class="wrap flex flex-wrap items-center justify-between gap-4 text-xs text-white/60">
+      <span>© {new Date().getFullYear()} Talk BH.</span>
+      <a href={homeUrl} class="font-semibold text-white underline underline-offset-4">{lang === 'en' ? 'Talk BH home' : 'Página inicial do Talk BH'}</a>
+    </div>
+  </footer>
+</BaseLayout>
+
+<script>
+  const copyButton = document.querySelector<HTMLButtonElement>('[data-copy-next-meetup]');
+  const status = document.querySelector<HTMLElement>('[data-next-meetup-copy-status]');
+  copyButton?.addEventListener('click', async () => {
+    if (!status) return;
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      status.textContent = status.dataset.success ?? (document.documentElement.lang === 'en' ? 'Link copied.' : 'Link copiado.');
+    } catch {
+      status.textContent = document.documentElement.lang === 'en'
+        ? 'Could not copy the link automatically.'
+        : 'Não foi possível copiar o link automaticamente.';
+    }
+  });
+</script>
