@@ -10,7 +10,7 @@
    - `feature/<short-description>` for product work
    - `fix/<short-description>` for bug fixes
    - `chore/<short-description>` for maintenance
-2. Make the smallest complete change. Keep page copy and permanent community policies in `src/data/site.ts`. Manage meetup and gallery entries in the CMS only after its editor count and zero-cost setup are confirmed. Do not put credentials in source, screenshots, or committed configuration.
+2. Make the smallest complete change. Keep page copy and permanent community policies in `src/data/site.ts`. Manage meetup and gallery entries through the configured Decap CMS editorial workflow; keep the Free-tier one-editor constraint in mind. Do not put credentials in source, screenshots, or committed configuration.
 3. Run `npm ci`, `npm run check`, `npm test`, `npm run build`, and `npm run validate:build` locally. For visual changes, inspect both language routes and a narrow mobile viewport.
 4. Open a pull request targeting `main`. Include the reason, summary, check results, and Cloudflare preview URL. Use the pull request checklist and attach screenshots for visual changes.
 5. Review the diff and preview, verify Portuguese and English, links, mobile layout, and any relevant event behavior. Resolve all review comments before merging.
@@ -29,7 +29,7 @@ These settings must be enabled in GitHub and Cloudflare dashboards; files in thi
 
 ## Content publishing
 
-Site copy, code, meetup entries, and gallery changes use pull requests. Decap CMS is configured for editorial workflow; it must create a content PR, and a different GitHub reviewer approves it before merge. Content must never bypass `main` branch protection. The Decap Turbo Free site ID still needs to be set before enabling editor access. See [the CMS setup](docs/cms-evaluation.md).
+Site copy, code, meetup entries, and gallery changes use pull requests. Decap CMS is configured for editorial workflow; it must create a content PR, and a different GitHub reviewer approves it before merge. Content must never bypass `main` branch protection. The Decap Turbo site ID is configured and the CMS editorial workflow is active. The Free-tier arrangement supports one panel editor; other maintainers review content pull requests in GitHub. See [the CMS evaluation](docs/cms-evaluation.md) and [the operational content guide](docs/manual-painel-conteudo.md).
 
 ## Rollback
 
