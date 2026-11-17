@@ -385,11 +385,6 @@ function nextRecurringMeetup(
   let candidateDate: string;
   if (today <= schedule.startDate) {
     candidateDate = schedule.startDate;
-    const firstOccurrence = toZonedDateTime(candidateDate, schedule.time, schedule.timezone);
-    if (!firstOccurrence) return undefined;
-    if (Date.parse(firstOccurrence) <= now.getTime()) {
-      candidateDate = addCalendarDays(candidateDate, 7);
-    }
   } else {
     const currentWeekday = new Date(Date.UTC(todayParts.year, todayParts.month - 1, todayParts.day)).getUTCDay();
     const daysUntil = (schedule.weekday - currentWeekday + 7) % 7;
