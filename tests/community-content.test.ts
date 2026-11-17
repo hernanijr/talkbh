@@ -8,7 +8,7 @@ const now = new Date('2026-11-13T12:00:00-03:00');
 const meetup = (date: string, time = '19:30', status = 'scheduled', endTime = '21:30') => ({
   title_pt: 'Talk BH', title_en: 'Talk BH',
   description_pt: 'Encontro para praticar inglês.', description_en: 'A meetup to practice English.',
-  date, time, end_time: endTime, image: '/images/events/test-event.webp', entry_price: 0, status,
+  date, time, end_time: endTime, entry_price: 0, status,
   venue: 'Charada Savassi Cervejaria Artesanal', address: 'Rua Paraíba, 523',
 });
 
@@ -33,6 +33,7 @@ test('event state distinguishes future, later today, elapsed, cancelled, absent 
 test('content selects the nearest future meetup and keeps bilingual photo alt text', () => {
   const content = normalizeCommunityContent({
     meetups: [meetup('2026-12-15'), meetup('2026-11-20'), meetup('2026-11-10')],
+    next_meetup_poster: { event_date: '2026-11-20', image: '/images/events/next-meetup.webp' },
     gallery: [
       { image: 'src/assets/community/talk-bh.jpg', alt_pt: 'Pessoas conversando', alt_en: 'People talking', rights_confirmed: true },
       { image: 'src/assets/community/hidden.jpg', alt_pt: '', alt_en: 'Another photo', rights_confirmed: true },
@@ -41,6 +42,7 @@ test('content selects the nearest future meetup and keeps bilingual photo alt te
 
   assert.equal(content.meetup.date, '2026-11-20T19:30:00-03:00');
   assert.equal(content.meetup.title?.en, 'Talk BH');
+  assert.equal(content.meetup.image, '/images/events/next-meetup.webp');
   assert.equal(content.gallery.length, 1);
   assert.equal(content.gallery[0].alt['pt-BR'], 'Pessoas conversando');
 });
@@ -51,18 +53,45 @@ test('rolls event end times after midnight into the next calendar date', () => {
   assert.equal(content.meetup.endDate, '2026-11-14T00:00:00-03:00');
 });
 
-test('normalizes descriptions, local event image and free admission', () => {
-  const content = normalizeCommunityContent({ meetups: [meetup('2026-11-20')], gallery: [] }, now, true);
+test('normalizes descriptions, matching next meetup poster and free admission', () => {
+  const content = normalizeCommunityContent({
+    meetups: [meetup('2026-11-20')],
+    next_meetup_poster: { event_date: '2026-11-20', image: '/images/events/test-event.webp' },
+    gallery: [],
+  }, now, true);
   assert.equal(content.meetup.description?.['pt-BR'], 'Encontro para praticar inglês.');
   assert.equal(content.meetup.image, '/images/events/test-event.webp');
   assert.equal(content.meetup.entryPrice, 0);
 });
 
-test('accepts a meetup without an event poster image', () => {
-  const { image: _image, ...recordWithoutImage } = meetup('2026-11-20');
-  const content = normalizeCommunityContent({ meetups: [recordWithoutImage], gallery: [] }, now, true);
+test('accepts a meetup without a separate poster', () => {
+  const content = normalizeCommunityContent({ meetups: [meetup('2026-11-20')], gallery: [] }, now, true);
   assert.equal(content.meetup.image, undefined);
   assert.equal(content.meetup.title?.['pt-BR'], 'Talk BH');
+});
+
+test('ignores an old poster after its linked meetup has passed', () => {
+  const content = normalizeCommunityContent({
+    meetups: [meetup('2026-11-17'), meetup('2026-11-20')],
+    next_meetup_poster: { event_date: '2026-11-17', image: '/images/events/old-poster.webp' },
+    gallery: [],
+  }, new Date('2026-11-18T12:00:00-03:00'), true);
+
+  assert.equal(content.meetup.date, '2026-11-20T19:30:00-03:00');
+  assert.equal(content.meetup.image, undefined);
+});
+
+test('rejects malformed next meetup poster metadata', () => {
+  assert.throws(() => normalizeCommunityContent({
+    meetups: [meetup('2026-11-20')],
+    next_meetup_poster: { event_date: '2026-02-30', image: '/images/events/poster.webp' },
+    gallery: [],
+  }, now, true));
+  assert.throws(() => normalizeCommunityContent({
+    meetups: [meetup('2026-11-20')],
+    next_meetup_poster: { event_date: '2026-11-20', image: '/images/community/old-photo.jpg' },
+    gallery: [],
+  }, now, true));
 });
 
 test('a future cancellation is preserved when no scheduled meetup is upcoming', () => {
