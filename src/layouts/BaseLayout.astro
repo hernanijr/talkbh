@@ -43,8 +43,8 @@ const orgSchema = {
     price: 0,
     priceCurrency: 'BRL',
     description: lang === 'pt-BR'
-      ? 'Participação gratuita. Cada participante paga apenas pelo que consumir no estabelecimento.'
-      : 'Participation is free. Each participant pays only for their own food and drinks at the venue.',
+      ? 'Participação gratuita e sem consumo obrigatório. Alimentos e bebidas são opcionais; cada pessoa paga apenas pelo que escolher consumir.'
+      : 'Participation is free and no purchase is required. Food and drinks are optional; each person pays only for what they choose to order.',
   },
 };
 const eventSchema = createEventSchema(event, lang, new Date(), canonical);
