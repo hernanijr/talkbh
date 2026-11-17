@@ -1,6 +1,18 @@
 # Talk BH content management evaluation
 
-Assessment made 13 November 2026 for a small bilingual institutional site on Cloudflare Workers. Priorities are no recurring fee, low operational work, event and photo editing, visual review, and an approval before production. No CMS account or paid service has been created.
+Assessment made 13 November 2026 for a small bilingual institutional site on Cloudflare Workers. Priorities are no recurring fee, low operational work, event and photo editing, visual review, and an approval before production. The initial evaluation selected a no-cost Decap Turbo Free setup; its subsequent configuration is documented below.
+
+## Current implementation status — 17 November 2026
+
+The recommended Decap CMS + Decap Turbo Free setup has since been configured for `https://talk.bh`:
+
+- The site ID is configured in `public/admin/config.yml`.
+- The CMS is connected to `hernanijr/talkbh` and uses the editorial workflow.
+- A content submission was tested through the CMS, reviewed in GitHub and merged through a pull request.
+- The agreed operating model remains one CMS editor, with other maintainers reviewing and merging PRs in GitHub.
+- The Git-backed media workflow remains on the Free plan; an S3/R2 media library would be a separate paid-plan decision.
+
+For day-to-day publishing, follow [the operational content guide](manual-painel-conteudo.md). The original setup notes below record the implementation decision and should not be treated as outstanding tasks.
 
 ## Recommendation under a zero-cost requirement
 
@@ -26,17 +38,17 @@ The organizers confirmed that one person needs panel access and other admins can
 
 The GitHub repository is public, so CMS pull requests, draft text, and uploaded photo files are also visible to the public on GitHub before approval. The editor preview is for visual review, not confidentiality. Do not enter private or sensitive material as draft content.
 
-## Setup steps
+## Original setup steps (completed)
 
 1. Create a Decap Turbo organization on its Free plan and one site; do not opt into the Pro trial.
 2. Connect the Talk BH GitHub repository and set the admin origin to `https://talk.bh`.
-3. Copy the generated site ID into `turbo_site_id` in `public/admin/config.yml`. It is an ID, not a credential. The CMS does not work until this value is set in a later PR.
+3. The generated site ID was added to `turbo_site_id` in `public/admin/config.yml`. It is an identifier, not a credential.
 4. Confirm the CMS Git connection and editorial workflow create content pull requests targeting `main`. Require a different GitHub reviewer and the CI build before merging. Only a reviewed merge deploys the content to Cloudflare.
 5. Give the one CMS seat to the primary editor. Other organizers review and approve through GitHub; they do not need CMS seats.
 
 If the number of panel editors changes later, the free tier no longer matches. Re-evaluate self-hosted Decap's OAuth/authentication operation before adding an account; it is free software but requires an auth endpoint and credential upkeep. Do not silently add a paid seat or provider.
 
-Photos and the date/time of the next meetup are still needed. Until the organizers provide them, the public site should show no upcoming event and no new gallery content.
+The CMS now contains the community photos and confirmed meetup content available at the time of the V1 release. Future dates and images should be updated only after organizers confirm them; see the operational content guide.
 
 ## Attached `schema.json` review
 
