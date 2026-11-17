@@ -37,7 +37,7 @@ assert.equal(nextMeetupPtSchema.filter((item) => item['@type'] === 'Event').leng
 assert.equal(nextMeetupEnSchema.filter((item) => item['@type'] === 'Event').length, 0, 'The permanent English route must not duplicate Event JSON-LD.');
 for (const [html, language] of [[nextMeetupPt, 'pt-BR'], [nextMeetupEn, 'en']]) {
   assert.match(html, new RegExp('<html lang="' + language + '"'));
-  assert.match(html, /<link rel="canonical" href="https:\\/\\/talk\\.bh\\//);
+  assert.ok(html.includes('<link rel="canonical" href="https://talk.bh/'));
   assert.match(html, /hreflang="pt-BR"/);
   assert.match(html, /hreflang="en"/);
   assert.match(html, /property="og:type" content="website"/);
