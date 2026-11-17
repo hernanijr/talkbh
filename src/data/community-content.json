@@ -43,6 +43,7 @@
     }
   ],
   "next_meetup_poster": {
-    "image": "/images/events/whatsapp-image-2026-11-17-at-10.08.08.jpeg"
+    "image": "/images/events/whatsapp-image-2026-11-17-at-10.08.08.jpeg",
+    "event_date": "2026-11-17"
   }
 }
