@@ -62,6 +62,13 @@ collections:
               - { label: Dia da semana (0=domingo, 3=quarta-feira), name: weekday, widget: number, required: true, default: 3, value_type: int, min: 0, max: 6 }
               - { label: Primeira ocorrência (AAAA-MM-DD), name: start_date, widget: string, required: true, default: '2026-11-25', hint: "A primeira ocorrência confirmada da agenda. A partir dela o sistema gera uma ocorrência a cada 7 dias." }
               - { label: Horário de início (HH:MM), name: time, widget: string, required: true, default: '18:30' }
+              - label: Poster padrão do encontro semanal
+                name: default_image
+                widget: image
+                required: false
+                media_folder: /public/images/events
+                public_folder: /images/events
+                hint: "Imagem usada nas quartas-feiras quando não houver um evento especial com arte própria. Prefira WebP ou JPG otimizado; a arte será exibida inteira, sem recorte."
               - { label: Fuso horário, name: timezone, widget: string, required: true, default: 'America/Sao_Paulo' }
               - { label: Título em português, name: title_pt, widget: string, required: true, default: 'Talk BH — encontro semanal de conversação em inglês' }
               - { label: Title in English, name: title_en, widget: string, required: true, default: 'Talk BH — weekly English conversation meetup' }
