@@ -38,13 +38,6 @@ collections:
               - { label: Horário de início (HH:MM), name: time, widget: string, required: true, hint: "Use HH:MM no fuso de Belo Horizonte." }
               - { label: Horário de término (HH:MM), name: end_time, widget: string, required: false, hint: "Opcional. Use 00:00 se o evento terminar à meia-noite." }
               - { label: Valor da entrada (BRL), name: entry_price, widget: number, required: true, default: 0, value_type: float, min: 0 }
-              - label: Imagem do evento
-                name: image
-                widget: image
-                required: false
-                media_folder: /public/images/events
-                public_folder: /images/events
-                hint: "Opcional. Quando houver arte final, use JPG, PNG, SVG ou WebP; prefira proporção 16:9, 4:3 ou 1:1."
               - label: Situação
                 name: status
                 widget: select
@@ -56,6 +49,13 @@ collections:
               - { label: Endereço completo, name: address, widget: string, required: true, default: 'Rua Paraíba, 523 — Belo Horizonte, MG' }
               - { label: Cidade, name: city, widget: string, required: true, default: 'Belo Horizonte, Minas Gerais, Brasil' }
               - { label: Link do Google Maps, name: maps_url, widget: string, required: false }
+          - label: Imagem do próximo encontro
+            name: next_meetup_image
+            widget: image
+            required: false
+            media_folder: /public/images/events
+            public_folder: /images/events
+            hint: "Imagem única associada automaticamente ao encontro confirmado mais próximo. Atualize quando o próximo encontro mudar. Prefira WebP ou JPG otimizado."
           - label: Galeria de fotos
             name: gallery
             widget: list
