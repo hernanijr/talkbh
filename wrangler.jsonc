@@ -6,5 +6,12 @@
     "directory": "./dist"
   },
   "preview_urls": true,
-  "previews": {}
+  "previews": {},
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true,
+      "persist": true
+    }
+  }
 }
