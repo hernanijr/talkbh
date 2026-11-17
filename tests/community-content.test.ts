@@ -12,12 +12,22 @@ const meetup = (date: string, time = '19:30', status = 'scheduled', endTime = '2
   venue: 'Charada Savassi Cervejaria Artesanal', address: 'Rua Paraíba, 523',
 });
 
-test('event state distinguishes future, later today, elapsed, cancelled and absent events', () => {
+test('event state distinguishes future, later today, elapsed, cancelled, absent and ongoing events', () => {
   assert.equal(getMeetupStatus({ date: '2026-11-14T19:30:00-03:00', status: 'scheduled' }, now), 'upcoming');
   assert.equal(getMeetupStatus({ date: '2026-11-13T19:30:00-03:00', status: 'scheduled' }, now), 'today');
   assert.equal(getMeetupStatus({ date: '2026-11-12T19:30:00-03:00', status: 'scheduled' }, now), 'past');
   assert.equal(getMeetupStatus({ date: '2026-11-14T19:30:00-03:00', status: 'cancelled' }, now), 'cancelled');
   assert.equal(getMeetupStatus({ date: null, status: 'scheduled' }, now), 'none');
+  assert.equal(getMeetupStatus({
+    date: '2026-11-13T18:30:00-03:00',
+    endDate: '2026-11-14T00:00:00-03:00',
+    status: 'scheduled',
+  }, new Date('2026-11-13T22:00:00-03:00')), 'today');
+  assert.equal(getMeetupStatus({
+    date: '2026-11-13T18:30:00-03:00',
+    endDate: '2026-11-14T00:00:00-03:00',
+    status: 'scheduled',
+  }, new Date('2026-11-14T00:00:00-03:00')), 'past');
 });
 
 test('content selects the nearest future meetup and keeps bilingual photo alt text', () => {

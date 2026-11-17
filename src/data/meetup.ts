@@ -2,6 +2,7 @@ export type MeetupStatus = 'upcoming' | 'today' | 'past' | 'cancelled' | 'none';
 
 export type Meetup = {
   date: string | null;
+  endDate?: string;
   status: 'scheduled' | 'cancelled';
 };
 
@@ -27,8 +28,11 @@ export function getMeetupStatus(meetup: Meetup, now = new Date()): MeetupStatus 
 
   const eventDay = dateKey(eventDate);
   const today = dateKey(now);
-  if (eventDay < today) return 'past';
-  if (eventDay === today) return eventDate.getTime() <= now.getTime() ? 'past' : 'today';
+  const eventEnd = meetup.endDate ? new Date(meetup.endDate) : undefined;
+  const isOngoing = Boolean(eventEnd && !Number.isNaN(eventEnd.getTime()) && eventEnd.getTime() > now.getTime());
+
+  if (eventDay < today) return isOngoing ? 'today' : 'past';
+  if (eventDay === today) return eventDate.getTime() <= now.getTime() ? (isOngoing ? 'today' : 'past') : 'today';
   return 'upcoming';
 }
 

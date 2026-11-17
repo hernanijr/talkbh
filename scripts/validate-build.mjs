@@ -42,7 +42,9 @@ for (const [language, schemaBlocks] of [['Portuguese', ptSchema], ['English', en
     assert.equal(event.eventStatus, 'https://schema.org/EventScheduled');
     assert.ok(event.description, 'Event structured data should include a localized description.');
     assert.ok(event.image?.startsWith('https://talk.bh/images/events/'), 'Event structured data should reference a crawlable local image.');
-    assert.ok(Date.parse(event.endDate) > Date.parse(event.startDate), 'Event end date must follow its start date.');
+    if (event.endDate) {
+      assert.ok(Date.parse(event.endDate) > Date.parse(event.startDate), 'Event end date must follow its start date.');
+    }
     assert.ok(Number.isFinite(event.offers?.price) && event.offers.price >= 0, 'Event offers should expose a valid admission price.');
     assert.equal(event.offers.priceCurrency, 'BRL');
     assert.equal(event.performer, undefined, 'Do not invent performers for community conversation meetups.');

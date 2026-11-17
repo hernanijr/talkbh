@@ -111,7 +111,7 @@ collections:
                 name: image
                 widget: image
                 required: true
-                media_folder: /public/images/events
+                media_folder: public/images/events
                 public_folder: /images/events
                 hint: 'Use uma imagem do evento em JPG, PNG, SVG ou WebP; prefira proporção 16:9, 4:3 ou 1:1.'
               - label: Situação
