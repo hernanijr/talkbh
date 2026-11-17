@@ -340,7 +340,11 @@ function normalizeRecurringSchedule(value: unknown, strict: boolean): Normalized
   };
 }
 
-function normalizeScheduleExceptions(value: unknown, strict: boolean): Set<string> {
+function normalizeScheduleExceptions(
+  value: unknown,
+  strict: boolean,
+  schedule?: NormalizedRecurringSchedule,
+): Set<string> {
   if (value === undefined || value === null) return new Set();
   if (!Array.isArray(value)) {
     if (strict) throw new Error('Schedule exceptions must be a list of dates.');
@@ -350,8 +354,14 @@ function normalizeScheduleExceptions(value: unknown, strict: boolean): Set<strin
   for (const item of value) {
     const record = asRecord(item) as ScheduleExceptionRecord | undefined;
     const date = clean(record?.date);
-    if (!record || !dateKeyParts(date)) {
-      if (strict) throw new Error('Each schedule exception needs a valid date in YYYY-MM-DD format.');
+    const parts = dateKeyParts(date);
+    const weekday = parts
+      ? new Date(Date.UTC(parts.year, parts.month - 1, parts.day)).getUTCDay()
+      : -1;
+    const validForSchedule = !schedule
+      || (weekday === schedule.weekday && date >= schedule.startDate);
+    if (!record || !parts || !validForSchedule) {
+      if (strict) throw new Error('Each schedule exception must use a valid occurrence date on the configured weekday, on or after the first recurring date.');
       continue;
     }
     dates.add(date);
@@ -488,7 +498,7 @@ export function normalizeCommunityContent(input: unknown, now = new Date(), stri
   const record = asRecord(input) as ContentRecord | undefined;
   const meetups = normalizeCommunityMeetups(input, now, strict);
   const schedule = normalizeRecurringSchedule(record?.recurring_schedule, strict);
-  const exceptions = normalizeScheduleExceptions(record?.schedule_exceptions, strict);
+  const exceptions = normalizeScheduleExceptions(record?.schedule_exceptions, strict, schedule);
   const recurringMeetup = nextRecurringMeetup(schedule, exceptions, meetups, now);
   const photoRecords = Array.isArray(record?.gallery) ? record.gallery : [];
 
