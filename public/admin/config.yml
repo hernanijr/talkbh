@@ -50,6 +50,37 @@ collections:
               - { label: Endereço completo, name: address, widget: string, required: true, default: 'Rua Paraíba, 523 — Belo Horizonte, MG' }
               - { label: Cidade, name: city, widget: string, required: true, default: 'Belo Horizonte, Minas Gerais, Brasil' }
               - { label: Link do Google Maps, name: maps_url, widget: string, required: false }
+              - { label: Substitui o encontro padrão desta semana?, name: replaces_default_schedule, widget: boolean, required: true, default: false, hint: "Ative em um evento especial que deve substituir a reunião semanal. Deixe desativado quando for um evento adicional." }
+          - label: Agenda padrão recorrente
+            name: recurring_schedule
+            widget: object
+            required: true
+            collapsed: true
+            hint: "Gera automaticamente um encontro por semana a partir da primeira ocorrência. Eventos especiais podem substituir a recorrência naquela semana."
+            fields:
+              - { label: Ativar encontro padrão recorrente, name: enabled, widget: boolean, required: true, default: true }
+              - { label: Dia da semana (0=domingo, 3=quarta-feira), name: weekday, widget: number, required: true, default: 3, value_type: int, min: 0, max: 6 }
+              - { label: Primeira ocorrência (AAAA-MM-DD), name: start_date, widget: string, required: true, default: '2026-11-25', hint: "A primeira ocorrência confirmada da agenda. A partir dela o sistema gera uma ocorrência a cada 7 dias." }
+              - { label: Horário de início (HH:MM), name: time, widget: string, required: true, default: '18:30' }
+              - { label: Fuso horário, name: timezone, widget: string, required: true, default: 'America/Sao_Paulo' }
+              - { label: Título em português, name: title_pt, widget: string, required: true, default: 'Talk BH — encontro semanal de conversação em inglês' }
+              - { label: Title in English, name: title_en, widget: string, required: true, default: 'Talk BH — weekly English conversation meetup' }
+              - { label: Descrição em português, name: description_pt, widget: text, required: true, default: 'Encontro semanal para praticar inglês em um ambiente leve e informal, conhecer pessoas e conversar. Pessoas de todos os níveis são bem-vindas.' }
+              - { label: Description in English, name: description_en, widget: text, required: true, default: 'A weekly meetup to practice English in a relaxed, informal setting, meet people and chat. All levels are welcome.' }
+              - { label: Valor da entrada (BRL), name: entry_price, widget: number, required: true, default: 0, value_type: float, min: 0 }
+              - { label: Local, name: venue, widget: string, required: true, default: 'Charada Savassi Cervejaria Artesanal' }
+              - { label: Endereço completo, name: address, widget: string, required: true, default: 'Rua Paraíba, 523 — Belo Horizonte, MG' }
+              - { label: Cidade, name: city, widget: string, required: true, default: 'Belo Horizonte, Minas Gerais, Brasil' }
+              - { label: Link do Google Maps, name: maps_url, widget: string, required: false, default: 'https://www.google.com/maps/search/?api=1&query=Charada+Savassi+Cervejaria+Artesanal%2C+Rua+Para%C3%ADba%2C+523%2C+Belo+Horizonte%2C+MG' }
+          - label: Semanas sem encontro padrão
+            name: schedule_exceptions
+            widget: list
+            required: false
+            summary: "Semana de {{fields.date}}"
+            hint: "Adicione a data da quarta-feira que não terá o encontro semanal. Isso suprime somente aquela ocorrência."
+            fields:
+              - { label: Data da ocorrência suprimida (AAAA-MM-DD), name: date, widget: string, required: true }
+              - { label: Motivo (opcional), name: reason, widget: string, required: false }
           - label: Arte do próximo encontro
             name: next_meetup_poster
             widget: object
