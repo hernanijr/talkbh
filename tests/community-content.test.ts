@@ -21,6 +21,7 @@ const recurringSchedule = {
   city: 'Belo Horizonte, Minas Gerais, Brasil',
   address: 'Rua Paraíba, 523 — Belo Horizonte, MG',
   maps_url: 'https://www.google.com/maps/search/?api=1&query=Charada+Savassi',
+  default_image: '/images/events/weekly-meetup.webp',
 };
 
 const meetup = (date: string, time = '19:30', status = 'scheduled', endTime = '21:30') => ({
@@ -82,6 +83,26 @@ test('recurring schedule starts on Wednesday November 25 and repeats every week 
 
   const followingDay = normalizeCommunityContent(input, new Date('2026-11-26T00:01:00-03:00'), true).meetup;
   assert.equal(followingDay.date, '2026-12-02T21:30:00.000Z');
+});
+
+test('recurring meetup uses the configured default poster when no special event is next', () => {
+  const content = normalizeCommunityContent({
+    meetups: [],
+    recurring_schedule: recurringSchedule,
+    schedule_exceptions: [],
+    gallery: [],
+  }, new Date('2026-11-18T12:00:00-03:00'), true);
+
+  assert.equal(content.meetup.source, 'recurring');
+  assert.equal(content.meetup.image, '/images/events/weekly-meetup.webp');
+});
+
+test('recurring schedule rejects an invalid default poster path', () => {
+  assert.throws(() => normalizeCommunityContent({
+    meetups: [],
+    recurring_schedule: { ...recurringSchedule, default_image: 'https://example.com/poster.jpg' },
+    gallery: [],
+  }, new Date('2026-11-18T12:00:00-03:00'), true));
 });
 
 test('recurring schedule can skip one Wednesday without disabling future weeks', () => {
