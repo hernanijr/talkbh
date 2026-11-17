@@ -81,6 +81,12 @@ for (const record of eventRecords) {
     assert.ok(html.includes(`property="og:url" content="${ownUrl}"`), 'Event Open Graph URL must match its canonical URL.');
     assert.ok(html.includes('property="og:type" content="article"'), 'Event pages should use article Open Graph metadata.');
     assert.ok(html.includes(`property="og:image"`), 'Event pages should provide an Open Graph image.');
+    assert.ok(html.includes('object-contain'), 'Event posters must be displayed in full without cropping.');
+    assert.ok(!html.includes('object-cover'), 'Event posters must not use crop-to-fill styling.');
+    assert.ok(html.includes('data-event-share'), 'Event pages should expose the native share action.');
+    assert.ok(html.includes('data-event-copy-link'), 'Event pages should expose a copy-link action.');
+    assert.ok(html.includes('https://wa.me/?text='), 'Event pages should expose a prefilled WhatsApp share link.');
+    assert.ok(html.includes('data-event-share-status'), 'Share actions should announce their result accessibly.');
   }
 
   const ptEventNodes = structuredData(ptEventPage).filter((item) => item['@type'] === 'Event');
@@ -104,6 +110,7 @@ for (const record of eventRecords) {
     assert.ok(['https://schema.org/EventScheduled', 'https://schema.org/EventCancelled'].includes(ptEvent.eventStatus));
     assert.equal(ptEvent.offers.priceCurrency, 'BRL');
     assert.equal(ptEvent.performer, undefined);
+    assert.equal(ptEvent.endDate, record.end_time ? ptEvent.endDate : undefined, 'Event endDate must only be emitted when an end time is explicitly configured.');
   }
   assert.ok(sitemap.includes(`<loc>${ptUrl}</loc>`), 'The Portuguese event URL should be included in the sitemap.');
   assert.ok(sitemap.includes(`<loc>${enUrl}</loc>`), 'The English event URL should be included in the sitemap.');
@@ -178,6 +185,7 @@ assert.match(cmsConfig, /turbo_site_id: 63bc3ac0-e116-4c37-9e8d-a6d47b2010ac/);
 assert.match(cmsConfig, /name: next_meetup_poster/);
 assert.match(cmsConfig, /name: event_date, widget: string, required: true, hint: "Use AAAA-MM-DD/);
 assert.doesNotMatch(cmsConfig, /name: event_date, widget: date/);
+assert.match(cmsConfig, /name: end_time, widget: string, required: false/);
 
 assert.match(sitemap, /https:\/\/talk\.bh\//);
 assert.match(sitemap, /https:\/\/talk\.bh\/en\//);
