@@ -75,7 +75,7 @@ for (const record of eventRecords) {
   const enEventPage = await read(`en/events/${slug}/index.html`);
   assert.ok(ptEventPage.includes(`<link rel="canonical" href="${ptUrl}"`), 'Portuguese event pages need a self-referencing canonical URL.');
   assert.ok(enEventPage.includes(`<link rel="canonical" href="${enUrl}"`), 'English event pages need a self-referencing canonical URL.');
-  for (const [html, ownUrl, alternateUrl] of [[ptEventPage, ptUrl, enUrl], [enEventPage, enUrl, ptUrl]]) {
+  for (const [html, ownUrl] of [[ptEventPage, ptUrl], [enEventPage, enUrl]]) {
     assert.ok(html.includes(`hreflang="pt-BR" href="${ptUrl}"`), 'Event pages must expose the Portuguese alternate.');
     assert.ok(html.includes(`hreflang="en" href="${enUrl}"`), 'Event pages must expose the English alternate.');
     assert.ok(html.includes(`property="og:url" content="${ownUrl}"`), 'Event Open Graph URL must match its canonical URL.');
