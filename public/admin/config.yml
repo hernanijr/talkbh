@@ -37,7 +37,7 @@ collections:
               - { label: Data (AAAA-MM-DD), name: date, widget: string, required: true, hint: "Use AAAA-MM-DD, por exemplo 2027-04-18." }
               - { label: Slug da URL, name: slug, widget: string, required: false, hint: "Opcional. Se vazio, o site gera um slug a partir do título em português e da data; mantenha-o estável depois de publicar." }
               - { label: Horário de início (HH:MM), name: time, widget: string, required: true, hint: "Use HH:MM no fuso de Belo Horizonte." }
-              - { label: Horário de término (HH:MM), name: end_time, widget: string, required: false, hint: "Opcional. Use 00:00 se o evento terminar à meia-noite." }
+              - { label: Horário de término (HH:MM), name: end_time, widget: string, required: false, hint: "Opcional. Preencha apenas quando o horário previsto de término do encontro estiver confirmado. Não use o horário de fechamento do estabelecimento." }
               - { label: Valor da entrada (BRL), name: entry_price, widget: number, required: true, default: 0, value_type: float, min: 0 }
               - label: Situação
                 name: status
