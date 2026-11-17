@@ -65,7 +65,7 @@ collections:
                 required: true
                 media_folder: /public/images/events
                 public_folder: /images/events
-                hint: "Prefira WebP ou JPG otimizado; proporção horizontal 16:9."
+                hint: "Prefira WebP ou JPG otimizado. O site preserva a proporção original e exibe o cartaz inteiro, sem recortar."
           - label: Galeria de fotos
             name: gallery
             widget: list
