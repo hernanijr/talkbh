@@ -59,8 +59,7 @@ test('normalizes descriptions, local event image and free admission', () => {
 });
 
 test('accepts a meetup without an event poster image', () => {
-  const recordWithoutImage = meetup('2026-11-20');
-  delete recordWithoutImage.image;
+  const { image: _image, ...recordWithoutImage } = meetup('2026-11-20');
   const content = normalizeCommunityContent({ meetups: [recordWithoutImage], gallery: [] }, now, true);
   assert.equal(content.meetup.image, undefined);
   assert.equal(content.meetup.title?.['pt-BR'], 'Talk BH');
