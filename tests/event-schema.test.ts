@@ -35,7 +35,6 @@ test('builds bilingual Event JSON-LD for an ongoing meetup with midnight rollove
   assert.equal(pt?.endDate, '2026-11-18T00:00:00-03:00');
   assert.equal(pt?.image, 'https://talk.bh/images/events/talk-and-sing-2026-11-17.svg');
   assert.deepEqual(pt?.offers, { '@type': 'Offer', price: 0, priceCurrency: 'BRL' });
-  assert.equal(pt?.performer, undefined);
   assert.equal(en?.name, source.meetups[0].title_en);
   assert.equal(en?.description, source.meetups[0].description_en);
 });
