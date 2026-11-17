@@ -14,6 +14,8 @@ export type CommunityMeetup = {
   city: string;
   address: string;
   mapsUrl: string;
+  source?: 'manual' | 'recurring';
+  replacesDefaultSchedule?: boolean;
 };
 
 export type CommunityPhoto = {
@@ -41,6 +43,28 @@ type MeetupRecord = {
   city?: unknown;
   address?: unknown;
   maps_url?: unknown;
+  replaces_default_schedule?: unknown;
+};
+
+type RecurringScheduleRecord = {
+  enabled?: unknown;
+  weekday?: unknown;
+  time?: unknown;
+  timezone?: unknown;
+  title_pt?: unknown;
+  title_en?: unknown;
+  description_pt?: unknown;
+  description_en?: unknown;
+  entry_price?: unknown;
+  venue?: unknown;
+  city?: unknown;
+  address?: unknown;
+  maps_url?: unknown;
+};
+
+type ScheduleExceptionRecord = {
+  date?: unknown;
+  reason?: unknown;
 };
 
 type NextMeetupPosterRecord = {
@@ -57,6 +81,8 @@ type PhotoRecord = {
 
 type ContentRecord = {
   meetups?: unknown;
+  recurring_schedule?: unknown;
+  schedule_exceptions?: unknown;
   next_meetup_poster?: unknown;
   gallery?: unknown;
 };
@@ -163,7 +189,218 @@ function meetupFromRecord(record: MeetupRecord, strict: boolean): CommunityMeetu
     address,
     city,
     mapsUrl: getGoogleMapsUrl(mapsUrl) ?? '',
+    source: 'manual',
+    replacesDefaultSchedule: record.replaces_default_schedule === true,
   };
+}
+
+
+type NormalizedRecurringSchedule = {
+  enabled: boolean;
+  weekday: number;
+  time: string;
+  timezone: string;
+  title: Record<Language, string>;
+  description: Record<Language, string>;
+  entryPrice: number;
+  venue: string;
+  city: string;
+  address: string;
+  mapsUrl: string;
+};
+
+function zonedDateParts(date: Date, timeZone: string): Record<string, string> {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(date);
+  return Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+}
+
+function dateKeyParts(date: string): { year: number; month: number; day: number } | undefined {
+  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) return undefined;
+  const [year, month, day] = date.split('-').map(Number);
+  const calendarDate = new Date(Date.UTC(year, month - 1, day));
+  if (calendarDate.getUTCFullYear() !== year || calendarDate.getUTCMonth() !== month - 1
+    || calendarDate.getUTCDate() !== day) return undefined;
+  return { year, month, day };
+}
+
+function addCalendarDays(date: string, amount: number): string {
+  const parts = dateKeyParts(date);
+  if (!parts) return '';
+  const next = new Date(Date.UTC(parts.year, parts.month - 1, parts.day + amount));
+  return [
+    String(next.getUTCFullYear()).padStart(4, '0'),
+    String(next.getUTCMonth() + 1).padStart(2, '0'),
+    String(next.getUTCDate()).padStart(2, '0'),
+  ].join('-');
+}
+
+function mondayOfWeek(date: string): string {
+  const parts = dateKeyParts(date);
+  if (!parts) return '';
+  const weekday = new Date(Date.UTC(parts.year, parts.month - 1, parts.day)).getUTCDay();
+  return addCalendarDays(date, -((weekday + 6) % 7));
+}
+
+function toZonedDateTime(date: string, time: string, timeZone: string): string | undefined {
+  const calendar = dateKeyParts(date);
+  if (!calendar || !/^\\d{2}:\\d{2}$/.test(time)) return undefined;
+  const [hour, minute] = time.split(':').map(Number);
+  if (hour > 23 || minute > 59) return undefined;
+
+  const target = Date.UTC(calendar.year, calendar.month - 1, calendar.day, hour, minute);
+  let timestamp = target;
+  try {
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      const parts = zonedDateParts(new Date(timestamp), timeZone);
+      const represented = Date.UTC(
+        Number(parts.year), Number(parts.month) - 1, Number(parts.day),
+        Number(parts.hour), Number(parts.minute), Number(parts.second),
+      );
+      const correction = target - represented;
+      if (correction === 0) break;
+      timestamp += correction;
+    }
+    const result = new Date(timestamp);
+    const parts = zonedDateParts(result, timeZone);
+    if (parts.year !== String(calendar.year).padStart(4, '0')
+      || parts.month !== String(calendar.month).padStart(2, '0')
+      || parts.day !== String(calendar.day).padStart(2, '0')
+      || parts.hour !== String(hour).padStart(2, '0')
+      || parts.minute !== String(minute).padStart(2, '0')) return undefined;
+    return result.toISOString();
+  } catch {
+    return undefined;
+  }
+}
+
+function normalizeRecurringSchedule(value: unknown, strict: boolean): NormalizedRecurringSchedule | undefined {
+  const record = asRecord(value) as RecurringScheduleRecord | undefined;
+  if (!record || record.enabled !== true) return undefined;
+
+  const weekday = typeof record.weekday === 'number' ? record.weekday : Number.NaN;
+  const time = clean(record.time);
+  const timezone = clean(record.timezone) || 'America/Sao_Paulo';
+  const titlePt = clean(record.title_pt);
+  const titleEn = clean(record.title_en);
+  const descriptionPt = clean(record.description_pt);
+  const descriptionEn = clean(record.description_en);
+  const entryPrice = typeof record.entry_price === 'number' ? record.entry_price : Number.NaN;
+  const venue = clean(record.venue);
+  const city = clean(record.city) || 'Belo Horizonte, Minas Gerais, Brasil';
+  const address = clean(record.address);
+  const mapsUrl = clean(record.maps_url);
+  let timezoneIsValid = true;
+  try {
+    new Intl.DateTimeFormat('en', { timeZone: timezone }).format(new Date(0));
+  } catch {
+    timezoneIsValid = false;
+  }
+  const valid = Number.isInteger(weekday) && weekday >= 0 && weekday <= 6
+    && /^\\d{2}:\\d{2}$/.test(time) && Boolean(toZonedDateTime('2026-01-07', time, timezone))
+    && timezoneIsValid && Boolean(titlePt) && Boolean(titleEn)
+    && Boolean(descriptionPt) && Boolean(descriptionEn)
+    && Number.isFinite(entryPrice) && entryPrice >= 0
+    && Boolean(venue) && Boolean(address)
+    && (!mapsUrl || Boolean(getGoogleMapsUrl(mapsUrl)));
+  if (!valid) {
+    if (strict) throw new Error('An enabled recurring schedule needs a valid weekday, time, timezone, bilingual title and description, non-negative admission price, venue, address and optional Google Maps URL.');
+    return undefined;
+  }
+
+  return {
+    enabled: true,
+    weekday,
+    time,
+    timezone,
+    title: { 'pt-BR': titlePt, en: titleEn },
+    description: { 'pt-BR': descriptionPt, en: descriptionEn },
+    entryPrice,
+    venue,
+    city,
+    address,
+    mapsUrl: getGoogleMapsUrl(mapsUrl) ?? '',
+  };
+}
+
+function normalizeScheduleExceptions(value: unknown, strict: boolean): Set<string> {
+  if (value === undefined || value === null) return new Set();
+  if (!Array.isArray(value)) {
+    if (strict) throw new Error('Schedule exceptions must be a list of dates.');
+    return new Set();
+  }
+  const dates = new Set<string>();
+  for (const item of value) {
+    const record = asRecord(item) as ScheduleExceptionRecord | undefined;
+    const date = clean(record?.date);
+    if (!record || !dateKeyParts(date)) {
+      if (strict) throw new Error('Each schedule exception needs a valid date in YYYY-MM-DD format.');
+      continue;
+    }
+    dates.add(date);
+  }
+  return dates;
+}
+
+function nextRecurringMeetup(
+  schedule: NormalizedRecurringSchedule | undefined,
+  exceptions: Set<string>,
+  manualMeetups: CommunityMeetup[],
+  now: Date,
+): CommunityMeetup | undefined {
+  if (!schedule) return undefined;
+
+  const nowParts = zonedDateParts(now, schedule.timezone);
+  const today = `${nowParts.year}-${nowParts.month}-${nowParts.day}`;
+  const todayParts = dateKeyParts(today);
+  if (!todayParts) return undefined;
+  const currentWeekday = new Date(Date.UTC(todayParts.year, todayParts.month - 1, todayParts.day)).getUTCDay();
+  let daysUntil = (schedule.weekday - currentWeekday + 7) % 7;
+  let candidateDate = addCalendarDays(today, daysUntil);
+  let candidateDateTime = toZonedDateTime(candidateDate, schedule.time, schedule.timezone);
+  if (!candidateDateTime) return undefined;
+  if (Date.parse(candidateDateTime) <= now.getTime()) {
+    daysUntil += 7;
+    candidateDate = addCalendarDays(today, daysUntil);
+  }
+
+  for (let attempt = 0; attempt < 104; attempt += 1) {
+    const occurrenceDate = addCalendarDays(candidateDate, attempt * 7);
+    if (!occurrenceDate) return undefined;
+    const week = mondayOfWeek(occurrenceDate);
+    const replacedBySpecial = manualMeetups.some((meetup) => (
+      meetup.replacesDefaultSchedule === true
+      && meetup.date
+      && mondayOfWeek(meetup.date.slice(0, 10)) === week
+    ));
+    if (!exceptions.has(occurrenceDate) && !replacedBySpecial) {
+      const date = toZonedDateTime(occurrenceDate, schedule.time, schedule.timezone);
+      if (!date) return undefined;
+      return {
+        title: schedule.title,
+        description: schedule.description,
+        date,
+        entryPrice: schedule.entryPrice,
+        status: 'scheduled',
+        venue: schedule.venue,
+        city: schedule.city,
+        address: schedule.address,
+        mapsUrl: schedule.mapsUrl,
+        source: 'recurring',
+        replacesDefaultSchedule: false,
+      };
+    }
+  }
+
+  return undefined;
 }
 
 function photoFromRecord(record: PhotoRecord, strict: boolean): CommunityPhoto | undefined {
@@ -230,13 +467,20 @@ export function normalizeCommunityMeetups(input: unknown, now = new Date(), stri
 export function normalizeCommunityContent(input: unknown, now = new Date(), strict = false): CommunityContent {
   const record = asRecord(input) as ContentRecord | undefined;
   const meetups = normalizeCommunityMeetups(input, now, strict);
+  const schedule = normalizeRecurringSchedule(record?.recurring_schedule, strict);
+  const exceptions = normalizeScheduleExceptions(record?.schedule_exceptions, strict);
+  const recurringMeetup = nextRecurringMeetup(schedule, exceptions, meetups, now);
   const photoRecords = Array.isArray(record?.gallery) ? record.gallery : [];
 
-  const upcoming = meetups
-    .filter((meetup) => meetup.status === 'scheduled' && ['today', 'upcoming'].includes(getMeetupStatus(meetup, now)))
+  const scheduled = [
+    ...meetups.filter((meetup) => meetup.status === 'scheduled'),
+    ...(recurringMeetup ? [recurringMeetup] : []),
+  ]
+    .filter((meetup) => ['today', 'upcoming'].includes(getMeetupStatus(meetup, now)))
     .sort((a, b) => Date.parse(a.date!) - Date.parse(b.date!))[0];
   const cancelled = meetups
-    .filter((meetup) => meetup.status === 'cancelled' && ['today', 'upcoming'].includes(getMeetupStatus({ ...meetup, status: 'scheduled' }, now)))
+    .filter((meetup) => meetup.status === 'cancelled'
+      && ['today', 'upcoming'].includes(getMeetupStatus({ ...meetup, status: 'scheduled' }, now)))
     .sort((a, b) => Date.parse(a.date!) - Date.parse(b.date!))[0];
 
   const gallery = photoRecords.flatMap((item) => {
@@ -251,7 +495,7 @@ export function normalizeCommunityContent(input: unknown, now = new Date(), stri
   if (strict && gallery.length > 6) throw new Error('The published community gallery can contain no more than six photos.');
 
   return {
-    meetup: upcoming ?? cancelled ?? { ...fallbackContent.meetup, date: null, status: 'scheduled' },
+    meetup: scheduled ?? cancelled ?? { ...fallbackContent.meetup, date: null, status: 'scheduled' },
     gallery: gallery.slice(0, 6),
   };
 }
