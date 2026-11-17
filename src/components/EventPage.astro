@@ -128,11 +128,11 @@ const pageCopy = lang === 'en'
         <h1 class="display max-w-3xl text-5xl font-bold leading-[.96] md:text-7xl">{title}</h1>
         {description && <p class="mt-7 max-w-2xl text-lg leading-[1.75] text-black/70">{description}</p>}
 
-        <figure class="mt-10 overflow-hidden border border-black/10 bg-white">
+        <figure class="mt-10 flex items-center justify-center overflow-hidden border border-black/10 bg-white p-3 md:p-4">
           <img
             src={event.image ?? '/social-card.svg'}
             alt={lang === 'en' ? `Event artwork for ${title}` : `Arte de divulgação de ${title}`}
-            class="block h-auto max-h-[640px] w-full object-contain"
+            class="mx-auto block h-auto max-h-[min(70vh,600px)] max-w-full w-auto object-contain"
             fetchpriority="high"
             decoding="async"
           />
