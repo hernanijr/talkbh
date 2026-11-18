@@ -53,7 +53,7 @@ Essa exceção suprime somente a ocorrência daquela semana. As quartas-feiras s
 
 ### Atualização e publicação
 
-As alterações no CMS entram em vigor depois que o pull request editorial for revisado, mesclado em `main` e publicado. O workflow diário existente também refaz o build às 00:05 de Belo Horizonte, atualizando as páginas fixas quando a próxima ocorrência muda.
+As alterações no CMS entram em vigor depois que o pull request editorial for revisado, mesclado em `main` e publicado. O workflow diário existente também refaz o build às 00:05 de Belo Horizonte, atualizando as páginas fixas quando a próxima ocorrência muda. O build gera as páginas individuais da agenda recorrente em uma janela móvel de 90 dias à frente e mantém as ocorrências passadas como histórico.
 
 ## Cadastrar um encontro
 
@@ -123,16 +123,16 @@ O poster padrão da recorrência não precisa ser atualizado a cada semana. Para
 
 Depois que o conteúdo é aprovado e publicado:
 
-- Uma página individual do evento em português, em `/eventos/{slug}/`, para encontros cadastrados manualmente.
-- Uma URL permanente para o próximo encontro em `/proximo-encontro/` e `/en/next-meetup/`, com a mesma apresentação visual da página individual do evento. O canonical e os links de idioma permanecem apontando para as URLs permanentes.
-- Uma página equivalente em inglês, em `/en/events/{slug}/`.
-- Links entre as versões nos dois idiomas.
-- URLs canônicas e metadados Open Graph/Twitter para compartilhamento.
-- Dados estruturados `Event` para a página individual, com situação e horários disponíveis no cadastro.
-- Entradas correspondentes no sitemap.
+- Uma página individual em português para cada encontro cadastrado manualmente, em `/eventos/{slug}/`, e sua versão em inglês em `/en/events/{slug}/`.
+- Uma página individual em português para cada ocorrência da agenda recorrente, usando o slug `talk-bh-encontro-semanal-AAAA-MM-DD`, e sua versão em inglês em `/en/events/{slug}/`.
+- Para a agenda recorrente, páginas de todas as ocorrências desde a data inicial até os próximos 90 dias. Ocorrências passadas permanecem geradas como histórico, preservando suas URLs. Desativar a recorrência interrompe novas ocorrências futuras, mas não apaga as páginas históricas.
+- Uma URL permanente para o próximo encontro em `/proximo-encontro/` e `/en/next-meetup/`. Essas rotas mantêm canonical próprio e links de idioma estáveis, e apontam para a página individual da ocorrência atual quando ela existe.
+- Links entre as versões em português e inglês, URLs canônicas e metadados Open Graph/Twitter para compartilhamento.
+- Dados estruturados `Event` na página individual de cada evento elegível. As páginas permanentes e a homepage não duplicam esse objeto.
+- Entradas no sitemap para as duas páginas iniciais, as duas rotas permanentes e todas as páginas individuais geradas.
 - Link da homepage para os detalhes do próximo encontro.
 
-Não é necessário criar páginas manualmente, alterar o sitemap ou editar JSON-LD.
+Não é necessário criar páginas manualmente, alterar o sitemap ou editar JSON-LD. O build gera as páginas e os metadados a partir do conteúdo aprovado no CMS.
 
 ## Revisar e publicar
 
