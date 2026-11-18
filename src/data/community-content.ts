@@ -496,6 +496,90 @@ export function normalizeCommunityMeetups(input: unknown, now = new Date(), stri
   });
 }
 
+/**
+ * Returns every individual event page that should be generated:
+ * manually registered meetups plus recurring occurrences from the schedule's
+ * first date through a rolling future window. Past recurring occurrences stay
+ * in the result so their published URLs remain available as history.
+ */
+export function normalizeCommunityEventPages(
+  input: unknown,
+  now = new Date(),
+  strict = false,
+  futureDays = 90,
+): CommunityMeetup[] {
+  if (!Number.isInteger(futureDays) || futureDays < 0) {
+    if (strict) throw new Error('The recurring event page window must be a non-negative integer number of days.');
+    return normalizeCommunityMeetups(input, now, strict);
+  }
+
+  const record = asRecord(input) as ContentRecord | undefined;
+  const manualMeetups = normalizeCommunityMeetups(input, now, strict);
+  const schedule = normalizeRecurringSchedule(record?.recurring_schedule, strict);
+  if (!schedule) return manualMeetups;
+
+  const exceptions = normalizeScheduleExceptions(record?.schedule_exceptions, strict, schedule);
+  const nowParts = zonedDateParts(now, schedule.timezone);
+  const today = `${nowParts.year}-${nowParts.month}-${nowParts.day}`;
+  const endDate = addCalendarDays(today, futureDays);
+  if (!dateKeyParts(today) || !endDate) {
+    if (strict) throw new Error('Could not determine the recurring event generation window.');
+    return manualMeetups;
+  }
+
+  const recurringMeetups: CommunityMeetup[] = [];
+  const manualSlugs = new Set(manualMeetups.map((meetup) => meetup.slug));
+  for (let occurrenceDate = schedule.startDate; occurrenceDate <= endDate; occurrenceDate = addCalendarDays(occurrenceDate, 7)) {
+    if (exceptions.has(occurrenceDate)) continue;
+
+    const week = mondayOfWeek(occurrenceDate);
+    const replacedBySpecial = manualMeetups.some((meetup) => (
+      meetup.status === 'scheduled'
+      && meetup.replacesDefaultSchedule === true
+      && meetup.date
+      && mondayOfWeek(meetup.date.slice(0, 10)) === week
+    ));
+    if (replacedBySpecial) continue;
+
+    const date = toZonedDateTime(occurrenceDate, schedule.time, schedule.timezone);
+    if (!date) {
+      if (strict) throw new Error(`Could not resolve recurring meetup date/time for ${occurrenceDate} in ${schedule.timezone}.`);
+      continue;
+    }
+
+    const slug = createMeetupSlug('talk-bh-encontro-semanal', occurrenceDate);
+    if (manualSlugs.has(slug)) {
+      if (strict) throw new Error(`Recurring meetup URL slug "${slug}" conflicts with a manually registered meetup.`);
+      continue;
+    }
+
+    recurringMeetups.push({
+      slug,
+      title: schedule.title,
+      description: schedule.description,
+      date,
+      entryPrice: schedule.entryPrice,
+      status: 'scheduled',
+      venue: schedule.venue,
+      city: schedule.city,
+      address: schedule.address,
+      mapsUrl: schedule.mapsUrl,
+      ...(schedule.image ? { image: schedule.image } : {}),
+      source: 'recurring',
+      replacesDefaultSchedule: false,
+    });
+  }
+
+  const allMeetups = [...manualMeetups, ...recurringMeetups]
+    .sort((a, b) => Date.parse(a.date ?? '') - Date.parse(b.date ?? ''));
+
+  if (strict && new Set(allMeetups.map((meetup) => meetup.slug)).size !== allMeetups.length) {
+    throw new Error('Manually registered and recurring meetups must have unique URL slugs.');
+  }
+
+  return allMeetups;
+}
+
 export function normalizeCommunityContent(input: unknown, now = new Date(), strict = false): CommunityContent {
   const record = asRecord(input) as ContentRecord | undefined;
   const meetups = normalizeCommunityMeetups(input, now, strict);
