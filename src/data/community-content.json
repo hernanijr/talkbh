@@ -12,7 +12,8 @@
       "title_en": "Talk & Sing — English conversation and karaoke",
       "status": "scheduled",
       "address": "Rua Paraíba, 523 — Belo Horizonte, MG",
-      "entry_price": 0
+      "entry_price": 0,
+      "replaces_default_schedule": false
     }
   ],
   "gallery": [
@@ -44,5 +45,23 @@
   "next_meetup_poster": {
     "image": "/images/events/whatsapp-image-2026-11-17-at-10.08.08.jpeg",
     "event_date": "2026-11-17"
-  }
+  },
+  "recurring_schedule": {
+    "enabled": true,
+    "weekday": 3,
+    "start_date": "2026-11-25",
+    "time": "18:30",
+    "timezone": "America/Sao_Paulo",
+    "title_pt": "Talk BH — encontro semanal de conversação em inglês",
+    "title_en": "Talk BH — weekly English conversation meetup",
+    "description_pt": "Encontro semanal para praticar inglês em um ambiente leve e informal, conhecer pessoas e conversar. Pessoas de todos os níveis são bem-vindas.",
+    "description_en": "A weekly meetup to practice English in a relaxed, informal setting, meet people and chat. All levels are welcome.",
+    "entry_price": 0,
+    "venue": "Charada Savassi Cervejaria Artesanal",
+    "address": "Rua Paraíba, 523 — Belo Horizonte, MG",
+    "city": "Belo Horizonte, Minas Gerais, Brasil",
+    "maps_url": "https://www.google.com/maps/search/?api=1&query=Charada+Savassi+Cervejaria+Artesanal%2C+Rua+Para%C3%ADba%2C+523%2C+Belo+Horizonte%2C+MG",
+    "default_image": "/images/events/weekly-meetup.svg"
+  },
+  "schedule_exceptions": []
 }

@@ -4,18 +4,22 @@ import { site, type Language } from '../data/site';
 import { getGoogleMapsUrl, getWhatsAppInvite, getMeetupStatus } from '../data/meetup';
 import type { CommunityMeetup } from '../data/community-content';
 
-const { event, lang } = Astro.props as { event: CommunityMeetup; lang: Language };
+const { event, lang, permanentPage = false } = Astro.props as { event: CommunityMeetup; lang: Language; permanentPage?: boolean };
 const title = event.title?.[lang] ?? 'Talk BH';
 const description = event.description?.[lang] ?? '';
 const homeUrl = lang === 'en' ? '/en/' : '/';
 const slug = event.slug ?? 'talk-bh';
 const eventPathPt = `/eventos/${slug}/`;
 const eventPathEn = `/en/events/${slug}/`;
-const alternateEventUrl = lang === 'en' ? eventPathPt : eventPathEn;
+const permanentPathPt = '/proximo-encontro/';
+const permanentPathEn = '/en/next-meetup/';
+const alternateEventUrl = permanentPage
+  ? (lang === 'en' ? permanentPathPt : permanentPathEn)
+  : (lang === 'en' ? eventPathPt : eventPathEn);
 const domain = site.brand.domain.replace(/\/$/, '');
-const canonicalUrl = `${domain}${lang === 'en' ? eventPathEn : eventPathPt}`;
-const portugueseUrl = `${domain}${eventPathPt}`;
-const englishUrl = `${domain}${eventPathEn}`;
+const canonicalUrl = `${domain}${permanentPage ? (lang === 'en' ? permanentPathEn : permanentPathPt) : (lang === 'en' ? eventPathEn : eventPathPt)}`;
+const portugueseUrl = `${domain}${permanentPage ? permanentPathPt : eventPathPt}`;
+const englishUrl = `${domain}${permanentPage ? permanentPathEn : eventPathEn}`;
 const socialImageUrl = event.image ? new URL(event.image, `${domain}/`).href : `${domain}/social-card.svg`;
 const eventDate = event.date ? new Date(event.date) : undefined;
 if (!eventDate || Number.isNaN(eventDate.getTime())) throw new Error(`Event "${slug}" has an invalid start date.`);
@@ -102,12 +106,12 @@ const pageCopy = lang === 'en'
   lang={lang}
   title={pageTitle}
   description={description}
-  event={event}
+  event={!permanentPage ? event : undefined}
   canonicalUrl={canonicalUrl}
   portugueseUrl={portugueseUrl}
   englishUrl={englishUrl}
   socialImageUrl={socialImageUrl}
-  openGraphType="article"
+  openGraphType={permanentPage ? 'website' : 'article'}
 >
   <main id="main" class="min-h-screen bg-paper">
     <header class="border-b border-black/10 bg-paper">

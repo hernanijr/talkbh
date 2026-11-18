@@ -12,9 +12,52 @@ O painel usa Decap CMS com fluxo editorial. O conteúdo é armazenado no reposit
 
 > **Importante:** o repositório do Talk BH é público. Rascunhos, textos e imagens enviados pelo CMS podem ficar visíveis no GitHub antes da aprovação. Não use o painel para armazenar informações privadas ou sensíveis.
 
+## Agenda padrão recorrente
+
+A agenda padrão está configurada para ocorrer uma vez por semana:
+
+- **Dia:** quarta-feira.
+- **Primeira ocorrência:** 25/11/2026.
+- **Horário:** 18:30.
+- **Fuso:** `America/Sao_Paulo`.
+- **Local padrão:** Charada Savassi Cervejaria Artesanal, Rua Paraíba, 523 — Belo Horizonte, MG.
+- **Participação:** gratuita.
+
+A primeira ocorrência está definida explicitamente para 25/11/2026. O site não cria um encontro padrão na quarta-feira 18/11; a partir de 25/11, calcula uma ocorrência a cada sete dias.
+
+Em **Agenda padrão recorrente**, os administradores podem:
+
+- Ativar ou desativar a recorrência pelo controle **Ativar encontro padrão recorrente**.
+- Ajustar o dia da semana, a primeira ocorrência, o horário e o fuso.
+- Atualizar títulos, descrições, local, endereço, mapa e valor da entrada nos dois idiomas.
+- Definir **Poster padrão do encontro semanal**, usado nas quartas-feiras quando o próximo encontro for a recorrência e não houver evento especial substituindo-a.
+
+Quando a recorrência está desativada, o site deixa de gerar encontros padrão. Eventos cadastrados manualmente continuam funcionando.
+
+### Eventos especiais: substituir ou adicionar
+
+Cadastre karaokê, Halloween, encontros em outro local e outras edições especiais em **Próximos encontros**, preenchendo todos os dados normalmente.
+
+Use o campo **Substitui o encontro padrão desta semana?**:
+
+- **Ativado:** o evento especial substitui a ocorrência padrão daquela semana. Exemplo: se o evento especial ocorrer na sexta, a quarta-feira daquela mesma semana deixa de ser gerada.
+- **Desativado:** o evento é adicional; a quarta-feira padrão continua existindo.
+
+Não desative a recorrência global para cadastrar apenas um evento especial.
+
+### Semana sem encontro padrão
+
+Se não houver encontro em uma semana, adicione uma entrada em **Semanas sem encontro padrão** com a data da quarta-feira que seria a ocorrência. O motivo é opcional.
+
+Essa exceção suprime somente a ocorrência daquela semana. As quartas-feiras seguintes continuam sendo geradas normalmente.
+
+### Atualização e publicação
+
+As alterações no CMS entram em vigor depois que o pull request editorial for revisado, mesclado em `main` e publicado. O workflow diário existente também refaz o build às 00:05 de Belo Horizonte, atualizando as páginas fixas quando a próxima ocorrência muda.
+
 ## Cadastrar um encontro
 
-Em **Próximos encontros**, adicione um registro para cada edição confirmada. Não cadastre recorrências e não anuncie datas ainda não confirmadas.
+A agenda padrão é recorrente e é gerada pelo site: quarta-feira, às 18:30, com primeira ocorrência em 25/11/2026. Não cadastre manualmente cada quarta-feira. Use **Próximos encontros** para eventos especiais, adicionais ou alterações pontuais confirmadas.
 
 Preencha os campos:
 
@@ -34,6 +77,7 @@ Preencha os campos:
 | Endereço completo | Sim | Endereço que deve aparecer na página |
 | Cidade | Sim | Cidade e estado do encontro |
 | Link do Google Maps | Não | URL HTTPS válida do Google Maps; o botão de direções aparece quando houver um link válido |
+| Substitui o encontro padrão desta semana? | Sim | Ative apenas quando um evento especial substituir a reunião semanal; deixe desativado para eventos adicionais |
 
 ### Regras para preencher os dados
 
@@ -46,22 +90,20 @@ Preencha os campos:
 
 ## Adicionar o cartaz do encontro (opcional)
 
-A seção **Arte do próximo encontro** aceita um único cartaz associado ao próximo encontro confirmado.
+A seção **Poster padrão do encontro semanal** define a arte institucional usada nas ocorrências recorrentes. Envie essa imagem uma vez; ela será reutilizada automaticamente nas próximas quartas-feiras. A seção **Arte específica de evento especial** aceita uma arte associada à data exata de um evento cadastrado manualmente.
 
-1. Abra a seção **Arte do próximo encontro**.
-2. Informe em **Data do encontro associado** a data exata do próximo encontro, no formato `AAAA-MM-DD`.
-3. Envie a imagem em **Imagem de divulgação**.
-4. Salve e envie o conteúdo para revisão junto com o cadastro do encontro.
+1. Para a agenda semanal, abra **Agenda padrão recorrente → Poster padrão do encontro semanal** e envie uma imagem em formato JPG, WebP ou SVG.
+2. Para um evento especial com arte própria, abra **Arte específica de evento especial**, informe a data exata em `AAAA-MM-DD` e envie a imagem.
+3. Salve e envie o conteúdo para revisão.
 
-A data do cartaz precisa corresponder exatamente à data do próximo encontro confirmado. O site ignora automaticamente a imagem se a data não corresponder ao próximo encontro ou se a edição já tiver passado.
+A arte semanal é reutilizada para as ocorrências recorrentes. A arte específica de evento especial só é aplicada ao evento cuja data corresponda exatamente à data cadastrada; se a edição passar ou deixar de ser o próximo evento, ela não aparece na rota permanente.
 
 ### E se não houver cartaz?
 
 Não é necessário criar ou enviar uma imagem para publicar o encontro.
 
-- Deixe a seção **Arte do próximo encontro** vazia. Se já houver um cartaz anterior, remova o objeto antigo em vez de manter uma data ou imagem desatualizada.
-- A página individual do evento continua sendo gerada normalmente.
-- O site usa a imagem institucional `/social-card.svg` como alternativa para a página e seus metadados sociais.
+- Se não houver uma arte semanal configurada, a página usa a imagem institucional `/social-card.svg` como alternativa.
+- Eventos especiais sem arte própria também usam a imagem institucional, sem herdar por engano o poster padrão da recorrência.
 - As informações do evento, os links de compartilhamento e a navegação continuam disponíveis.
 
 O cartaz é um recurso complementar de divulgação, não um requisito para publicar.
@@ -75,18 +117,14 @@ O cartaz é um recurso complementar de divulgação, não um requisito para publ
 
 ### Atualizar o cartaz para a próxima edição
 
-Como o painel mantém um único cartaz, ao anunciar uma nova edição:
-
-1. Atualize a data associada e a imagem para o novo próximo encontro, se houver novo cartaz; ou
-2. Remova o bloco **Arte do próximo encontro** se a próxima edição não tiver cartaz.
-
-Não deixe o cartaz antigo associado à data anterior esperando que ele seja reaproveitado. O site só deve mostrar a arte da edição que está sendo divulgada.
+O poster padrão da recorrência não precisa ser atualizado a cada semana. Para eventos especiais, associe a arte à data correta; não reutilize uma arte de edição anterior.
 
 ## O que o site gera automaticamente
 
 Depois que o conteúdo é aprovado e publicado:
 
-- Uma página individual do evento em português, em `/eventos/{slug}/`.
+- Uma página individual do evento em português, em `/eventos/{slug}/`, para encontros cadastrados manualmente.
+- Uma URL permanente para o próximo encontro em `/proximo-encontro/` e `/en/next-meetup/`, com a mesma apresentação visual da página individual do evento. O canonical e os links de idioma permanecem apontando para as URLs permanentes.
 - Uma página equivalente em inglês, em `/en/events/{slug}/`.
 - Links entre as versões nos dois idiomas.
 - URLs canônicas e metadados Open Graph/Twitter para compartilhamento.

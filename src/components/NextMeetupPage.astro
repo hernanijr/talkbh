@@ -1,0 +1,81 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EventPage from './EventPage.astro';
+import { site, type Language } from '../data/site';
+import { getWhatsAppInvite, getMeetupStatus } from '../data/meetup';
+import { normalizeCommunityContent } from '../data/community-content';
+import contentFile from '../data/community-content.json';
+
+const { lang } = Astro.props as { lang: Language };
+const meetup = normalizeCommunityContent(contentFile, new Date(), true).meetup;
+const status = getMeetupStatus(meetup);
+const hasUpcomingMeetup = Boolean(
+  meetup.date
+  && meetup.status === 'scheduled'
+  && (status === 'today' || status === 'upcoming'),
+);
+const homeUrl = lang === 'en' ? '/en/' : '/';
+const domain = site.brand.domain.replace(/\/$/, '');
+const canonicalUrl = `${domain}${lang === 'en' ? '/en/next-meetup/' : '/proximo-encontro/'}`;
+const wa = getWhatsAppInvite(site.social.whatsapp);
+const joinUrl = wa ?? site.social.instagram;
+const title = lang === 'en' ? 'Next meetup | Talk BH' : 'Próximo encontro | Talk BH';
+const description = lang === 'en'
+  ? 'Follow the Talk BH community for announcements about the next English conversation meetup in Belo Horizonte.'
+  : 'Acompanhe a comunidade Talk BH para saber quando será o próximo encontro de conversação em inglês em Belo Horizonte.';
+const copy = lang === 'en'
+  ? {
+      heading: 'The next meetup has not been confirmed yet.',
+      message: status === 'cancelled'
+        ? 'This meetup has been cancelled. Follow the community for updates about the next date.'
+        : 'There is no confirmed upcoming meetup at the moment. Join the community to hear when the next one is announced.',
+      join: wa ? 'Join the WhatsApp community' : 'Message Talk BH on Instagram',
+      back: 'Back to Talk BH',
+    }
+  : {
+      heading: 'Ainda não há um próximo encontro confirmado.',
+      message: status === 'cancelled'
+        ? 'Este encontro foi cancelado. Acompanhe a comunidade para saber a próxima data.'
+        : 'Ainda não há um próximo encontro confirmado. Entre na comunidade para receber novidades.',
+      join: wa ? 'Entrar na comunidade do WhatsApp' : 'Falar com o Talk BH no Instagram',
+      back: 'Voltar ao Talk BH',
+    };
+---
+
+{hasUpcomingMeetup ? (
+  <EventPage event={meetup} lang={lang} permanentPage={true} />
+) : (
+  <BaseLayout
+    lang={lang}
+    title={title}
+    description={description}
+    canonicalUrl={canonicalUrl}
+    portugueseUrl={`${domain}/proximo-encontro/`}
+    englishUrl={`${domain}/en/next-meetup/`}
+    openGraphType="website"
+  >
+    <main id="main" class="flex min-h-screen flex-col bg-paper">
+      <header class="border-b border-black/10">
+        <nav class="wrap flex min-h-[76px] items-center justify-between gap-4">
+          <a href={homeUrl} class="display text-2xl font-bold tracking-[-.08em] text-ink no-underline">talk<span class="text-talk-text">.</span>bh</a>
+          <a href={lang === 'en' ? '/proximo-encontro/' : '/en/next-meetup/'} class="border border-talk/40 bg-white px-3 py-2 text-xs font-bold uppercase text-talk-text no-underline">{lang === 'en' ? 'PT' : 'EN'} ↗</a>
+        </nav>
+      </header>
+      <section class="wrap mx-auto flex w-full flex-1 flex-col justify-center py-20">
+        <p class="mono mb-6 text-xs font-semibold uppercase tracking-[.12em] text-talk-text">{lang === 'en' ? 'NEXT TALK BH MEETUP' : 'PRÓXIMO ENCONTRO TALK BH'}</p>
+        <h1 class="display max-w-3xl text-5xl font-bold leading-[.96] md:text-7xl">{copy.heading}</h1>
+        <div class="mt-10 max-w-2xl border border-black/15 bg-white p-6 md:p-9">
+          <p class="text-base leading-[1.75] text-black/65">{copy.message}</p>
+          <a class="mt-6 inline-flex min-h-12 items-center gap-3 bg-talk px-5 py-3 text-sm font-bold text-white no-underline transition hover:bg-ink" href={joinUrl} target="_blank" rel="noopener noreferrer">{copy.join} ↗</a>
+        </div>
+        <a href={homeUrl} class="mt-12 text-sm font-semibold text-talk-text underline underline-offset-4">← {copy.back}</a>
+      </section>
+      <footer class="bg-ink py-8 text-white">
+        <div class="wrap flex items-center justify-between gap-4 text-xs text-white/60">
+          <span>© {new Date().getFullYear()} Talk BH.</span>
+          <a href={homeUrl} class="font-semibold text-white underline underline-offset-4">{lang === 'en' ? 'Talk BH home' : 'Página inicial do Talk BH'}</a>
+        </div>
+      </footer>
+    </main>
+  </BaseLayout>
+)}

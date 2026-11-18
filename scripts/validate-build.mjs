@@ -10,6 +10,8 @@ const sitemap = await read('sitemap.xml');
 const robots = await read('robots.txt');
 const admin = await read('admin/index.html');
 const cmsConfig = await read('admin/config.yml');
+const nextMeetupPt = await read('proximo-encontro/index.html');
+const nextMeetupEn = await read('en/next-meetup/index.html');
 
 assert.match(pt, /<html lang="pt-BR">/);
 assert.match(en, /<html lang="en">/);
@@ -29,6 +31,26 @@ const structuredData = (html) => [...html.matchAll(/<script type="application\/l
   .map((match) => JSON.parse(match[1]));
 const ptSchema = structuredData(pt);
 const enSchema = structuredData(en);
+const nextMeetupPtSchema = structuredData(nextMeetupPt);
+const nextMeetupEnSchema = structuredData(nextMeetupEn);
+assert.equal(nextMeetupPtSchema.filter((item) => item['@type'] === 'Event').length, 0, 'The permanent Portuguese route must not duplicate Event JSON-LD.');
+assert.equal(nextMeetupEnSchema.filter((item) => item['@type'] === 'Event').length, 0, 'The permanent English route must not duplicate Event JSON-LD.');
+for (const [html, language] of [[nextMeetupPt, 'pt-BR'], [nextMeetupEn, 'en']]) {
+  assert.match(html, new RegExp('<html lang="' + language + '"'));
+  assert.ok(html.includes('<link rel="canonical" href="https://talk.bh/'));
+  assert.match(html, /hreflang="pt-BR"/);
+  assert.match(html, /hreflang="en"/);
+  assert.match(html, /property="og:type" content="website"/);
+  if (html.includes('data-event-share')) {
+    assert.ok(html.includes('data-event-copy-link'), 'A permanent route using the event presentation should expose a copy-link action.');
+    assert.ok(html.includes('data-event-share-status'), 'Permanent-route share actions should announce their result accessibly.');
+    assert.ok(html.includes('https://wa.me/?text='), 'A permanent route using the event presentation should expose a prefilled WhatsApp share link.');
+  } else if (language === 'pt-BR') {
+    assert.ok(html.includes('Ainda não há um próximo encontro confirmado.'), 'The Portuguese fallback should explain that no next meetup is confirmed.');
+  } else {
+    assert.ok(html.includes('The next meetup has not been confirmed yet.'), 'The English fallback should explain that no next meetup is confirmed.');
+  }
+}
 assert.equal(ptSchema.filter((item) => item['@type'] === 'Event').length, 0, 'The homepage should link to event details instead of publishing event structured data itself.');
 assert.equal(enSchema.filter((item) => item['@type'] === 'Event').length, 0, 'The English homepage should link to event details instead of publishing event structured data itself.');
 for (const [language, schemaBlocks] of [['Portuguese', ptSchema], ['English', enSchema]]) {
@@ -47,6 +69,11 @@ assert.match(en, /whatsapp-invite\.svg/);
 const communityContent = JSON.parse(await readFile(new URL('../src/data/community-content.json', import.meta.url), 'utf8'));
 const galleryPhotos = Array.isArray(communityContent.gallery) ? communityContent.gallery : [];
 const eventRecords = Array.isArray(communityContent.meetups) ? communityContent.meetups : [];
+assert.equal(communityContent.recurring_schedule?.enabled, true, 'The default recurring schedule should be enabled.');
+assert.equal(communityContent.recurring_schedule?.weekday, 3, 'The default recurring schedule should use Wednesday.');
+assert.equal(communityContent.recurring_schedule?.start_date, '2026-11-25', 'The first weekly meetup is scheduled for 25 November 2026.');
+assert.equal(communityContent.recurring_schedule?.time, '18:30');
+assert.equal(communityContent.recurring_schedule?.timezone, 'America/Sao_Paulo');
 const nextMeetupPoster = communityContent.next_meetup_poster;
 if (nextMeetupPoster) {
   assert.match(nextMeetupPoster.event_date, /^\d{4}-\d{2}-\d{2}$/, 'The poster must be linked to an explicit meetup date.');
@@ -192,7 +219,9 @@ assert.match(cmsConfig, /name: next_meetup_poster/);
 assert.match(cmsConfig, /name: event_date, widget: string, required: true, hint: "Use AAAA-MM-DD/);
 assert.doesNotMatch(cmsConfig, /name: event_date, widget: date/);
 assert.match(cmsConfig, /name: end_time, widget: string, required: false/);
-
+assert.match(cmsConfig, /name: recurring_schedule/);
+assert.match(cmsConfig, /name: schedule_exceptions/);
+assert.match(cmsConfig, /name: replaces_default_schedule, widget: boolean/);
 assert.match(sitemap, /https:\/\/talk\.bh\//);
 assert.match(sitemap, /https:\/\/talk\.bh\/en\//);
 assert.doesNotMatch(sitemap, /preview|draft/i);

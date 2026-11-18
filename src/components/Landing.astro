@@ -24,7 +24,7 @@ const timeText = validEventDate ? new Intl.DateTimeFormat(lang, { hour:'2-digit'
 const mapsUrl = getGoogleMapsUrl(meetup.mapsUrl);
 const eventDetailsUrl = meetup.slug
   ? (lang === 'en' ? `/en/events/${meetup.slug}/` : `/eventos/${meetup.slug}/`)
-  : undefined;
+  : (lang === 'en' ? '/en/next-meetup/' : '/proximo-encontro/');
 const galleryAssets = import.meta.glob<ImageMetadata>('../assets/community/*.{avif,gif,jpg,jpeg,png,webp}', { eager: true, import: 'default' });
 const galleryPhotos: (CommunityPhoto & { asset: ImageMetadata })[] = [];
 for (const photo of gallery.slice(0, 6)) {
