@@ -35,6 +35,10 @@ const nextMeetupPtSchema = structuredData(nextMeetupPt);
 const nextMeetupEnSchema = structuredData(nextMeetupEn);
 assert.equal(nextMeetupPtSchema.filter((item) => item['@type'] === 'Event').length, 0, 'The permanent Portuguese route must not duplicate Event JSON-LD.');
 assert.equal(nextMeetupEnSchema.filter((item) => item['@type'] === 'Event').length, 0, 'The permanent English route must not duplicate Event JSON-LD.');
+assert.ok(sitemap.includes('<loc>https://talk.bh/proximo-encontro/</loc>'), 'The permanent Portuguese next-meetup URL must always be in the sitemap.');
+assert.ok(sitemap.includes('<loc>https://talk.bh/en/next-meetup/</loc>'), 'The permanent English next-meetup URL must always be in the sitemap.');
+assert.match(nextMeetupPt, /data-event-detail-link href="\/eventos\/[^"]+\//, 'The Portuguese permanent route should link to the current occurrence page.');
+assert.match(nextMeetupEn, /data-event-detail-link href="\/en\/events\/[^"]+\//, 'The English permanent route should link to the current occurrence page.');
 for (const [html, language] of [[nextMeetupPt, 'pt-BR'], [nextMeetupEn, 'en']]) {
   assert.match(html, new RegExp('<html lang="' + language + '"'));
   assert.ok(html.includes('<link rel="canonical" href="https://talk.bh/'));

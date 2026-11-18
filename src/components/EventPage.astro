@@ -4,7 +4,7 @@ import { site, type Language } from '../data/site';
 import { getGoogleMapsUrl, getWhatsAppInvite, getMeetupStatus } from '../data/meetup';
 import type { CommunityMeetup } from '../data/community-content';
 
-const { event, lang, permanentPage = false } = Astro.props as { event: CommunityMeetup; lang: Language; permanentPage?: boolean };
+const { event, lang, permanentPage = false, detailUrl } = Astro.props as { event: CommunityMeetup; lang: Language; permanentPage?: boolean; detailUrl?: string };
 const title = event.title?.[lang] ?? 'Talk BH';
 const description = event.description?.[lang] ?? '';
 const homeUrl = lang === 'en' ? '/en/' : '/';
@@ -75,6 +75,7 @@ const pageCopy = lang === 'en'
       home: 'Explore Talk BH',
       time: 'Time',
       ends: 'Ends',
+      specificPage: 'View this meetup’s event page',
     }
   : {
       back: 'Voltar ao Talk BH',
@@ -99,6 +100,7 @@ const pageCopy = lang === 'en'
       home: 'Conheça o Talk BH',
       time: 'Horário',
       ends: 'Término',
+      specificPage: 'Ver página específica deste encontro',
     };
 ---
 
@@ -176,6 +178,7 @@ const pageCopy = lang === 'en'
             {event.entryPrice === 0 && <dd class="mt-1 text-sm leading-relaxed text-black/60">{pageCopy.freeNote}</dd>}
           </div>}
         </dl>
+        {permanentPage && detailUrl && <a data-event-detail-link href={detailUrl} class="mt-6 inline-flex min-h-11 w-full items-center justify-center border border-talk/40 px-4 py-3 text-center text-sm font-bold text-talk-text no-underline transition hover:bg-talk hover:text-white">{pageCopy.specificPage} ↗</a>}
         {mapsUrl && <a href={mapsUrl} target="_blank" rel="noopener noreferrer" class="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-3 border border-black/20 px-5 py-3 text-sm font-bold text-ink no-underline transition hover:border-talk hover:text-talk-text">{pageCopy.directions} ↗</a>}
         <div class="mt-4 border-t border-black/10 pt-5">
           {isCancelled

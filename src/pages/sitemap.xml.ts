@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import contentFile from '../data/community-content.json';
-import { normalizeCommunityContent, normalizeCommunityEventPages } from '../data/community-content';
+import { normalizeCommunityEventPages } from '../data/community-content';
 
 export const prerender = true;
 
@@ -27,13 +27,10 @@ export const GET: APIRoute = () => {
     urlEntry(homeEn, homeAlternates),
   ];
 
-  const nextMeetup = normalizeCommunityContent(contentFile, new Date(), true).meetup;
-  if (!nextMeetup.slug) {
-    const nextPt = `${domain}/proximo-encontro/`;
-    const nextEn = `${domain}/en/next-meetup/`;
-    const nextAlternates = alternateLinks(nextPt, nextEn);
-    entries.push(urlEntry(nextPt, nextAlternates), urlEntry(nextEn, nextAlternates));
-  }
+  const nextPt = `${domain}/proximo-encontro/`;
+  const nextEn = `${domain}/en/next-meetup/`;
+  const nextAlternates = alternateLinks(nextPt, nextEn);
+  entries.push(urlEntry(nextPt, nextAlternates), urlEntry(nextEn, nextAlternates));
 
   const meetups = normalizeCommunityEventPages(contentFile, new Date(), true);
   for (const event of meetups) {

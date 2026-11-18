@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import EventPage from './EventPage.astro';
 import { site, type Language } from '../data/site';
 import { getWhatsAppInvite, getMeetupStatus } from '../data/meetup';
-import { normalizeCommunityContent } from '../data/community-content';
+import { createMeetupSlug, normalizeCommunityContent } from '../data/community-content';
 import contentFile from '../data/community-content.json';
 
 const { lang } = Astro.props as { lang: Language };
@@ -17,6 +17,12 @@ const hasUpcomingMeetup = Boolean(
 const homeUrl = lang === 'en' ? '/en/' : '/';
 const domain = site.brand.domain.replace(/\/$/, '');
 const canonicalUrl = `${domain}${lang === 'en' ? '/en/next-meetup/' : '/proximo-encontro/'}`;
+const eventSlug = meetup.slug ?? (meetup.source === 'recurring' && meetup.date
+  ? createMeetupSlug('talk-bh-encontro-semanal', meetup.date.slice(0, 10))
+  : undefined);
+const eventDetailUrl = eventSlug
+  ? (lang === 'en' ? `/en/events/${eventSlug}/` : `/eventos/${eventSlug}/`)
+  : undefined;
 const wa = getWhatsAppInvite(site.social.whatsapp);
 const joinUrl = wa ?? site.social.instagram;
 const title = lang === 'en' ? 'Next meetup | Talk BH' : 'Próximo encontro | Talk BH';
@@ -43,7 +49,7 @@ const copy = lang === 'en'
 ---
 
 {hasUpcomingMeetup ? (
-  <EventPage event={meetup} lang={lang} permanentPage={true} />
+  <EventPage event={meetup} lang={lang} permanentPage={true} detailUrl={eventDetailUrl} />
 ) : (
   <BaseLayout
     lang={lang}
