@@ -2,8 +2,9 @@ name: Refresh time-sensitive event metadata
 
 on:
   schedule:
-    # 00:05 in Belo Horizonte (UTC-3), after the local calendar day changes.
-    - cron: '5 3 * * *'
+    # 00:05 in Belo Horizonte, using the IANA timezone explicitly.
+    - cron: '5 0 * * *'
+      timezone: 'America/Sao_Paulo'
   workflow_dispatch:
 
 permissions:
