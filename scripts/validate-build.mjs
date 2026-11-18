@@ -158,9 +158,9 @@ for (const slug of recurringEventSlugs) {
   const enUrl = `https://talk.bh/en/events/${slug}/`;
   const ptEventPage = await read(`eventos/${slug}/index.html`);
   const enEventPage = await read(`en/events/${slug}/index.html`);
-  for (const [html, ownUrl, alternateUrl, language] of [
-    [ptEventPage, ptUrl, enUrl, 'pt-BR'],
-    [enEventPage, enUrl, ptUrl, 'en'],
+  for (const [html, ownUrl, language] of [
+    [ptEventPage, ptUrl, 'pt-BR'],
+    [enEventPage, enUrl, 'en'],
   ]) {
     assert.match(html, new RegExp('<html lang="' + language + '"'));
     assert.ok(html.includes(`<link rel="canonical" href="${ownUrl}"`), 'Recurring event pages need self-referencing canonical URLs.');
