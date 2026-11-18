@@ -138,6 +138,21 @@ test('disabled recurring schedule does not generate recurring detail pages', () 
   assert.equal(pages[0].source, 'manual');
 });
 
+test('keeps generated recurring history when the recurring schedule is disabled', () => {
+  const pages = normalizeCommunityEventPages({
+    meetups: [],
+    recurring_schedule: { ...recurringSchedule, enabled: false },
+    schedule_exceptions: [],
+    gallery: [],
+  }, new Date('2027-01-20T12:00:00-03:00'), true);
+  const recurring = pages.filter((event) => event.source === 'recurring');
+
+  assert.ok(recurring.some((event) => event.slug === 'talk-bh-encontro-semanal-2026-11-25'));
+  assert.ok(recurring.some((event) => event.slug === 'talk-bh-encontro-semanal-2027-01-13'));
+  assert.ok(!recurring.some((event) => event.slug === 'talk-bh-encontro-semanal-2027-01-20'),
+    'Disabling the schedule must stop generating new occurrences, including today.');
+});
+
 test('recurring meetup uses the configured default poster when no special event is next', () => {
   const content = normalizeCommunityContent({
     meetups: [],
