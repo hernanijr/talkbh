@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createMeetupSlug, normalizeCommunityContent, normalizeCommunityMeetups } from '../src/data/community-content.ts';
+import { createMeetupSlug, normalizeCommunityContent, normalizeCommunityEventPages, normalizeCommunityMeetups } from '../src/data/community-content.ts';
 import { getGoogleMapsUrl, getMeetupStatus } from '../src/data/meetup.ts';
 
 const now = new Date('2026-11-13T12:00:00-03:00');
@@ -83,6 +83,59 @@ test('recurring schedule starts on Wednesday November 25 and repeats every week 
 
   const followingDay = normalizeCommunityContent(input, new Date('2026-11-26T00:01:00-03:00'), true).meetup;
   assert.equal(followingDay.date, '2026-12-02T21:30:00.000Z');
+});
+
+test('generates stable bilingual-page source records for recurring occurrences and preserves history', () => {
+  const input = { meetups: [], recurring_schedule: recurringSchedule, schedule_exceptions: [], gallery: [] };
+  const pages = normalizeCommunityEventPages(input, new Date('2026-11-18T12:00:00-03:00'), true);
+  const recurring = pages.filter((event) => event.source === 'recurring');
+
+  assert.equal(recurring[0].slug, 'talk-bh-encontro-semanal-2026-11-25');
+  assert.equal(recurring[0].date, '2026-11-25T21:30:00.000Z');
+  assert.equal(recurring[0].entryPrice, 0);
+  assert.equal(recurring[0].title?.['pt-BR'], recurringSchedule.title_pt);
+  assert.equal(recurring[0].title?.en, recurringSchedule.title_en);
+  assert.equal(recurring[1].slug, 'talk-bh-encontro-semanal-2026-12-02');
+  assert.ok(recurring.every((event) => Date.parse(event.date!) <= Date.parse('2027-02-16T23:59:59.999Z')));
+
+  const laterBuild = normalizeCommunityEventPages(input, new Date('2027-01-20T12:00:00-03:00'), true);
+  assert.ok(laterBuild.some((event) => event.slug === 'talk-bh-encontro-semanal-2026-11-25'),
+    'Previously generated recurring URLs must remain available as historical pages after the rolling window advances.');
+});
+
+test('recurring event pages respect exceptions and special-event replacement rules', () => {
+  const special = { ...meetup('2026-11-27', '20:00'), replaces_default_schedule: true };
+  const replaced = normalizeCommunityEventPages({
+    meetups: [special],
+    recurring_schedule: recurringSchedule,
+    schedule_exceptions: [{ date: '2026-12-02', reason: 'No meetup' }],
+    gallery: [],
+  }, new Date('2026-11-24T12:00:00-03:00'), true);
+
+  assert.ok(!replaced.some((event) => event.slug === 'talk-bh-encontro-semanal-2026-11-25'));
+  assert.ok(!replaced.some((event) => event.slug === 'talk-bh-encontro-semanal-2026-12-02'));
+  assert.ok(replaced.some((event) => event.slug === 'talk-bh-2026-11-27'), 'The special meetup page should remain available.');
+
+  const additional = normalizeCommunityEventPages({
+    meetups: [{ ...special, replaces_default_schedule: false }],
+    recurring_schedule: recurringSchedule,
+    schedule_exceptions: [],
+    gallery: [],
+  }, new Date('2026-11-24T12:00:00-03:00'), true);
+  assert.ok(additional.some((event) => event.slug === 'talk-bh-encontro-semanal-2026-11-25'));
+  assert.ok(additional.some((event) => event.slug === 'talk-bh-2026-11-27'));
+});
+
+test('disabled recurring schedule does not generate recurring detail pages', () => {
+  const pages = normalizeCommunityEventPages({
+    meetups: [meetup('2026-11-27')],
+    recurring_schedule: { ...recurringSchedule, enabled: false },
+    schedule_exceptions: [],
+    gallery: [],
+  }, new Date('2026-11-24T12:00:00-03:00'), true);
+
+  assert.equal(pages.length, 1);
+  assert.equal(pages[0].source, 'manual');
 });
 
 test('recurring meetup uses the configured default poster when no special event is next', () => {
