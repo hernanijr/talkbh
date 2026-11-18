@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { normalizeCommunityContent } from '../src/data/community-content.ts';
+import { normalizeCommunityContent, normalizeCommunityEventPages } from '../src/data/community-content.ts';
 import { createEventSchema } from '../src/data/event-schema.ts';
 
 const now = new Date('2026-11-17T22:00:00-03:00');
