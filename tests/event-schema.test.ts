@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { normalizeCommunityContent } from '../src/data/community-content.ts';
+import { normalizeCommunityContent, normalizeCommunityEventPages } from '../src/data/community-content.ts';
 import { createEventSchema } from '../src/data/event-schema.ts';
 
 const now = new Date('2026-11-17T22:00:00-03:00');
@@ -103,4 +103,41 @@ test('omits expired or cancelled meetups from Event JSON-LD after their schedule
 
   assert.equal(createEventSchema(expired, 'pt-BR', now), undefined);
   assert.equal(createEventSchema(cancelled, 'pt-BR', now), undefined);
+});
+
+test('builds Event JSON-LD for a generated weekly recurring meetup page', () => {
+  const recurring = normalizeCommunityEventPages({
+    meetups: [],
+    recurring_schedule: {
+      enabled: true,
+      weekday: 3,
+      start_date: '2026-11-25',
+      time: '18:30',
+      timezone: 'America/Sao_Paulo',
+      title_pt: 'Talk BH — encontro semanal de conversação em inglês',
+      title_en: 'Talk BH — weekly English conversation meetup',
+      description_pt: 'Encontro semanal para praticar inglês em Belo Horizonte.',
+      description_en: 'A weekly meetup to practice English in Belo Horizonte.',
+      entry_price: 0,
+      venue: 'Charada Savassi Cervejaria Artesanal',
+      city: 'Belo Horizonte, Minas Gerais, Brasil',
+      address: 'Rua Paraíba, 523 — Belo Horizonte, MG',
+      maps_url: 'https://www.google.com/maps/search/?api=1&query=Charada+Savassi',
+      default_image: '/images/events/weekly-meetup.svg',
+    },
+    schedule_exceptions: [],
+  }, now, true).find((event) => event.slug === 'talk-bh-encontro-semanal-2026-11-25');
+
+  assert.ok(recurring);
+  const pt = createEventSchema(recurring, 'pt-BR', now, 'https://talk.bh/eventos/talk-bh-encontro-semanal-2026-11-25/');
+  const en = createEventSchema(recurring, 'en', now, 'https://talk.bh/en/events/talk-bh-encontro-semanal-2026-11-25/');
+
+  assert.equal(pt?.['@type'], 'Event');
+  assert.equal(pt?.name, 'Talk BH — encontro semanal de conversação em inglês');
+  assert.equal(pt?.startDate, '2026-11-25T21:30:00.000Z');
+  assert.equal(pt?.url, 'https://talk.bh/eventos/talk-bh-encontro-semanal-2026-11-25/');
+  assert.deepEqual(pt?.offers, { '@type': 'Offer', price: 0, priceCurrency: 'BRL' });
+  assert.equal(pt?.location.address.addressCountry, 'BR');
+  assert.equal(en?.name, 'Talk BH — weekly English conversation meetup');
+  assert.equal(en?.url, 'https://talk.bh/en/events/talk-bh-encontro-semanal-2026-11-25/');
 });
