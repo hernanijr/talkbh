@@ -286,9 +286,9 @@ function toZonedDateTime(date: string, time: string, timeZone: string): string |
   }
 }
 
-function normalizeRecurringSchedule(value: unknown, strict: boolean): NormalizedRecurringSchedule | undefined {
+function normalizeRecurringSchedule(value: unknown, strict: boolean, includeDisabled = false): NormalizedRecurringSchedule | undefined {
   const record = asRecord(value) as RecurringScheduleRecord | undefined;
-  if (!record || record.enabled !== true) return undefined;
+  if (!record || (record.enabled !== true && !includeDisabled)) return undefined;
 
   const weekday = typeof record.weekday === 'number' ? record.weekday : Number.NaN;
   const startDate = clean(record.start_date);
@@ -330,7 +330,7 @@ function normalizeRecurringSchedule(value: unknown, strict: boolean): Normalized
   }
 
   return {
-    enabled: true,
+    enabled: record.enabled === true,
     weekday,
     startDate,
     time,
@@ -515,13 +515,13 @@ export function normalizeCommunityEventPages(
 
   const record = asRecord(input) as ContentRecord | undefined;
   const manualMeetups = normalizeCommunityMeetups(input, now, strict);
-  const schedule = normalizeRecurringSchedule(record?.recurring_schedule, strict);
+  const schedule = normalizeRecurringSchedule(record?.recurring_schedule, strict, true);
   if (!schedule) return manualMeetups;
 
   const exceptions = normalizeScheduleExceptions(record?.schedule_exceptions, strict, schedule);
   const nowParts = zonedDateParts(now, schedule.timezone);
   const today = `${nowParts.year}-${nowParts.month}-${nowParts.day}`;
-  const endDate = addCalendarDays(today, futureDays);
+  const endDate = addCalendarDays(today, schedule.enabled ? futureDays : -1);
   if (!dateKeyParts(today) || !endDate) {
     if (strict) throw new Error('Could not determine the recurring event generation window.');
     return manualMeetups;
