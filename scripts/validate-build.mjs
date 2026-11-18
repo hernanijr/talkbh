@@ -148,6 +148,46 @@ for (const record of eventRecords) {
   assert.ok(sitemap.includes(`<loc>${ptUrl}</loc>`), 'The Portuguese event URL should be included in the sitemap.');
   assert.ok(sitemap.includes(`<loc>${enUrl}</loc>`), 'The English event URL should be included in the sitemap.');
 }
+const recurringEventSlugs = [...sitemap.matchAll(/<loc>https:\/\/talk\.bh\/eventos\/(talk-bh-encontro-semanal-\d{4}-\d{2}-\d{2})\/<\/loc>/g)]
+  .map((match) => match[1]);
+assert.ok(recurringEventSlugs.includes('talk-bh-encontro-semanal-2026-11-25'),
+  'The first confirmed recurring occurrence should have an individual page in the sitemap.');
+
+for (const slug of recurringEventSlugs) {
+  const ptUrl = `https://talk.bh/eventos/${slug}/`;
+  const enUrl = `https://talk.bh/en/events/${slug}/`;
+  const ptEventPage = await read(`eventos/${slug}/index.html`);
+  const enEventPage = await read(`en/events/${slug}/index.html`);
+  for (const [html, ownUrl, alternateUrl, language] of [
+    [ptEventPage, ptUrl, enUrl, 'pt-BR'],
+    [enEventPage, enUrl, ptUrl, 'en'],
+  ]) {
+    assert.match(html, new RegExp('<html lang="' + language + '"'));
+    assert.ok(html.includes(`<link rel="canonical" href="${ownUrl}"`), 'Recurring event pages need self-referencing canonical URLs.');
+    assert.ok(html.includes(`hreflang="pt-BR" href="${ptUrl}"`));
+    assert.ok(html.includes(`hreflang="en" href="${enUrl}"`));
+    assert.ok(html.includes(`property="og:url" content="${ownUrl}"`));
+  }
+
+  const ptEventNodes = structuredData(ptEventPage).filter((item) => item['@type'] === 'Event');
+  const enEventNodes = structuredData(enEventPage).filter((item) => item['@type'] === 'Event');
+  const eventDate = slug.slice(-10);
+  const isPast = Date.parse(`${eventDate}T18:30:00-03:00`) < Date.now();
+  assert.equal(ptEventNodes.length, isPast ? 0 : 1, 'Only future recurring occurrences should expose Event JSON-LD.');
+  assert.equal(enEventNodes.length, ptEventNodes.length, 'PT/EN recurring pages must have matching Event JSON-LD eligibility.');
+  if (ptEventNodes.length) {
+    assert.equal(ptEventNodes[0].url, ptUrl);
+    assert.equal(enEventNodes[0].url, enUrl);
+    assert.equal(ptEventNodes[0].startDate, `${eventDate}T21:30:00.000Z`);
+    assert.equal(enEventNodes[0].startDate, ptEventNodes[0].startDate);
+    assert.equal(ptEventNodes[0].offers.price, 0);
+    assert.equal(ptEventNodes[0].offers.priceCurrency, 'BRL');
+    assert.equal(ptEventNodes[0].eventAttendanceMode, 'https://schema.org/OfflineEventAttendanceMode');
+  }
+  assert.ok(sitemap.includes(`<loc>${ptUrl}</loc>`));
+  assert.ok(sitemap.includes(`<loc>${enUrl}</loc>`));
+}
+
 const imageTags = (html) => html.split('<img').slice(1).map((part) => '<img' + part.split('>')[0] + '>');
 for (const photo of galleryPhotos) {
   const photoUrl = new URL(photo.image, 'https://talk.bh');
