@@ -17,8 +17,8 @@ assert.match(pt, /<html lang="pt-BR">/);
 assert.match(en, /<html lang="en">/);
 assert.match(pt, /<link rel="canonical" href="https:\/\/talk\.bh\//);
 assert.match(en, /<link rel="canonical" href="https:\/\/talk\.bh\/en\//);
-assert.ok(pt.includes('Desenvolvimento do site:') && pt.includes('href="https://hernani.dev"') && pt.includes('>Hernani Junior</a>'), 'The Portuguese page should credit the website developer.');
-assert.ok(en.includes('Website development:') && en.includes('href="https://hernani.dev"') && en.includes('>Hernani Junior</a>'), 'The English page should credit the website developer.');
+assert.ok(pt.includes('Desenvolvimento do site:') && pt.includes('href="https://hernani.dev/?ref=talk.bh"') && pt.includes('>Hernani Junior</a>'), 'The Portuguese page should credit the website developer.');
+assert.ok(en.includes('Website development:') && en.includes('href="https://hernani.dev/?ref=talk.bh"') && en.includes('>Hernani Junior</a>'), 'The English page should credit the website developer.');
 for (const html of [pt, en]) {
   assert.equal((html.match(/class="cta-arrow"/g) ?? []).length, 2, 'Both hero CTA arrows should use the matching SVG icon style.');
   assert.match(html, /hreflang="pt-BR"/);
