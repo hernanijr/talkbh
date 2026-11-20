@@ -1,9 +1,16 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "talkbh",
+  "main": "./src/worker.ts",
   "compatibility_date": "2026-11-13",
   "assets": {
-    "directory": "./dist"
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "triggers": {
+    "crons": [
+      "5 3 * * *"
+    ]
   },
   "preview_urls": true,
   "previews": {},
