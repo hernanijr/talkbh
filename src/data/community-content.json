@@ -7,15 +7,37 @@
       "city": "Belo Horizonte, Minas Gerais, Brasil",
       "description_en": "A relaxed meetup to practice English through conversation and karaoke. All English levels are welcome. Taking part is free and does not require a purchase. Anyone who chooses to order at the venue pays only for what they order and can enjoy the beer discount.",
       "time": "18:30",
-      "date": "2026-11-17",
+      "date": "2026-11-25",
       "venue": "Charada Pub Savassi",
       "title_en": "Talk & Sing — English conversation and karaoke",
       "status": "scheduled",
       "address": "Rua Paraíba, 523 — Belo Horizonte, MG",
-      "replaces_default_schedule": false,
+      "replaces_default_schedule": true,
       "entry_price": 0
     }
   ],
+  "recurring_schedule": {
+    "enabled": true,
+    "description_pt": "Encontro semanal para praticar inglês em um ambiente leve e informal, conhecer pessoas e conversar. Pessoas de todos os níveis são bem-vindas.",
+    "maps_url": "https://www.google.com/maps/search/?api=1&query=Charada+Savassi+Cervejaria+Artesanal%2C+Rua+Para%C3%ADba%2C+523%2C+Belo+Horizonte%2C+MG",
+    "weekday": 3,
+    "title_pt": "Talk BH — encontro semanal de conversação em inglês",
+    "city": "Belo Horizonte, Minas Gerais, Brasil",
+    "start_date": "2026-11-25",
+    "description_en": "A weekly meetup to practice English in a relaxed, informal setting, meet people and chat. All levels are welcome.",
+    "time": "18:30",
+    "venue": "Charada Savassi Cervejaria Artesanal",
+    "title_en": "Talk BH — weekly English conversation meetup",
+    "address": "Rua Paraíba, 523 — Belo Horizonte, MG",
+    "timezone": "America/Sao_Paulo",
+    "entry_price": 0,
+    "default_image": "/images/events/weekly-meetup.svg"
+  },
+  "schedule_exceptions": [],
+  "next_meetup_poster": {
+    "image": "/images/events/whatsapp-image-2026-11-19-at-18.14.25.jpeg",
+    "event_date": "2026-11-17"
+  },
   "gallery": [
     {
       "rights_confirmed": true,
@@ -53,27 +75,5 @@
       "alt_pt": "Participantes do Talk BH posam juntos para uma foto no Charada Pub Savassi.",
       "alt_en": "Talk BH participants pose together for a photo at Charada Pub Savassi."
     }
-  ],
-  "next_meetup_poster": {
-    "image": "/images/events/whatsapp-image-2026-11-17-at-10.08.08.jpeg",
-    "event_date": "2026-11-17"
-  },
-  "recurring_schedule": {
-    "enabled": true,
-    "description_pt": "Encontro semanal para praticar inglês em um ambiente leve e informal, conhecer pessoas e conversar. Pessoas de todos os níveis são bem-vindas.",
-    "maps_url": "https://www.google.com/maps/search/?api=1&query=Charada+Savassi+Cervejaria+Artesanal%2C+Rua+Para%C3%ADba%2C+523%2C+Belo+Horizonte%2C+MG",
-    "weekday": 3,
-    "title_pt": "Talk BH — encontro semanal de conversação em inglês",
-    "city": "Belo Horizonte, Minas Gerais, Brasil",
-    "start_date": "2026-11-25",
-    "description_en": "A weekly meetup to practice English in a relaxed, informal setting, meet people and chat. All levels are welcome.",
-    "time": "18:30",
-    "venue": "Charada Savassi Cervejaria Artesanal",
-    "title_en": "Talk BH — weekly English conversation meetup",
-    "address": "Rua Paraíba, 523 — Belo Horizonte, MG",
-    "timezone": "America/Sao_Paulo",
-    "entry_price": 0,
-    "default_image": "/images/events/weekly-meetup.svg"
-  },
-  "schedule_exceptions": []
+  ]
 }
