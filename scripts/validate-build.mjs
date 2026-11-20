@@ -154,8 +154,61 @@ for (const record of eventRecords) {
 }
 const recurringEventSlugs = [...sitemap.matchAll(/<loc>https:\/\/talk\.bh\/eventos\/(talk-bh-encontro-semanal-\d{4}-\d{2}-\d{2})\/<\/loc>/g)]
   .map((match) => match[1]);
-assert.ok(recurringEventSlugs.includes('talk-bh-encontro-semanal-2026-11-25'),
-  'The first confirmed recurring occurrence should have an individual page in the sitemap.');
+const scheduleExceptions = new Set(
+  (Array.isArray(communityContent.schedule_exceptions) ? communityContent.schedule_exceptions : [])
+    .map((exception) => exception?.date)
+    .filter((date) => typeof date === 'string'),
+);
+const mondayOfWeek = (date) => {
+  const [year, month, day] = date.split('-').map(Number);
+  const weekday = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
+  return new Date(Date.UTC(year, month - 1, day - ((weekday + 6) % 7)))
+    .toISOString()
+    .slice(0, 10);
+};
+const replacedWeeks = new Set(
+  eventRecords
+    .filter((record) => (
+      record?.status === 'scheduled'
+      && record?.replaces_default_schedule === true
+      && typeof record?.date === 'string'
+      && /^\d{4}-\d{2}-\d{2}$/.test(record.date)
+    ))
+    .map((record) => mondayOfWeek(record.date)),
+);
+
+let nextRecurringDate = communityContent.recurring_schedule.start_date;
+let firstExpectedRecurringDate;
+for (let attempt = 0; attempt < 104; attempt += 1) {
+  if (!scheduleExceptions.has(nextRecurringDate)
+    && !replacedWeeks.has(mondayOfWeek(nextRecurringDate))) {
+    firstExpectedRecurringDate = nextRecurringDate;
+    break;
+  }
+
+  const [year, month, day] = nextRecurringDate.split('-').map(Number);
+  nextRecurringDate = new Date(Date.UTC(year, month - 1, day + 7))
+    .toISOString()
+    .slice(0, 10);
+}
+assert.ok(firstExpectedRecurringDate, 'The recurring schedule should contain a non-exempt occurrence.');
+const expectedRecurringSlug = `talk-bh-encontro-semanal-${firstExpectedRecurringDate}`;
+assert.ok(
+  recurringEventSlugs.includes(expectedRecurringSlug),
+  `The first non-replaced recurring occurrence (${firstExpectedRecurringDate}) should have an individual page in the sitemap.`,
+);
+
+for (const slug of recurringEventSlugs) {
+  const occurrenceDate = slug.slice(-10);
+  assert.ok(
+    !scheduleExceptions.has(occurrenceDate),
+    `Schedule exception ${occurrenceDate} must not produce a recurring event page.`,
+  );
+  assert.ok(
+    !replacedWeeks.has(mondayOfWeek(occurrenceDate)),
+    `A special event that replaces the recurring schedule must suppress its weekly occurrence (${occurrenceDate}).`,
+  );
+}
 
 for (const slug of recurringEventSlugs) {
   const ptUrl = `https://talk.bh/eventos/${slug}/`;
