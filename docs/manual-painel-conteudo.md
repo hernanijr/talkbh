@@ -53,7 +53,7 @@ Essa exceção suprime somente a ocorrência daquela semana. As quartas-feiras s
 
 ### Atualização e publicação
 
-As alterações no CMS entram em vigor depois que o pull request editorial for revisado, mesclado em `main` e publicado. Depois do deploy, um Cron Trigger do Cloudflare refaz o build de produção diariamente às 00:05 de Belo Horizonte (`03:05 UTC)), atualizando as páginas fixas quando a próxima ocorrência muda. Esse agendamento apenas inicia um novo build: não altera os registros do CMS nem o JSON do conteúdo. O build gera as páginas individuais da agenda recorrente em uma janela móvel de 90 dias à frente e mantém as ocorrências passadas como histórico.
+As alterações no CMS entram em vigor depois que o pull request editorial for revisado, mesclado em `main` e publicado. Depois do deploy, um Cron Trigger do Cloudflare refaz o build de produção diariamente às 00:05 de Belo Horizonte (`03:05 UTC`), atualizando as páginas fixas quando a próxima ocorrência muda. Esse agendamento apenas inicia um novo build: não altera os registros do CMS nem o JSON do conteúdo. O build gera as páginas individuais da agenda recorrente em uma janela móvel de 90 dias à frente e mantém as ocorrências passadas como histórico.
 
 O Cron Trigger depende do secret `DEPLOY_HOOK_URL` configurado nas variáveis e secrets do Worker. Se o agendamento precisar ser acionado manualmente, o workflow **Manually refresh event metadata** continua disponível em GitHub Actions → Run workflow.
 
