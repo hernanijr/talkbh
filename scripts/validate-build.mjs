@@ -172,7 +172,7 @@ const replacedWeeks = new Set(
       record?.status === 'scheduled'
       && record?.replaces_default_schedule === true
       && typeof record?.date === 'string'
-      && /^\\d{4}-\\d{2}-\\d{2}$/.test(record.date)
+      && /^\d{4}-\d{2}-\d{2}$/.test(record.date)
     ))
     .map((record) => mondayOfWeek(record.date)),
 );
