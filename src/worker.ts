@@ -14,15 +14,6 @@ interface WorkerExecutionContext {
   waitUntil(promise: Promise<unknown>): void;
 }
 
-interface DeployHookPayload {
-  success?: boolean;
-  result?: {
-    build_uuid?: string;
-    branch?: string;
-    worker?: string;
-  };
-}
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
